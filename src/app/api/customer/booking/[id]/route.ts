@@ -1,91 +1,91 @@
-import { ko } from 'date-fns/locale';
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import auth from '@/lib/auth';
-import { prisma } from '@mimisalon/shared';
-import { format } from 'date-fns';
-import { env } from '@/lib/env';
+import { ko } from 'date-fns/locale'
+import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import auth from '@/lib/auth'
+import { prisma } from '@mimisalon/shared'
+import { format } from 'date-fns'
+import { env } from '@/lib/env'
 
 // Response type definition
 interface BookingDetailResponse {
-  id: string;
-  appointmentDate: string;
-  startTime: string;
-  endTime: string;
-  status: string;
-  totalAmount: number;
-  paidAmount: number;
-  additionalAmount: number | null;
-  paymentStatus: 'PENDING' | 'PAID';
+  id: string
+  appointmentDate: string
+  startTime: string
+  endTime: string
+  status: string
+  totalAmount: number
+  paidAmount: number
+  additionalAmount: number | null
+  paymentStatus: 'PENDING' | 'PAID'
   pet: {
-    id: string;
-    name: string;
-    species: string;
-    breed: string; // breed name as string, not object
-    weight: number;
-    age: number | null;
-    photoUrl: string | null;
-  };
+    id: string
+    name: string
+    species: string
+    breed: string // breed name as string, not object
+    weight: number
+    age: number | null
+    photoUrl: string | null
+  }
   services: Array<{
-    id: string;
-    name: string;
-    description: string;
-    duration: number;
-    price: number;
-    status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
-  }>;
+    id: string
+    name: string
+    description: string
+    duration: number
+    price: number
+    status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED'
+  }>
   options: Array<{
-    id: string;
-    name: string;
-    description: string;
-    price: number;
-  }>;
+    id: string
+    name: string
+    description: string
+    price: number
+  }>
   groomer: {
-    id: string;
-    name: string;
-    photoUrl: string | null;
-    rating: number;
-    experience: string | null;
-    phone: string;
+    id: string
+    name: string
+    photoUrl: string | null
+    rating: number
+    experience: string | null
+    phone: string
     salon: {
-      id: string;
-      name: string;
-      address: string;
-      phone: string;
-    };
-  };
+      id: string
+      name: string
+      address: string
+      phone: string
+    }
+  }
   timeline: Array<{
-    id: string;
-    type: string;
-    title: string;
-    description: string;
-    timestamp: string;
-  }>;
-  notes: string | null;
-  estimatedEndTime: string;
+    id: string
+    type: string
+    title: string
+    description: string
+    timestamp: string
+  }>
+  notes: string | null
+  estimatedEndTime: string
 }
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     if (session.user.role !== 'CUSTOMER') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const { id: bookingId } = await params;
+    const { id: bookingId } = await params
 
     // Get user to verify ownership
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-    });
+    })
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
     // Get booking with all necessary information
@@ -163,10 +163,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           },
         },
       },
-    });
+    })
 
     if (!booking) {
-      return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
     }
 
     // Format response for booking detail page
@@ -302,11 +302,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       ],
       notes: booking.specialRequests,
       estimatedEndTime: booking.serviceTime, // You might want to calculate this
-    };
+    }
 
-    return NextResponse.json(response);
+    return NextResponse.json(response)
   } catch (error) {
-    console.error('Booking detail API error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Booking detail API error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

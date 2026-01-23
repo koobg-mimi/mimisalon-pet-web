@@ -1,39 +1,39 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import { z } from 'zod';
-import { Prisma } from '@prisma/client';
-import auth from '@/lib/auth';
-import { prisma } from '@mimisalon/shared';
-import { generateSignedReadUrl, extractFilenameFromUrl, isGcsUrl } from '@/lib/gcs';
+import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import { z } from 'zod'
+import { Prisma } from '@prisma/client'
+import auth from '@/lib/auth'
+import { prisma } from '@mimisalon/shared'
+import { generateSignedReadUrl, extractFilenameFromUrl, isGcsUrl } from '@/lib/gcs'
 
 // Error response type
 export interface ErrorResponse {
-  error: string;
-  details?: unknown;
+  error: string
+  details?: unknown
 }
 
 // Response types
 export type GroomerProfileResponse = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string | null;
-  phoneVerified: boolean;
-  profileImage: string | null;
-  bio: string;
-  experience: number;
-  certifications: string[];
-  averageRating: number;
-  totalReviews: number;
-  totalBookings: number;
-  joinedAt: Date;
-  isVerified: boolean;
-  status: string;
-  birthDate: string | null;
-  bankName: string | null;
-  bankAccountNumber: string | null;
-  bankAccountHolderName: string | null;
-};
+  id: string
+  name: string
+  email: string
+  phone: string | null
+  phoneVerified: boolean
+  profileImage: string | null
+  bio: string
+  experience: number
+  certifications: string[]
+  averageRating: number
+  totalReviews: number
+  totalBookings: number
+  joinedAt: Date
+  isVerified: boolean
+  status: string
+  birthDate: string | null
+  bankName: string | null
+  bankAccountNumber: string | null
+  bankAccountHolderName: string | null
+}
 
 // Request schemas
 export const updateGroomerProfileSchema = z.object({
@@ -42,16 +42,16 @@ export const updateGroomerProfileSchema = z.object({
   bio: z.string().optional(),
   experience: z.number().optional(),
   birthDate: z.string().optional().nullable(),
-});
+})
 
-export type UpdateGroomerProfileRequest = z.infer<typeof updateGroomerProfileSchema>;
+export type UpdateGroomerProfileRequest = z.infer<typeof updateGroomerProfileSchema>
 
 export async function GET(): Promise<NextResponse<GroomerProfileResponse | ErrorResponse>> {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session || session.user?.role !== 'GROOMER') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const groomerProfile = await prisma.user.findUnique({
@@ -85,31 +85,31 @@ export async function GET(): Promise<NextResponse<GroomerProfileResponse | Error
           },
         },
       },
-    });
+    })
 
     if (!groomerProfile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     }
 
     // Calculate statistics
     const completedBookings = groomerProfile.groomerBookings.filter(
       (booking) => booking.status === 'SERVICE_COMPLETED'
-    ).length;
+    ).length
 
-    const ratings = groomerProfile.reviews.map((review) => review.rating);
+    const ratings = groomerProfile.reviews.map((review) => review.rating)
     const averageRating =
-      ratings.length > 0 ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length : 0;
-    const totalReviews = ratings.length;
+      ratings.length > 0 ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length : 0
+    const totalReviews = ratings.length
 
     // Generate signed URL for profile image if it's stored in GCS
-    let profileImageUrl = groomerProfile.image;
+    let profileImageUrl = groomerProfile.image
     if (profileImageUrl && isGcsUrl(profileImageUrl)) {
-      const filename = extractFilenameFromUrl(profileImageUrl);
+      const filename = extractFilenameFromUrl(profileImageUrl)
       if (filename) {
         try {
-          profileImageUrl = await generateSignedReadUrl(filename, 60);
+          profileImageUrl = await generateSignedReadUrl(filename, 60)
         } catch (error) {
-          console.error(`Failed to generate signed URL for profile image:`, error);
+          console.error(`Failed to generate signed URL for profile image:`, error)
           // Keep original URL as fallback
         }
       }
@@ -140,26 +140,28 @@ export async function GET(): Promise<NextResponse<GroomerProfileResponse | Error
       bankName: groomerProfile.groomerProfile?.bankName || null,
       bankAccountNumber: groomerProfile.groomerProfile?.bankAccountNumber || null,
       bankAccountHolderName: groomerProfile.groomerProfile?.bankAccountHolderName || null,
-    };
+    }
 
-    return NextResponse.json(formattedProfile);
+    return NextResponse.json(formattedProfile)
   } catch (error) {
-    console.error('Error fetching groomer profile:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error fetching groomer profile:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
-export async function PUT(request: NextRequest): Promise<NextResponse<GroomerProfileResponse | ErrorResponse>> {
+export async function PUT(
+  request: NextRequest
+): Promise<NextResponse<GroomerProfileResponse | ErrorResponse>> {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session || session.user?.role !== 'GROOMER') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body: unknown = await request.json();
-    const validatedData = updateGroomerProfileSchema.parse(body);
-    const { name, phone, bio, experience, birthDate } = validatedData;
+    const body: unknown = await request.json()
+    const validatedData = updateGroomerProfileSchema.parse(body)
+    const { name, phone, bio, experience, birthDate } = validatedData
 
     // Update the groomer user profile
     const updatedProfile = await prisma.user.update({
@@ -182,7 +184,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse<GroomerPro
         updatedAt: true,
         groomerProfile: true,
       },
-    });
+    })
 
     // Update or create groomer profile with birthDate
     if (birthDate !== undefined) {
@@ -197,7 +199,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse<GroomerPro
           groomerId: session.user.id,
           birthDate: birthDate ? new Date(birthDate) : null,
         },
-      });
+      })
     }
 
     return NextResponse.json({
@@ -220,9 +222,9 @@ export async function PUT(request: NextRequest): Promise<NextResponse<GroomerPro
       bankName: updatedProfile.groomerProfile?.bankName || null,
       bankAccountNumber: updatedProfile.groomerProfile?.bankAccountNumber || null,
       bankAccountHolderName: updatedProfile.groomerProfile?.bankAccountHolderName || null,
-    });
+    })
   } catch (error) {
-    console.error('Error updating groomer profile:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error updating groomer profile:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

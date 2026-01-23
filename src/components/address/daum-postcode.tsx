@@ -1,21 +1,21 @@
-'use client';
+'use client'
 
-import { useDaumPostcodePopup, Address } from 'react-daum-postcode';
-import { Button } from '@/components/ui/button';
+import { useDaumPostcodePopup, Address } from 'react-daum-postcode'
+import { Button } from '@/components/ui/button'
 
 // Custom interface for simplified address data
 interface SimplifiedAddress {
-  address: string;
-  zonecode: string;
-  buildingName?: string;
+  address: string
+  zonecode: string
+  buildingName?: string
 }
 
 interface DaumPostcodeProps {
-  onComplete: (address: SimplifiedAddress) => void;
-  onClose?: () => void;
-  placeholder?: string;
-  className?: string;
-  disabled?: boolean;
+  onComplete: (address: SimplifiedAddress) => void
+  onClose?: () => void
+  placeholder?: string
+  className?: string
+  disabled?: boolean
 }
 
 export function DaumPostcode({
@@ -25,28 +25,27 @@ export function DaumPostcode({
   className = '',
   disabled = false,
 }: DaumPostcodeProps) {
-  const open = useDaumPostcodePopup();
+  const open = useDaumPostcodePopup()
 
   const handleSearch = () => {
-    if (disabled) return;
+    if (disabled) return
 
     open({
       onComplete: (data: Address) => {
         // 선택된 주소 정보 처리 (좌표 변환은 서버에서 처리)
-        const selectedAddress =
-          data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
-        const finalAddress = selectedAddress || data.address;
+        const selectedAddress = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress
+        const finalAddress = selectedAddress || data.address
 
         const addressData: SimplifiedAddress = {
           address: finalAddress,
           zonecode: data.zonecode,
           buildingName: data.buildingName,
-        };
+        }
 
-        onComplete(addressData);
+        onComplete(addressData)
       },
       onClose: () => {
-        onClose?.();
+        onClose?.()
       },
       animation: true,
       shorthand: true,
@@ -54,8 +53,8 @@ export function DaumPostcode({
       showMoreHName: true,
       focusInput: true,
       autoMapping: true,
-    });
-  };
+    })
+  }
 
   return (
     <div className={className}>
@@ -69,5 +68,5 @@ export function DaumPostcode({
         {placeholder}
       </Button>
     </div>
-  );
+  )
 }

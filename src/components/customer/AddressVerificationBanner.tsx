@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { MapPinIcon, XIcon, PlusIcon } from 'lucide-react';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { MapPinIcon, XIcon, PlusIcon } from 'lucide-react'
 
 interface AddressVerificationBannerProps {
-  hasAddresses: boolean;
-  className?: string;
+  hasAddresses: boolean
+  className?: string
 }
 
 export function AddressVerificationBanner({
@@ -16,27 +16,27 @@ export function AddressVerificationBanner({
   className = '',
 }: AddressVerificationBannerProps) {
   const [isDismissed, setIsDismissed] = useState(() => {
-    return sessionStorage.getItem('address-verification-banner-dismissed') === 'true';
-  });
-  const router = useRouter();
+    return sessionStorage.getItem('address-verification-banner-dismissed') === 'true'
+  })
+  const router = useRouter()
 
   const handleAddAddress = () => {
-    router.push('/customer/profile');
-  };
+    router.push('/customer/profile')
+  }
 
   const handleDismiss = () => {
-    setIsDismissed(true);
-    sessionStorage.setItem('address-verification-banner-dismissed', 'true');
-  };
+    setIsDismissed(true)
+    sessionStorage.setItem('address-verification-banner-dismissed', 'true')
+  }
 
   const handleLater = () => {
-    setIsDismissed(true);
+    setIsDismissed(true)
     // Don't save to session storage so it shows again next visit
-  };
+  }
 
   // Don't show if user has addresses or dismissed
   if (hasAddresses || isDismissed) {
-    return null;
+    return null
   }
 
   return (
@@ -86,7 +86,7 @@ export function AddressVerificationBanner({
         </div>
       </Alert>
     </div>
-  );
+  )
 }
 
 export function AddressVerificationCompactBanner({
@@ -94,21 +94,21 @@ export function AddressVerificationCompactBanner({
   className = '',
 }: AddressVerificationBannerProps) {
   const [isDismissed, setIsDismissed] = useState(() => {
-    return sessionStorage.getItem('address-verification-compact-banner-dismissed') === 'true';
-  });
-  const router = useRouter();
+    return sessionStorage.getItem('address-verification-compact-banner-dismissed') === 'true'
+  })
+  const router = useRouter()
 
   const handleAddAddress = () => {
-    router.push('/customer/addresses');
-  };
+    router.push('/customer/addresses')
+  }
 
   const handleDismiss = () => {
-    setIsDismissed(true);
-    sessionStorage.setItem('address-verification-compact-banner-dismissed', 'true');
-  };
+    setIsDismissed(true)
+    sessionStorage.setItem('address-verification-compact-banner-dismissed', 'true')
+  }
 
   if (hasAddresses || isDismissed) {
-    return null;
+    return null
   }
 
   return (
@@ -141,5 +141,5 @@ export function AddressVerificationCompactBanner({
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,112 +1,112 @@
-'use client';
+'use client'
 
-import { ko } from 'date-fns/locale';
+import { ko } from 'date-fns/locale'
 
-import { useSession } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { format, parseISO } from 'date-fns';
-import { Button } from '@/components/ui/button';
-import { PhoneInput } from '@/components/ui/phone-input';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { PageHeader } from '@/components/layout/PageHeader';
-import Link from 'next/link';
-import { PhoneUpdateForm } from '@/components/auth/phone-update-form';
-import { ProfileImageUpload } from '@/components/profile/ProfileImageUpload';
-import { formatAccountNumber, KOREAN_BANKS, validateAccountNumber } from '@/lib/constants/banks';
-import { ChangePasswordForm } from '@/components/profile/change-password-form';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown } from 'lucide-react';
+import { useSession } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { format, parseISO } from 'date-fns'
+import { Button } from '@/components/ui/button'
+import { PhoneInput } from '@/components/ui/phone-input'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { PageHeader } from '@/components/layout/PageHeader'
+import Link from 'next/link'
+import { PhoneUpdateForm } from '@/components/auth/phone-update-form'
+import { ProfileImageUpload } from '@/components/profile/ProfileImageUpload'
+import { formatAccountNumber, KOREAN_BANKS, validateAccountNumber } from '@/lib/constants/banks'
+import { ChangePasswordForm } from '@/components/profile/change-password-form'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { ChevronDown } from 'lucide-react'
 
 interface GroomerProfile {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  phoneVerified?: boolean;
-  phoneVerifiedAt?: string;
-  bio?: string;
-  experience: number;
+  id: string
+  name: string
+  email: string
+  phone?: string
+  phoneVerified?: boolean
+  phoneVerifiedAt?: string
+  bio?: string
+  experience: number
   certifications: Array<{
-    id: string;
-    name: string;
-    issuer: string;
-    issuedAt: string;
-    expiresAt?: string;
-  }>;
-  profileImage?: string;
-  averageRating: number;
-  totalReviews: number;
-  totalBookings: number;
-  joinedAt: string;
-  isVerified: boolean;
-  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
-  birthDate?: string | null;
-  bankName?: string | null;
-  bankAccountNumber?: string | null;
-  bankAccountHolderName?: string | null;
+    id: string
+    name: string
+    issuer: string
+    issuedAt: string
+    expiresAt?: string
+  }>
+  profileImage?: string
+  averageRating: number
+  totalReviews: number
+  totalBookings: number
+  joinedAt: string
+  isVerified: boolean
+  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'
+  birthDate?: string | null
+  bankName?: string | null
+  bankAccountNumber?: string | null
+  bankAccountHolderName?: string | null
 }
 
 interface ProfileForm {
-  name: string;
-  phone: string;
-  bio: string;
-  experience: number;
-  birthDate: string;
+  name: string
+  phone: string
+  bio: string
+  experience: number
+  birthDate: string
 }
 
 interface BankAccountForm {
-  bankName: string;
-  accountNumber: string;
-  accountHolder: string;
+  bankName: string
+  accountNumber: string
+  accountHolder: string
 }
 
 export default function GroomerProfilePage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const [isEditing, setIsEditing] = useState(false);
-  const [isEditingBank, setIsEditingBank] = useState(false);
-  const [profileError, setProfileError] = useState<string | null>(null);
-  const [bankError, setBankError] = useState<string | null>(null);
-  const [bankValidationError, setBankValidationError] = useState<string | null>(null);
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const [isEditing, setIsEditing] = useState(false)
+  const [isEditingBank, setIsEditingBank] = useState(false)
+  const [profileError, setProfileError] = useState<string | null>(null)
+  const [bankError, setBankError] = useState<string | null>(null)
+  const [bankValidationError, setBankValidationError] = useState<string | null>(null)
   const [formData, setFormData] = useState<ProfileForm>({
     name: '',
     phone: '',
     bio: '',
     experience: 0,
     birthDate: '',
-  });
+  })
   const [bankFormData, setBankFormData] = useState<BankAccountForm>({
     bankName: '',
     accountNumber: '',
     accountHolder: '',
-  });
+  })
 
   // Password change state
-  const [isPasswordSectionOpen, setIsPasswordSectionOpen] = useState(false);
+  const [isPasswordSectionOpen, setIsPasswordSectionOpen] = useState(false)
 
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
     if (session?.user?.role && session.user.role !== 'GROOMER') {
-      router.push('/dashboard');
+      router.push('/dashboard')
     }
-  }, [session, router]);
+  }, [session, router])
 
   const { data: profile, isLoading } = useQuery<GroomerProfile>({
     queryKey: ['groomer', 'profile'],
     queryFn: async () => {
-      const response = await fetch('/api/groomer/profile');
+      const response = await fetch('/api/groomer/profile')
       if (!response.ok) {
-        throw new Error('Failed to fetch profile');
+        throw new Error('Failed to fetch profile')
       }
-      return response.json();
+      return response.json()
     },
     enabled: !!session?.user && session.user.role === 'GROOMER',
-  });
+  })
 
   useEffect(() => {
     if (profile) {
@@ -118,34 +118,34 @@ export default function GroomerProfilePage() {
         birthDate: profile.birthDate
           ? format(parseISO(profile.birthDate), 'yyyy-MM-dd', { locale: ko })
           : '',
-      });
+      })
       setBankFormData({
         bankName: profile.bankName || '',
         accountNumber: profile.bankAccountNumber || '',
         accountHolder: profile.bankAccountHolderName || '',
-      });
+      })
     }
-  }, [profile]);
+  }, [profile])
 
   const handleInputChange = useCallback(
     (field: keyof ProfileForm, value: ProfileForm[keyof ProfileForm]) => {
       setFormData((prev) => ({
         ...prev,
         [field]: value,
-      }));
+      }))
     },
     []
-  );
+  )
 
   const handleBankInputChange = useCallback(
     (field: keyof BankAccountForm, value: BankAccountForm[keyof BankAccountForm]) => {
       setBankFormData((prev) => ({
         ...prev,
         [field]: value,
-      }));
+      }))
     },
     []
-  );
+  )
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: ProfileForm) => {
@@ -155,23 +155,23 @@ export default function GroomerProfilePage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-      });
+      })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({ error: 'Failed to update profile' }));
-        throw new Error(error.error || 'Failed to update profile');
+        const error = await response.json().catch(() => ({ error: 'Failed to update profile' }))
+        throw new Error(error.error || 'Failed to update profile')
       }
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['groomer', 'profile'] });
-      setIsEditing(false);
-      setProfileError(null);
+      queryClient.invalidateQueries({ queryKey: ['groomer', 'profile'] })
+      setIsEditing(false)
+      setProfileError(null)
     },
     onError: (error: Error) => {
-      console.error('Failed to update profile:', error);
-      setProfileError(error.message || '프로필 업데이트에 실패했습니다.');
+      console.error('Failed to update profile:', error)
+      setProfileError(error.message || '프로필 업데이트에 실패했습니다.')
     },
-  });
+  })
 
   const updateBankAccountMutation = useMutation({
     mutationFn: async (data: BankAccountForm) => {
@@ -181,30 +181,30 @@ export default function GroomerProfilePage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-      });
+      })
       if (!response.ok) {
         const error = await response
           .json()
-          .catch(() => ({ error: 'Failed to update bank account' }));
-        throw new Error(error.error || 'Failed to update bank account');
+          .catch(() => ({ error: 'Failed to update bank account' }))
+        throw new Error(error.error || 'Failed to update bank account')
       }
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['groomer', 'profile'] });
-      setIsEditingBank(false);
-      setBankError(null);
-      setBankValidationError(null);
+      queryClient.invalidateQueries({ queryKey: ['groomer', 'profile'] })
+      setIsEditingBank(false)
+      setBankError(null)
+      setBankValidationError(null)
     },
     onError: (error: Error) => {
-      console.error('Failed to update bank account:', error);
-      setBankError(error.message || '계좌 정보 업데이트에 실패했습니다.');
+      console.error('Failed to update bank account:', error)
+      setBankError(error.message || '계좌 정보 업데이트에 실패했습니다.')
     },
-  });
+  })
 
   const handleSave = () => {
-    updateProfileMutation.mutate(formData);
-  };
+    updateProfileMutation.mutate(formData)
+  }
 
   const handleCancel = () => {
     if (profile) {
@@ -216,41 +216,41 @@ export default function GroomerProfilePage() {
         birthDate: profile.birthDate
           ? format(parseISO(profile.birthDate), 'yyyy-MM-dd', { locale: ko })
           : '',
-      });
+      })
     }
-    setIsEditing(false);
-  };
+    setIsEditing(false)
+  }
 
   const handleSaveBank = () => {
     // Clear previous errors
-    setBankValidationError(null);
-    setBankError(null);
+    setBankValidationError(null)
+    setBankError(null)
 
     // Validate bank name
     if (!bankFormData.bankName) {
-      setBankValidationError('은행을 선택해주세요.');
-      return;
+      setBankValidationError('은행을 선택해주세요.')
+      return
     }
 
     // Validate account number
     if (!bankFormData.accountNumber) {
-      setBankValidationError('계좌번호를 입력해주세요.');
-      return;
+      setBankValidationError('계좌번호를 입력해주세요.')
+      return
     }
 
     if (!validateAccountNumber(bankFormData.accountNumber)) {
-      setBankValidationError('올바른 계좌번호 형식이 아닙니다. (8-20자리 숫자)');
-      return;
+      setBankValidationError('올바른 계좌번호 형식이 아닙니다. (8-20자리 숫자)')
+      return
     }
 
     // Validate account holder name
     if (!bankFormData.accountHolder) {
-      setBankValidationError('예금주명을 입력해주세요.');
-      return;
+      setBankValidationError('예금주명을 입력해주세요.')
+      return
     }
 
-    updateBankAccountMutation.mutate(bankFormData);
-  };
+    updateBankAccountMutation.mutate(bankFormData)
+  }
 
   const handleCancelBank = () => {
     if (profile) {
@@ -258,10 +258,10 @@ export default function GroomerProfilePage() {
         bankName: profile.bankName || '',
         accountNumber: profile.bankAccountNumber || '',
         accountHolder: profile.bankAccountHolderName || '',
-      });
+      })
     }
-    setIsEditingBank(false);
-  };
+    setIsEditingBank(false)
+  }
 
   const renderStars = (rating: number) => {
     return (
@@ -277,45 +277,45 @@ export default function GroomerProfilePage() {
           </svg>
         ))}
       </div>
-    );
-  };
+    )
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'ACTIVE':
-        return 'text-green-600 bg-green-50';
+        return 'text-green-600 bg-green-50'
       case 'INACTIVE':
-        return 'text-gray-600 bg-gray-50';
+        return 'text-gray-600 bg-gray-50'
       case 'SUSPENDED':
-        return 'text-red-600 bg-red-50';
+        return 'text-red-600 bg-red-50'
       default:
-        return 'text-gray-600 bg-gray-50';
+        return 'text-gray-600 bg-gray-50'
     }
-  };
+  }
 
   const getStatusText = (status: string) => {
     switch (status) {
       case 'ACTIVE':
-        return '활성';
+        return '활성'
       case 'INACTIVE':
-        return '비활성';
+        return '비활성'
       case 'SUSPENDED':
-        return '정지';
+        return '정지'
       default:
-        return status;
+        return status
     }
-  };
+  }
 
   if (isPending || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   if (!session || session.user?.role !== 'GROOMER' || !profile) {
-    return null;
+    return null
   }
 
   return (
@@ -370,7 +370,7 @@ export default function GroomerProfilePage() {
                     currentImageUrl={profile.profileImage || undefined}
                     userName={profile.name || undefined}
                     onImageUpdate={() => {
-                      queryClient.invalidateQueries({ queryKey: ['groomer', 'profile'] });
+                      queryClient.invalidateQueries({ queryKey: ['groomer', 'profile'] })
                     }}
                   />
                   <div className="text-center sm:text-left">
@@ -720,7 +720,7 @@ export default function GroomerProfilePage() {
                   <ChangePasswordForm
                     onSuccess={() => {
                       // Collapse the section after successful password change
-                      setIsPasswordSectionOpen(false);
+                      setIsPasswordSectionOpen(false)
                     }}
                   />
                 </CollapsibleContent>
@@ -761,5 +761,5 @@ export default function GroomerProfilePage() {
         </div>
       </main>
     </div>
-  );
+  )
 }

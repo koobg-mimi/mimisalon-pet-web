@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import { z } from 'zod';
-import { Prisma } from '@prisma/client';
-import auth from '@/lib/auth';
-import { prisma } from '@mimisalon/shared';
-import { generateSignedReadUrl, extractFilenameFromUrl, isGcsUrl } from '@/lib/gcs';
+import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import { z } from 'zod'
+import { Prisma } from '@prisma/client'
+import auth from '@/lib/auth'
+import { prisma } from '@mimisalon/shared'
+import { generateSignedReadUrl, extractFilenameFromUrl, isGcsUrl } from '@/lib/gcs'
 
 // ============================================
 // Type Definitions
@@ -14,8 +14,8 @@ import { generateSignedReadUrl, extractFilenameFromUrl, isGcsUrl } from '@/lib/g
  * Error response type
  */
 export interface ErrorResponse {
-  error: string;
-  details?: unknown;
+  error: string
+  details?: unknown
 }
 
 /**
@@ -23,10 +23,10 @@ export interface ErrorResponse {
  */
 export type PetResponse = Prisma.PetGetPayload<{
   include: {
-    breed: true;
-    images: true;
-  };
-}>;
+    breed: true
+    images: true
+  }
+}>
 
 /**
  * Schema for updating a pet
@@ -43,17 +43,17 @@ export const updatePetSchema = z.object({
   specialNeeds: z.string().optional().nullable(),
   vaccinationStatus: z.enum(['UP_TO_DATE', 'OVERDUE', 'PARTIAL', 'UNKNOWN']).optional(),
   vaccinationDate: z.string().datetime().optional().nullable(),
-});
+})
 
 /**
  * Request type for updating a pet
  */
-export type UpdatePetRequest = z.infer<typeof updatePetSchema>;
+export type UpdatePetRequest = z.infer<typeof updatePetSchema>
 
 /**
  * Success response for delete operation
  */
-export type DeletePetResponse = { success: boolean };
+export type DeletePetResponse = { success: boolean }
 
 // ============================================
 // API Handlers
@@ -67,11 +67,11 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<PetResponse | ErrorResponse>> {
   try {
-    const { id } = await params;
-    const session = await auth.api.getSession({ headers: await headers() });
+    const { id } = await params
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session?.user?.id) {
-      return new NextResponse('Unauthorized', { status: 401 });
+      return new NextResponse('Unauthorized', { status: 401 })
     }
 
     const pet = await prisma.pet.findFirst({
@@ -86,10 +86,10 @@ export async function GET(
           orderBy: [{ isPrimary: 'desc' }, { displayOrder: 'asc' }, { createdAt: 'desc' }],
         },
       },
-    });
+    })
 
     if (!pet) {
-      return new NextResponse('Pet not found', { status: 404 });
+      return new NextResponse('Pet not found', { status: 404 })
     }
 
     // Generate signed URLs for GCS images
@@ -97,30 +97,30 @@ export async function GET(
       pet.images = await Promise.all(
         pet.images.map(async (image) => {
           if (isGcsUrl(image.url)) {
-            const filename = extractFilenameFromUrl(image.url);
+            const filename = extractFilenameFromUrl(image.url)
             if (filename) {
               try {
-                const signedUrl = await generateSignedReadUrl(filename, 60);
+                const signedUrl = await generateSignedReadUrl(filename, 60)
                 return {
                   ...image,
                   url: signedUrl,
                   originalUrl: image.url,
-                };
+                }
               } catch (error) {
-                console.error(`Failed to generate signed URL for ${filename}:`, error);
-                return image;
+                console.error(`Failed to generate signed URL for ${filename}:`, error)
+                return image
               }
             }
           }
-          return image;
+          return image
         })
-      );
+      )
     }
 
-    return NextResponse.json(pet);
+    return NextResponse.json(pet)
   } catch (error) {
-    console.error('Failed to fetch pet:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    console.error('Failed to fetch pet:', error)
+    return new NextResponse('Internal Server Error', { status: 500 })
   }
 }
 
@@ -132,11 +132,11 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<PetResponse | ErrorResponse>> {
   try {
-    const { id } = await params;
-    const session = await auth.api.getSession({ headers: await headers() });
+    const { id } = await params
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session?.user?.id) {
-      return new NextResponse('Unauthorized', { status: 401 });
+      return new NextResponse('Unauthorized', { status: 401 })
     }
 
     // Verify ownership
@@ -146,18 +146,18 @@ export async function PUT(
         customerId: session.user.id,
         isActive: true,
       },
-    });
+    })
 
     if (!existingPet) {
-      return new NextResponse('Pet not found', { status: 404 });
+      return new NextResponse('Pet not found', { status: 404 })
     }
 
-    const body: unknown = await request.json();
-    const validatedData = updatePetSchema.parse(body);
+    const body: unknown = await request.json()
+    const validatedData = updatePetSchema.parse(body)
 
     // If changing to DOG, remove hairType
     if (validatedData.type === 'DOG') {
-      validatedData.hairType = null;
+      validatedData.hairType = null
     }
 
     const pet = await prisma.pet.update({
@@ -179,15 +179,15 @@ export async function PUT(
         breed: true,
         images: true,
       },
-    });
+    })
 
-    return NextResponse.json(pet);
+    return NextResponse.json(pet)
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Invalid data', details: error.issues }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid data', details: error.issues }, { status: 400 })
     }
-    console.error('Failed to update pet:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    console.error('Failed to update pet:', error)
+    return new NextResponse('Internal Server Error', { status: 500 })
   }
 }
 
@@ -199,11 +199,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<void>> {
   try {
-    const { id } = await params;
-    const session = await auth.api.getSession({ headers: await headers() });
+    const { id } = await params
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session?.user?.id) {
-      return new NextResponse('Unauthorized', { status: 401 });
+      return new NextResponse('Unauthorized', { status: 401 })
     }
 
     // Verify ownership
@@ -213,21 +213,21 @@ export async function DELETE(
         customerId: session.user.id,
         isActive: true,
       },
-    });
+    })
 
     if (!existingPet) {
-      return new NextResponse('Pet not found', { status: 404 });
+      return new NextResponse('Pet not found', { status: 404 })
     }
 
     // Soft delete by setting isActive to false
     await prisma.pet.update({
       where: { id: id },
       data: { isActive: false },
-    });
+    })
 
-    return new NextResponse(null, { status: 204 });
+    return new NextResponse(null, { status: 204 })
   } catch (error) {
-    console.error('Failed to delete pet:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    console.error('Failed to delete pet:', error)
+    return new NextResponse('Internal Server Error', { status: 500 })
   }
 }

@@ -20,7 +20,7 @@
  * }
  */
 
-const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
+const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']
 
 /**
  * @type {import('eslint').Rule.RuleModule}
@@ -42,35 +42,39 @@ module.exports = {
   },
 
   create(context) {
-    const filename = context.getFilename();
+    const filename = context.getFilename()
 
     // Only check route.ts files in app/api/
     if (!filename.includes('/app/api/') || !filename.endsWith('route.ts')) {
-      return {};
+      return {}
     }
 
-    const sourceCode = context.getSourceCode();
-    const text = sourceCode.getText();
+    const sourceCode = context.getSourceCode()
+    const text = sourceCode.getText()
 
     // Check if NextRequest and NextResponse are imported
-    const hasNextRequestImport = /import\s+.*\bNextRequest\b.*from\s+['"]next\/server['"]/.test(text);
-    const hasNextResponseImport = /import\s+.*\bNextResponse\b.*from\s+['"]next\/server['"]/.test(text);
+    const hasNextRequestImport = /import\s+.*\bNextRequest\b.*from\s+['"]next\/server['"]/.test(
+      text
+    )
+    const hasNextResponseImport = /import\s+.*\bNextResponse\b.*from\s+['"]next\/server['"]/.test(
+      text
+    )
 
     return {
       ExportNamedDeclaration(node) {
-        const declaration = node.declaration;
+        const declaration = node.declaration
 
         // Check if it's an HTTP method function
         if (
-            declaration?.type === 'FunctionDeclaration' &&
-            declaration.id &&
-            HTTP_METHODS.includes(declaration.id.name)
+          declaration?.type === 'FunctionDeclaration' &&
+          declaration.id &&
+          HTTP_METHODS.includes(declaration.id.name)
         ) {
-          const functionName = declaration.id.name;
+          const functionName = declaration.id.name
 
           // Check first parameter (request or { params })
           if (declaration.params.length > 0) {
-            const firstParam = declaration.params[0];
+            const firstParam = declaration.params[0]
 
             // Case 1: Regular request parameter
             if (firstParam.type === 'Identifier' && firstParam.name === 'request') {
@@ -78,7 +82,7 @@ module.exports = {
                 context.report({
                   node: firstParam,
                   messageId: 'missingRequestType',
-                });
+                })
               }
             }
           }
@@ -88,15 +92,15 @@ module.exports = {
             context.report({
               node: declaration,
               messageId: 'missingReturnType',
-            });
+            })
           } else if (!hasNextResponseImport) {
             context.report({
               node: declaration.returnType,
               messageId: 'missingReturnType',
-            });
+            })
           }
         }
       },
-    };
+    }
   },
-};
+}

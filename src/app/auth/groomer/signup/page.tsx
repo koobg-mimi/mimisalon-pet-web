@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   AlertCircle,
   ArrowLeft,
@@ -15,15 +15,15 @@ import {
   User,
   EyeIcon,
   EyeOffIcon,
-} from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { PhoneInput } from '@/components/ui/phone-input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+} from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { PhoneInput } from '@/components/ui/phone-input'
+import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import {
   Form,
   FormControl,
@@ -32,27 +32,27 @@ import {
   FormLabel,
   FormMessage,
   FormDescription,
-} from '@/components/ui/form';
-import { signUpSchema, type SignUpInput } from '@/lib/validations/auth';
+} from '@/components/ui/form'
+import { signUpSchema, type SignUpInput } from '@/lib/validations/auth'
 
 export default function GroomerSignupPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [authError, setAuthError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [showSignupSuccess, setShowSignupSuccess] = useState(false);
-  const [signupEmail, setSignupEmail] = useState('');
-  const [phoneVerified, setPhoneVerified] = useState(false);
-  const [verificationCode, setVerificationCode] = useState('');
-  const [verificationError, setVerificationError] = useState('');
-  const [showVerificationInput, setShowVerificationInput] = useState(false);
-  const [cooldownTime, setCooldownTime] = useState(0);
-  const [sendingCode, setSendingCode] = useState(false);
-  const [verifyingCode, setVerifyingCode] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState(0);
+  const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [authError, setAuthError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [showSignupSuccess, setShowSignupSuccess] = useState(false)
+  const [signupEmail, setSignupEmail] = useState('')
+  const [phoneVerified, setPhoneVerified] = useState(false)
+  const [verificationCode, setVerificationCode] = useState('')
+  const [verificationError, setVerificationError] = useState('')
+  const [showVerificationInput, setShowVerificationInput] = useState(false)
+  const [cooldownTime, setCooldownTime] = useState(0)
+  const [sendingCode, setSendingCode] = useState(false)
+  const [verifyingCode, setVerifyingCode] = useState(false)
+  const [passwordStrength, setPasswordStrength] = useState(0)
 
-  const router = useRouter();
+  const router = useRouter()
 
   const groomerSignupForm = useForm<SignUpInput>({
     resolver: zodResolver(signUpSchema),
@@ -67,71 +67,71 @@ export default function GroomerSignupPage() {
       agreeToMarketing: false,
     },
     mode: 'onChange',
-  });
+  })
 
   useEffect(() => {
     if (cooldownTime > 0) {
-      const timer = setTimeout(() => setCooldownTime((t) => t - 1), 1000);
-      return () => clearTimeout(timer);
+      const timer = setTimeout(() => setCooldownTime((t) => t - 1), 1000)
+      return () => clearTimeout(timer)
     }
-  }, [cooldownTime]);
+  }, [cooldownTime])
 
   // 비밀번호 강도 검사
   const checkPasswordStrength = (password: string) => {
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (/[a-z]/.test(password)) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/\d/.test(password)) strength++;
-    if (/[^\w\s]/.test(password)) strength++;
-    return strength;
-  };
+    let strength = 0
+    if (password.length >= 8) strength++
+    if (/[a-z]/.test(password)) strength++
+    if (/[A-Z]/.test(password)) strength++
+    if (/\d/.test(password)) strength++
+    if (/[^\w\s]/.test(password)) strength++
+    return strength
+  }
 
   const getPasswordStrengthText = (strength: number) => {
     switch (strength) {
       case 0:
       case 1:
-        return '매우 약함';
+        return '매우 약함'
       case 2:
-        return '약함';
+        return '약함'
       case 3:
-        return '보통';
+        return '보통'
       case 4:
-        return '강함';
+        return '강함'
       case 5:
-        return '매우 강함';
+        return '매우 강함'
       default:
-        return '';
+        return ''
     }
-  };
+  }
 
   const getPasswordStrengthColor = (strength: number) => {
     switch (strength) {
       case 0:
       case 1:
-        return 'text-red-500';
+        return 'text-red-500'
       case 2:
-        return 'text-orange-500';
+        return 'text-orange-500'
       case 3:
-        return 'text-yellow-500';
+        return 'text-yellow-500'
       case 4:
-        return 'text-green-500';
+        return 'text-green-500'
       case 5:
-        return 'text-green-600';
+        return 'text-green-600'
       default:
-        return 'text-muted-foreground';
+        return 'text-muted-foreground'
     }
-  };
+  }
 
   const handleGroomerSignup = async (data: SignUpInput) => {
-    setIsLoading(true);
-    setAuthError('');
-    setSuccess('');
+    setIsLoading(true)
+    setAuthError('')
+    setSuccess('')
 
     if (!phoneVerified) {
-      setAuthError('휴대폰 인증을 완료해주세요.');
-      setIsLoading(false);
-      return;
+      setAuthError('휴대폰 인증을 완료해주세요.')
+      setIsLoading(false)
+      return
     }
 
     try {
@@ -145,45 +145,46 @@ export default function GroomerSignupPage() {
           role: 'GROOMER' as const,
           phoneVerified: phoneVerified,
         } satisfies import('@/app/api/auth/signup/route').SignupRequest),
-      });
+      })
 
       if (response.ok) {
-        const result: import('@/app/api/auth/signup/route').SignupResponse = await response.json();
-        setSuccess('미용사 등록이 완료되었습니다! 이메일 인증을 완료해주세요.');
-        setSignupEmail(data.email);
-        setShowSignupSuccess(true);
-        groomerSignupForm.reset();
-        setPhoneVerified(false);
-        setVerificationCode('');
-        setVerificationError('');
-        setShowVerificationInput(false);
-        setCooldownTime(0);
+        const result: import('@/app/api/auth/signup/route').SignupResponse = await response.json()
+        setSuccess('미용사 등록이 완료되었습니다! 이메일 인증을 완료해주세요.')
+        setSignupEmail(data.email)
+        setShowSignupSuccess(true)
+        groomerSignupForm.reset()
+        setPhoneVerified(false)
+        setVerificationCode('')
+        setVerificationError('')
+        setShowVerificationInput(false)
+        setCooldownTime(0)
       } else {
-        const result: import('@/app/api/auth/signup/route').SignupErrorResponse = await response.json();
+        const result: import('@/app/api/auth/signup/route').SignupErrorResponse =
+          await response.json()
         if (result.code === 'EMAIL_ALREADY_EXISTS') {
-          setAuthError('이미 가입된 이메일입니다.');
+          setAuthError('이미 가입된 이메일입니다.')
         } else {
-          setAuthError(result.message || result.error || '미용사 등록 중 오류가 발생했습니다.');
+          setAuthError(result.message || result.error || '미용사 등록 중 오류가 발생했습니다.')
         }
       }
     } catch {
-      setAuthError('미용사 등록 중 오류가 발생했습니다.');
+      setAuthError('미용사 등록 중 오류가 발생했습니다.')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const sendPhoneCode = async () => {
-    setVerificationError('');
-    const phone = groomerSignupForm.getValues('phone');
+    setVerificationError('')
+    const phone = groomerSignupForm.getValues('phone')
 
     if (!phone || !phone.startsWith('+82')) {
-      setVerificationError('올바른 한국 휴대폰 번호를 입력해주세요.');
-      return;
+      setVerificationError('올바른 한국 휴대폰 번호를 입력해주세요.')
+      return
     }
 
     try {
-      setSendingCode(true);
+      setSendingCode(true)
 
       const response = await fetch('/api/auth/phone/send-code', {
         method: 'POST',
@@ -193,42 +194,42 @@ export default function GroomerSignupPage() {
         body: JSON.stringify({
           phone: phone,
         }),
-      });
+      })
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (response.ok) {
-        setShowVerificationInput(true);
-        setCooldownTime(60);
+        setShowVerificationInput(true)
+        setCooldownTime(60)
       } else {
         if (result.code === 'TOO_MANY_REQUESTS') {
-          setVerificationError('너무 자주 요청하고 있습니다. 잠시 후 다시 시도해주세요.');
+          setVerificationError('너무 자주 요청하고 있습니다. 잠시 후 다시 시도해주세요.')
         } else if (result.code === 'DAILY_LIMIT_EXCEEDED') {
-          setVerificationError('일일 인증 시도 횟수를 초과했습니다.');
+          setVerificationError('일일 인증 시도 횟수를 초과했습니다.')
         } else if (result.code === 'PHONE_ALREADY_VERIFIED') {
-          setVerificationError('이미 다른 계정에서 인증된 전화번호입니다.');
+          setVerificationError('이미 다른 계정에서 인증된 전화번호입니다.')
         } else {
-          setVerificationError(result.message || '인증번호 발송 중 오류가 발생했습니다.');
+          setVerificationError(result.message || '인증번호 발송 중 오류가 발생했습니다.')
         }
       }
     } catch {
-      setVerificationError('인증번호 발송 중 오류가 발생했습니다.');
+      setVerificationError('인증번호 발송 중 오류가 발생했습니다.')
     } finally {
-      setSendingCode(false);
+      setSendingCode(false)
     }
-  };
+  }
 
   const verifyPhoneCode = async () => {
-    setVerificationError('');
+    setVerificationError('')
     if (!verificationCode || verificationCode.length !== 6) {
-      setVerificationError('올바른 6자리 인증번호를 입력해주세요.');
-      return;
+      setVerificationError('올바른 6자리 인증번호를 입력해주세요.')
+      return
     }
 
-    const phone = groomerSignupForm.getValues('phone');
+    const phone = groomerSignupForm.getValues('phone')
 
     try {
-      setVerifyingCode(true);
+      setVerifyingCode(true)
 
       const response = await fetch('/api/auth/phone/verify-code', {
         method: 'POST',
@@ -239,29 +240,29 @@ export default function GroomerSignupPage() {
           phone: phone,
           code: verificationCode,
         }),
-      });
+      })
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (response.ok) {
-        setPhoneVerified(true);
-        setShowVerificationInput(false);
-        setVerificationError('');
+        setPhoneVerified(true)
+        setShowVerificationInput(false)
+        setVerificationError('')
       } else {
         if (result.code === 'INVALID_CODE') {
-          setVerificationError('인증번호가 올바르지 않습니다. 다시 확인해주세요.');
+          setVerificationError('인증번호가 올바르지 않습니다. 다시 확인해주세요.')
         } else if (result.code === 'TOO_MANY_ATTEMPTS') {
-          setVerificationError('인증 시도 횟수를 초과했습니다. 새로운 인증번호를 요청해주세요.');
+          setVerificationError('인증 시도 횟수를 초과했습니다. 새로운 인증번호를 요청해주세요.')
         } else {
-          setVerificationError(result.message || '인증 중 오류가 발생했습니다.');
+          setVerificationError(result.message || '인증 중 오류가 발생했습니다.')
         }
       }
     } catch {
-      setVerificationError('인증 중 오류가 발생했습니다.');
+      setVerificationError('인증 중 오류가 발생했습니다.')
     } finally {
-      setVerifyingCode(false);
+      setVerifyingCode(false)
     }
-  };
+  }
 
   return (
     <div className="bg-background flex min-h-screen items-center justify-center p-4">
@@ -405,8 +406,8 @@ export default function GroomerSignupPage() {
                             disabled={isLoading}
                             {...field}
                             onChange={(e) => {
-                              field.onChange(e);
-                              setPasswordStrength(checkPasswordStrength(e.target.value));
+                              field.onChange(e)
+                              setPasswordStrength(checkPasswordStrength(e.target.value))
                             }}
                           />
                           <button
@@ -603,5 +604,5 @@ export default function GroomerSignupPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

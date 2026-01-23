@@ -1,10 +1,10 @@
-import { Button } from '@/components/ui/button';
-import { FILTER_OPTIONS, FilterType } from '../_constants/payment-filters';
-import { getFilterLabel } from '../_utils/payment-status.utils';
+import { Button } from '@/components/ui/button'
+import { FILTER_OPTIONS, FilterType } from '../_constants/payment-filters'
+import { getFilterLabel } from '../_utils/payment-status.utils'
 
 interface PaymentFilterButtonsProps {
-  activeFilter: FilterType;
-  onFilterChange: (filter: FilterType) => void;
+  activeFilter: FilterType
+  onFilterChange: (filter: FilterType) => void
 }
 
 export function PaymentFilterButtons({ activeFilter, onFilterChange }: PaymentFilterButtonsProps) {
@@ -23,5 +23,5 @@ export function PaymentFilterButtons({ activeFilter, onFilterChange }: PaymentFi
         ))}
       </div>
     </div>
-  );
+  )
 }

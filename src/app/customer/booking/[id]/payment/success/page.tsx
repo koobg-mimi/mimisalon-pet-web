@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { useEffect, use } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useEffect, use } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import Link from 'next/link'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import {
   CheckCircleIcon,
   CalendarIcon,
@@ -19,62 +19,62 @@ import {
   MessageCircleIcon,
   PhoneIcon,
   AlertCircleIcon,
-} from 'lucide-react';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { CUSTOMER_SERVICE } from '@/lib/constants/customer-service';
+} from 'lucide-react'
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
+import { CUSTOMER_SERVICE } from '@/lib/constants/customer-service'
 
 interface PaymentDetails {
-  id: string;
-  amount: number;
-  method: string;
-  paidAt: string;
+  id: string
+  amount: number
+  method: string
+  paidAt: string
   booking: {
-    id: string;
+    id: string
     services: Array<{
-      id: string;
-      name: string;
-      price: number;
-      duration: number;
-    }>;
+      id: string
+      name: string
+      price: number
+      duration: number
+    }>
     pet: {
-      name: string;
-      species: string;
-    };
+      name: string
+      species: string
+    }
     groomer: {
-      name: string;
-      phone: string;
-    };
-    scheduledDate: string;
-    scheduledTime: string;
-  };
+      name: string
+      phone: string
+    }
+    scheduledDate: string
+    scheduledTime: string
+  }
   receipt: {
-    receiptNumber: string;
-    downloadUrl: string;
-  };
+    receiptNumber: string
+    downloadUrl: string
+  }
 }
 
 export default function PaymentSuccessPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const paymentId = searchParams.get('payment');
+  const resolvedParams = use(params)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const paymentId = searchParams.get('payment')
 
   useEffect(() => {
     if (!paymentId) {
-      router.push(`/customer/booking/${resolvedParams.id}`);
+      router.push(`/customer/booking/${resolvedParams.id}`)
     }
-  }, [paymentId, resolvedParams.id, router]);
+  }, [paymentId, resolvedParams.id, router])
 
   // Fetch payment details using React Query
   const { data: payment, isLoading } = useQuery<PaymentDetails>({
     queryKey: ['payment', paymentId],
     queryFn: async () => {
-      const response = await fetch(`/api/payments/verify/${paymentId}`);
+      const response = await fetch(`/api/payments/verify/${paymentId}`)
       if (!response.ok) {
-        throw new Error('결제 정보를 불러올 수 없습니다');
+        throw new Error('결제 정보를 불러올 수 없습니다')
       }
-      const data = await response.json();
+      const data = await response.json()
 
       // Verify endpoint returns a different structure, extract payment data
       if (data.success && data.payment) {
@@ -136,49 +136,49 @@ export default function PaymentSuccessPage({ params }: { params: Promise<{ id: s
             receiptNumber: data.payment.paymentId,
             downloadUrl: data.payment.receiptUrl || '',
           },
-        };
-        return paymentData;
+        }
+        return paymentData
       } else {
-        throw new Error('결제 정보가 올바르지 않습니다');
+        throw new Error('결제 정보가 올바르지 않습니다')
       }
     },
     enabled: !!paymentId,
     retry: false,
-  });
+  })
 
   // Download receipt using React Query mutation
   const downloadReceiptMutation = useMutation({
     mutationFn: async () => {
       if (!payment?.receipt.downloadUrl) {
-        throw new Error('Download URL not available');
+        throw new Error('Download URL not available')
       }
-      const response = await fetch(payment.receipt.downloadUrl);
+      const response = await fetch(payment.receipt.downloadUrl)
       if (!response.ok) {
-        throw new Error('Failed to download receipt');
+        throw new Error('Failed to download receipt')
       }
       return {
         blob: await response.blob(),
         filename: `receipt_${payment.receipt.receiptNumber}.pdf`,
-      };
+      }
     },
     onSuccess: ({ blob, filename }) => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
     },
     onError: (error) => {
-      console.error('Error downloading receipt:', error);
+      console.error('Error downloading receipt:', error)
     },
-  });
+  })
 
   const handleReceiptDownload = () => {
-    downloadReceiptMutation.mutate();
-  };
+    downloadReceiptMutation.mutate()
+  }
 
   if (isLoading) {
     return (
@@ -192,7 +192,7 @@ export default function PaymentSuccessPage({ params }: { params: Promise<{ id: s
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   if (!payment) {
@@ -213,7 +213,7 @@ export default function PaymentSuccessPage({ params }: { params: Promise<{ id: s
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   return (
@@ -459,5 +459,5 @@ export default function PaymentSuccessPage({ params }: { params: Promise<{ id: s
         </div>
       </div>
     </div>
-  );
+  )
 }

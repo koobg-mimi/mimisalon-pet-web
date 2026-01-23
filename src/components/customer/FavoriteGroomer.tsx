@@ -1,13 +1,13 @@
-import { User } from 'lucide-react';
+import { User } from 'lucide-react'
 
 interface FavoriteGroomerData {
-  name: string;
-  rating: number;
-  image?: string | null;
+  name: string
+  rating: number
+  image?: string | null
 }
 
 interface FavoriteGroomerProps {
-  groomer: FavoriteGroomerData;
+  groomer: FavoriteGroomerData
 }
 
 export function FavoriteGroomer({ groomer }: FavoriteGroomerProps) {
@@ -42,5 +42,5 @@ export function FavoriteGroomer({ groomer }: FavoriteGroomerProps) {
         </div>
       </div>
     </div>
-  );
+  )
 }

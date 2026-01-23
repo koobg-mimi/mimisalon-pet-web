@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
 import {
   Users,
   Calendar,
@@ -15,52 +15,52 @@ import {
   CheckCircle,
   XCircle,
   TrendingUp,
-} from 'lucide-react';
-import { StatsCard } from '@/components/stats/card';
-import { StatsGrid } from '@/components/stats/grid';
+} from 'lucide-react'
+import { StatsCard } from '@/components/stats/card'
+import { StatsGrid } from '@/components/stats/grid'
 
 interface AdminStats {
-  totalUsers: number;
-  totalCustomers: number;
-  totalGroomers: number;
-  totalAdmins: number;
-  totalBookings: number;
-  pendingBookings: number;
-  completedBookings: number;
-  cancelledBookings: number;
-  todayBookings: number;
-  todayRevenue: number;
-  monthlyRevenue: number;
-  totalRevenue: number;
-  totalReviews: number;
-  averageRating: number;
+  totalUsers: number
+  totalCustomers: number
+  totalGroomers: number
+  totalAdmins: number
+  totalBookings: number
+  pendingBookings: number
+  completedBookings: number
+  cancelledBookings: number
+  todayBookings: number
+  todayRevenue: number
+  monthlyRevenue: number
+  totalRevenue: number
+  totalReviews: number
+  averageRating: number
 }
 
 interface AdminStatsCardsProps {
-  variant?: 'overview' | 'users' | 'bookings' | 'groomers' | 'reviews' | 'services' | 'settlements';
+  variant?: 'overview' | 'users' | 'bookings' | 'groomers' | 'reviews' | 'services' | 'settlements'
 }
 
 export function AdminStatsCards({ variant = 'overview' }: AdminStatsCardsProps) {
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState<AdminStats | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('/api/admin/stats');
+        const response = await fetch('/api/admin/stats')
         if (response.ok) {
-          const data = await response.json();
-          setStats(data);
+          const data = await response.json()
+          setStats(data)
         }
       } catch (error) {
-        console.error('Failed to fetch admin stats:', error);
+        console.error('Failed to fetch admin stats:', error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchStats();
-  }, []);
+    fetchStats()
+  }, [])
 
   if (isLoading) {
     return (
@@ -77,11 +77,11 @@ export function AdminStatsCards({ variant = 'overview' }: AdminStatsCardsProps) 
           </div>
         ))}
       </StatsGrid>
-    );
+    )
   }
 
   if (!stats) {
-    return null;
+    return null
   }
 
   const getStatsCards = () => {
@@ -112,7 +112,7 @@ export function AdminStatsCards({ variant = 'overview' }: AdminStatsCardsProps) 
             icon: <Users className="h-6 w-6 text-red-600" />,
             color: 'bg-red-100',
           },
-        ];
+        ]
 
       case 'bookings':
         return [
@@ -140,7 +140,7 @@ export function AdminStatsCards({ variant = 'overview' }: AdminStatsCardsProps) 
             icon: <XCircle className="h-6 w-6 text-red-600" />,
             color: 'bg-red-100',
           },
-        ];
+        ]
 
       case 'groomers':
         return [
@@ -168,7 +168,7 @@ export function AdminStatsCards({ variant = 'overview' }: AdminStatsCardsProps) 
             icon: <Star className="h-6 w-6 text-orange-600" />,
             color: 'bg-orange-100',
           },
-        ];
+        ]
 
       case 'reviews':
         return [
@@ -196,7 +196,7 @@ export function AdminStatsCards({ variant = 'overview' }: AdminStatsCardsProps) 
             icon: <Users className="h-6 w-6 text-blue-600" />,
             color: 'bg-blue-100',
           },
-        ];
+        ]
 
       case 'settlements':
         return [
@@ -224,7 +224,7 @@ export function AdminStatsCards({ variant = 'overview' }: AdminStatsCardsProps) 
             icon: <CheckCircle className="h-6 w-6 text-green-600" />,
             color: 'bg-green-100',
           },
-        ];
+        ]
 
       default: // overview
         return [
@@ -252,11 +252,11 @@ export function AdminStatsCards({ variant = 'overview' }: AdminStatsCardsProps) 
             icon: <UserCog className="h-6 w-6 text-purple-600" />,
             color: 'bg-purple-100',
           },
-        ];
+        ]
     }
-  };
+  }
 
-  const statsCards = getStatsCards();
+  const statsCards = getStatsCards()
 
   return (
     <StatsGrid>
@@ -270,5 +270,5 @@ export function AdminStatsCards({ variant = 'overview' }: AdminStatsCardsProps) 
         />
       ))}
     </StatsGrid>
-  );
+  )
 }

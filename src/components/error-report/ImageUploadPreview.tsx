@@ -1,18 +1,18 @@
-'use client';
+'use client'
 
-import React, { useCallback, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { X, Upload, Image as ImageIcon, AlertCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React, { useCallback, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { X, Upload, Image as ImageIcon, AlertCircle } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import {
   ImagePreview,
   ImageUploadPreviewProps,
   MAX_IMAGES,
   MAX_IMAGE_SIZE,
   ALLOWED_IMAGE_TYPES,
-} from '@/types/error-report';
-import { validateImages } from '@/lib/validations/error-report';
+} from '@/types/error-report'
+import { validateImages } from '@/lib/validations/error-report'
 
 export function ImageUploadPreview({
   images,
@@ -23,106 +23,106 @@ export function ImageUploadPreview({
   maxFileSize = MAX_IMAGE_SIZE,
   className,
 }: ImageUploadPreviewProps) {
-  const [dragActive, setDragActive] = useState(false);
-  const [errors, setErrors] = useState<string[]>([]);
+  const [dragActive, setDragActive] = useState(false)
+  const [errors, setErrors] = useState<string[]>([])
 
   const handleFileSelect = useCallback(
     (files: FileList | null) => {
-      if (!files || files.length === 0) return;
+      if (!files || files.length === 0) return
 
-      const fileArray = Array.from(files);
-      const currentImageCount = images.length;
+      const fileArray = Array.from(files)
+      const currentImageCount = images.length
 
       // Check if adding these files would exceed the limit
       if (currentImageCount + fileArray.length > maxImages) {
-        setErrors([`최대 ${maxImages}개의 이미지까지 업로드할 수 있습니다`]);
-        return;
+        setErrors([`최대 ${maxImages}개의 이미지까지 업로드할 수 있습니다`])
+        return
       }
 
       // Validate files
-      const validation = validateImages(fileArray);
+      const validation = validateImages(fileArray)
       if (validation.errors.length > 0) {
-        setErrors(validation.errors);
-        return;
+        setErrors(validation.errors)
+        return
       }
 
       // Clear errors if validation passes
-      setErrors([]);
+      setErrors([])
 
       // Create image previews
       const newImagePreviews: ImagePreview[] = validation.valid.map((file) => ({
         file,
         url: URL.createObjectURL(file),
         id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      }));
+      }))
 
       // Add to existing images
-      onImagesChange([...images, ...newImagePreviews]);
+      onImagesChange([...images, ...newImagePreviews])
     },
     [images, maxImages, onImagesChange]
-  );
+  )
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      handleFileSelect(event.target.files);
+      handleFileSelect(event.target.files)
       // Reset input value so the same file can be selected again
-      event.target.value = '';
+      event.target.value = ''
     },
     [handleFileSelect]
-  );
+  )
 
   const handleDrag = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-  }, []);
+    event.preventDefault()
+    event.stopPropagation()
+  }, [])
 
   const handleDragIn = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setDragActive(true);
-  }, []);
+    event.preventDefault()
+    event.stopPropagation()
+    setDragActive(true)
+  }, [])
 
   const handleDragOut = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setDragActive(false);
-  }, []);
+    event.preventDefault()
+    event.stopPropagation()
+    setDragActive(false)
+  }, [])
 
   const handleDrop = useCallback(
     (event: React.DragEvent) => {
-      event.preventDefault();
-      event.stopPropagation();
-      setDragActive(false);
+      event.preventDefault()
+      event.stopPropagation()
+      setDragActive(false)
 
-      if (disabled) return;
+      if (disabled) return
 
-      const files = event.dataTransfer.files;
-      handleFileSelect(files);
+      const files = event.dataTransfer.files
+      handleFileSelect(files)
     },
     [disabled, handleFileSelect]
-  );
+  )
 
   const handleRemove = useCallback(
     (imageId: string) => {
-      const imageToRemove = images.find((img) => img.id === imageId);
+      const imageToRemove = images.find((img) => img.id === imageId)
       if (imageToRemove) {
         // Cleanup object URL to prevent memory leaks
-        URL.revokeObjectURL(imageToRemove.url);
+        URL.revokeObjectURL(imageToRemove.url)
       }
-      onRemoveImage(imageId);
+      onRemoveImage(imageId)
     },
     [images, onRemoveImage]
-  );
+  )
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-  };
+    if (bytes === 0) return '0 B'
+    const k = 1024
+    const sizes = ['B', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
+  }
 
-  const canAddMore = images.length < maxImages;
+  const canAddMore = images.length < maxImages
 
   return (
     <div className={cn('space-y-4', className)}>
@@ -203,7 +203,7 @@ export function ImageUploadPreview({
                         // Image loaded successfully
                       }}
                       onError={() => {
-                        console.error('Failed to load image preview:', image.file.name);
+                        console.error('Failed to load image preview:', image.file.name)
                       }}
                     />
 
@@ -249,5 +249,5 @@ export function ImageUploadPreview({
         <p>• 각 이미지는 최대 {formatFileSize(maxFileSize)}까지 업로드 가능합니다</p>
       </div>
     </div>
-  );
+  )
 }

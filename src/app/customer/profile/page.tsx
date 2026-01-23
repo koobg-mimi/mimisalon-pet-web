@@ -1,69 +1,69 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { useSession } from '@/lib/auth-client';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { PhoneInput } from '@/components/ui/phone-input';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { PageHeader } from '@/components/layout/PageHeader';
-import { AddressList } from '@/components/address/AddressList';
-import { AddressModal } from '@/components/address/AddressModal';
-import { useAddresses } from '@/hooks/useAddresses';
-import Link from 'next/link';
-import { PhoneUpdateForm } from '@/components/auth/phone-update-form';
-import { ChangePasswordForm } from '@/components/profile/change-password-form';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown } from 'lucide-react';
+import { useSession } from '@/lib/auth-client'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Button } from '@/components/ui/button'
+import { PhoneInput } from '@/components/ui/phone-input'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { PageHeader } from '@/components/layout/PageHeader'
+import { AddressList } from '@/components/address/AddressList'
+import { AddressModal } from '@/components/address/AddressModal'
+import { useAddresses } from '@/hooks/useAddresses'
+import Link from 'next/link'
+import { PhoneUpdateForm } from '@/components/auth/phone-update-form'
+import { ChangePasswordForm } from '@/components/profile/change-password-form'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { ChevronDown } from 'lucide-react'
 
 interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  phoneVerified?: boolean;
-  phoneVerifiedAt?: string;
-  createdAt: string;
-  role: string;
-  addresses?: Address[];
+  id: string
+  name: string
+  email: string
+  phone?: string
+  phoneVerified?: boolean
+  phoneVerifiedAt?: string
+  createdAt: string
+  role: string
+  addresses?: Address[]
 }
 
 interface Address {
-  id: string;
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-  isDefault: boolean;
-  centerLat?: number;
-  centerLng?: number;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  street: string
+  city: string
+  state: string
+  zipCode: string
+  country: string
+  isDefault: boolean
+  centerLat?: number
+  centerLng?: number
+  createdAt: string
+  updatedAt: string
 }
 
 export default function CustomerProfilePage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  useSearchParams();
-  const [isEditing, setIsEditing] = useState(false);
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  useSearchParams()
+  const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-  });
+  })
 
   // Address management states
-  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState<Address | undefined>();
-  const [addressModalMode, setAddressModalMode] = useState<'create' | 'edit'>('create');
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false)
+  const [selectedAddress, setSelectedAddress] = useState<Address | undefined>()
+  const [addressModalMode, setAddressModalMode] = useState<'create' | 'edit'>('create')
 
   // Password change state
-  const [isPasswordSectionOpen, setIsPasswordSectionOpen] = useState(false);
+  const [isPasswordSectionOpen, setIsPasswordSectionOpen] = useState(false)
 
   // Use the addresses hook
   const {
@@ -73,16 +73,16 @@ export default function CustomerProfilePage() {
     updateAddress,
     deleteAddress,
     setDefaultAddress,
-  } = useAddresses();
+  } = useAddresses()
 
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
     if (session?.user?.role && session.user.role !== 'CUSTOMER') {
-      router.push('/dashboard');
+      router.push('/dashboard')
     }
-  }, [session, router]);
+  }, [session, router])
 
   // Fetch profile using React Query
   const {
@@ -92,14 +92,14 @@ export default function CustomerProfilePage() {
   } = useQuery<UserProfile>({
     queryKey: ['customer', 'profile'],
     queryFn: async () => {
-      const response = await fetch('/api/customer/profile');
+      const response = await fetch('/api/customer/profile')
       if (!response.ok) {
-        throw new Error('Failed to fetch profile');
+        throw new Error('Failed to fetch profile')
       }
-      return response.json();
+      return response.json()
     },
     enabled: !!session?.user && session.user.role === 'CUSTOMER',
-  });
+  })
 
   // Update form data when profile loads
   useEffect(() => {
@@ -107,9 +107,9 @@ export default function CustomerProfilePage() {
       setFormData({
         name: profile.name || '',
         phone: profile.phone || '',
-      });
+      })
     }
-  }, [profile]);
+  }, [profile])
 
   // Update profile mutation
   const updateProfileMutation = useMutation({
@@ -120,51 +120,51 @@ export default function CustomerProfilePage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error('Failed to update profile');
+        throw new Error('Failed to update profile')
       }
 
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['customer', 'profile'] });
-      setIsEditing(false);
+      queryClient.invalidateQueries({ queryKey: ['customer', 'profile'] })
+      setIsEditing(false)
     },
-  });
+  })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    });
-  };
+    })
+  }
 
   const handleSave = async () => {
-    await updateProfileMutation.mutateAsync(formData);
-  };
+    await updateProfileMutation.mutateAsync(formData)
+  }
 
   const handleCancel = () => {
     if (profile) {
       setFormData({
         name: profile.name || '',
         phone: profile.phone || '',
-      });
+      })
     }
-    setIsEditing(false);
-  };
+    setIsEditing(false)
+  }
 
   if (isPending || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   if (!session || session.user?.role !== 'CUSTOMER' || !profile) {
-    return null;
+    return null
   }
 
   return (
@@ -258,14 +258,14 @@ export default function CustomerProfilePage() {
                 addresses={addresses}
                 isLoading={addressesLoading}
                 onAdd={() => {
-                  setSelectedAddress(undefined);
-                  setAddressModalMode('create');
-                  setIsAddressModalOpen(true);
+                  setSelectedAddress(undefined)
+                  setAddressModalMode('create')
+                  setIsAddressModalOpen(true)
                 }}
                 onEdit={(address) => {
-                  setSelectedAddress(address);
-                  setAddressModalMode('edit');
-                  setIsAddressModalOpen(true);
+                  setSelectedAddress(address)
+                  setAddressModalMode('edit')
+                  setIsAddressModalOpen(true)
                 }}
                 onDelete={deleteAddress}
                 onSetDefault={setDefaultAddress}
@@ -299,7 +299,7 @@ export default function CustomerProfilePage() {
                   <ChangePasswordForm
                     onSuccess={() => {
                       // Collapse the section after successful password change
-                      setIsPasswordSectionOpen(false);
+                      setIsPasswordSectionOpen(false)
                     }}
                   />
                 </CollapsibleContent>
@@ -339,13 +339,13 @@ export default function CustomerProfilePage() {
       <AddressModal
         isOpen={isAddressModalOpen}
         onClose={() => {
-          setIsAddressModalOpen(false);
-          setSelectedAddress(undefined);
+          setIsAddressModalOpen(false)
+          setSelectedAddress(undefined)
         }}
         onSave={async (addressData) => {
           try {
             if (!addressData.street) {
-              throw new Error('Street address is required');
+              throw new Error('Street address is required')
             }
             const completeAddressData = {
               name: addressData.name || '',
@@ -355,20 +355,20 @@ export default function CustomerProfilePage() {
               state: addressData.state || '',
               zipCode: addressData.zipCode || '',
               isDefault: addressData.isDefault || false,
-            };
-            if (addressModalMode === 'edit' && selectedAddress) {
-              await updateAddress(selectedAddress.id, completeAddressData);
-            } else {
-              await createAddress(completeAddressData);
             }
-            setIsAddressModalOpen(false);
+            if (addressModalMode === 'edit' && selectedAddress) {
+              await updateAddress(selectedAddress.id, completeAddressData)
+            } else {
+              await createAddress(completeAddressData)
+            }
+            setIsAddressModalOpen(false)
           } catch (error) {
-            console.error('Failed to save address:', error);
+            console.error('Failed to save address:', error)
           }
         }}
         address={selectedAddress}
         mode={addressModalMode}
       />
     </div>
-  );
+  )
 }

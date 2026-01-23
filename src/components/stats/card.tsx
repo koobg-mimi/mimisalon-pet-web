@@ -1,11 +1,11 @@
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 interface StatsCardProps {
-  title: string;
-  value: string | number;
-  icon: React.ReactNode;
-  iconBgColor: string;
-  subtitle?: string;
+  title: string
+  value: string | number
+  icon: React.ReactNode
+  iconBgColor: string
+  subtitle?: string
 }
 
 export function StatsCard({ title, value, icon, iconBgColor, subtitle }: StatsCardProps) {
@@ -26,5 +26,5 @@ export function StatsCard({ title, value, icon, iconBgColor, subtitle }: StatsCa
         </div>
       </div>
     </div>
-  );
+  )
 }

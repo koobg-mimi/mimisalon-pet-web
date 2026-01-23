@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import { useSession } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { DaumPostcode } from '@/components/address/daum-postcode';
-import Link from 'next/link';
+import { useSession } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { DaumPostcode } from '@/components/address/daum-postcode'
+import Link from 'next/link'
 import {
   Dialog,
   DialogContent,
@@ -15,14 +15,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu'
 import {
   MoreHorizontalIcon,
   MapPinIcon,
@@ -31,63 +31,63 @@ import {
   ToggleLeftIcon,
   ToggleRightIcon,
   PlusCircleIcon,
-} from 'lucide-react';
+} from 'lucide-react'
 
 interface WorkArea {
-  id: string;
-  name: string;
-  centerLat: number;
-  centerLng: number;
-  radiusKm: number;
-  address?: string;
-  description?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  name: string
+  centerLat: number
+  centerLng: number
+  radiusKm: number
+  address?: string
+  description?: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 interface WorkAreaForm {
-  name: string;
-  radiusKm: number;
-  address: string;
-  zonecode: string;
-  description: string;
+  name: string
+  radiusKm: number
+  address: string
+  zonecode: string
+  description: string
 }
 
 export default function GroomerWorkAreasPage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const [showForm, setShowForm] = useState(false);
-  const [editingWorkArea, setEditingWorkArea] = useState<WorkArea | null>(null);
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const [showForm, setShowForm] = useState(false)
+  const [editingWorkArea, setEditingWorkArea] = useState<WorkArea | null>(null)
   const [formData, setFormData] = useState<WorkAreaForm>({
     name: '',
     radiusKm: 0.5,
     address: '',
     zonecode: '',
     description: '',
-  });
+  })
 
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
     if (session?.user?.role && session.user.role !== 'GROOMER') {
-      router.push('/dashboard');
+      router.push('/dashboard')
     }
-  }, [session, router]);
+  }, [session, router])
 
   const { data: workAreas = [], isLoading } = useQuery<WorkArea[]>({
     queryKey: ['groomer', 'work-areas'],
     queryFn: async () => {
-      const response = await fetch('/api/groomer/work-areas');
+      const response = await fetch('/api/groomer/work-areas')
       if (!response.ok) {
-        throw new Error('Failed to fetch work areas');
+        throw new Error('Failed to fetch work areas')
       }
-      return response.json();
+      return response.json()
     },
     enabled: !!session?.user && session.user.role === 'GROOMER',
-  });
+  })
 
   const handleInputChange = (
     field: keyof WorkAreaForm,
@@ -96,20 +96,20 @@ export default function GroomerWorkAreasPage() {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
-    }));
-  };
+    }))
+  }
 
   const handleAddressComplete = (addressData: {
-    address: string;
-    zonecode: string;
-    buildingName?: string;
+    address: string
+    zonecode: string
+    buildingName?: string
   }) => {
     setFormData((prev) => ({
       ...prev,
       address: addressData.address,
       zonecode: addressData.zonecode,
-    }));
-  };
+    }))
+  }
 
   const createWorkAreaMutation = useMutation({
     mutationFn: async (data: WorkAreaForm) => {
@@ -119,19 +119,19 @@ export default function GroomerWorkAreasPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-      });
+      })
       if (!response.ok) {
-        throw new Error('Failed to create work area');
+        throw new Error('Failed to create work area')
       }
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['groomer', 'work-areas'] });
-      setShowForm(false);
-      setEditingWorkArea(null);
-      resetForm();
+      queryClient.invalidateQueries({ queryKey: ['groomer', 'work-areas'] })
+      setShowForm(false)
+      setEditingWorkArea(null)
+      resetForm()
     },
-  });
+  })
 
   const updateWorkAreaMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: WorkAreaForm }) => {
@@ -141,28 +141,28 @@ export default function GroomerWorkAreasPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-      });
+      })
       if (!response.ok) {
-        throw new Error('Failed to update work area');
+        throw new Error('Failed to update work area')
       }
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['groomer', 'work-areas'] });
-      setShowForm(false);
-      setEditingWorkArea(null);
-      resetForm();
+      queryClient.invalidateQueries({ queryKey: ['groomer', 'work-areas'] })
+      setShowForm(false)
+      setEditingWorkArea(null)
+      resetForm()
     },
-  });
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (editingWorkArea) {
-      updateWorkAreaMutation.mutate({ id: editingWorkArea.id, data: formData });
+      updateWorkAreaMutation.mutate({ id: editingWorkArea.id, data: formData })
     } else {
-      createWorkAreaMutation.mutate(formData);
+      createWorkAreaMutation.mutate(formData)
     }
-  };
+  }
 
   const resetForm = () => {
     setFormData({
@@ -171,20 +171,20 @@ export default function GroomerWorkAreasPage() {
       address: '',
       zonecode: '',
       description: '',
-    });
-  };
+    })
+  }
 
   const handleEdit = (workArea: WorkArea) => {
-    setEditingWorkArea(workArea);
+    setEditingWorkArea(workArea)
     setFormData({
       name: workArea.name,
       radiusKm: workArea.radiusKm,
       address: workArea.address || '',
       zonecode: '',
       description: workArea.description || '',
-    });
-    setShowForm(true);
-  };
+    })
+    setShowForm(true)
+  }
 
   const toggleActiveMutation = useMutation({
     mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
@@ -194,53 +194,53 @@ export default function GroomerWorkAreasPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ isActive: !isActive }),
-      });
+      })
       if (!response.ok) {
-        throw new Error('Failed to toggle work area status');
+        throw new Error('Failed to toggle work area status')
       }
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['groomer', 'work-areas'] });
+      queryClient.invalidateQueries({ queryKey: ['groomer', 'work-areas'] })
     },
-  });
+  })
 
   const deleteWorkAreaMutation = useMutation({
     mutationFn: async (id: string) => {
       const response = await fetch(`/api/groomer/work-areas/${id}`, {
         method: 'DELETE',
-      });
+      })
       if (!response.ok) {
-        throw new Error('Failed to delete work area');
+        throw new Error('Failed to delete work area')
       }
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['groomer', 'work-areas'] });
+      queryClient.invalidateQueries({ queryKey: ['groomer', 'work-areas'] })
     },
-  });
+  })
 
   const handleToggleActive = (workAreaId: string, isActive: boolean) => {
-    toggleActiveMutation.mutate({ id: workAreaId, isActive });
-  };
+    toggleActiveMutation.mutate({ id: workAreaId, isActive })
+  }
 
   const handleDelete = (workAreaId: string) => {
     if (!confirm('정말로 이 근무 장소를 삭제하시겠습니까?')) {
-      return;
+      return
     }
-    deleteWorkAreaMutation.mutate(workAreaId);
-  };
+    deleteWorkAreaMutation.mutate(workAreaId)
+  }
 
   if (isPending || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   if (!session || session.user?.role !== 'GROOMER') {
-    return null;
+    return null
   }
 
   return (
@@ -255,9 +255,9 @@ export default function GroomerWorkAreasPage() {
             <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
               <Button
                 onClick={() => {
-                  setShowForm(true);
-                  setEditingWorkArea(null);
-                  resetForm();
+                  setShowForm(true)
+                  setEditingWorkArea(null)
+                  resetForm()
                 }}
                 className="w-full sm:w-auto"
               >
@@ -352,9 +352,9 @@ export default function GroomerWorkAreasPage() {
                   type="button"
                   variant="outline"
                   onClick={() => {
-                    setShowForm(false);
-                    setEditingWorkArea(null);
-                    resetForm();
+                    setShowForm(false)
+                    setEditingWorkArea(null)
+                    resetForm()
                   }}
                   className="w-full sm:w-auto"
                 >
@@ -388,9 +388,9 @@ export default function GroomerWorkAreasPage() {
             </p>
             <Button
               onClick={() => {
-                setShowForm(true);
-                setEditingWorkArea(null);
-                resetForm();
+                setShowForm(true)
+                setEditingWorkArea(null)
+                resetForm()
               }}
               className="mx-auto w-full max-w-xs sm:w-auto"
             >
@@ -536,5 +536,5 @@ export default function GroomerWorkAreasPage() {
         )}
       </main>
     </div>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-import { BreedCategory } from '@mimisalon/shared';
+import { BreedCategory } from '@mimisalon/shared'
 
 // 강아지 카테고리
 export const DOG_CATEGORIES: Record<string, string> = {
@@ -6,32 +6,32 @@ export const DOG_CATEGORIES: Record<string, string> = {
   MEDIUM: '중형',
   LARGE: '대형',
   SPECIAL: '특수',
-};
+}
 
 // 고양이 카테고리
 export const CAT_CATEGORIES: Record<string, string> = {
   SHORT_HAIR: '단모',
   LONG_HAIR: '장모',
-};
+}
 
 // 전체 카테고리
 export const BREED_CATEGORIES = {
   DOG: DOG_CATEGORIES,
   CAT: CAT_CATEGORIES,
-} as const;
+} as const
 
 // 카테고리 이름 가져오기 헬퍼 함수
 export function getCategoryName(category: BreedCategory): string {
-  const allCategories = { ...DOG_CATEGORIES, ...CAT_CATEGORIES };
-  return allCategories[category] || category;
+  const allCategories = { ...DOG_CATEGORIES, ...CAT_CATEGORIES }
+  return allCategories[category] || category
 }
 
 // 동물 타입별 카테고리 가져오기
 export function getCategoriesByPetType(petType: 'DOG' | 'CAT'): BreedCategory[] {
   if (petType === 'DOG') {
-    return ['SMALL', 'MEDIUM', 'LARGE', 'SPECIAL'] as BreedCategory[];
+    return ['SMALL', 'MEDIUM', 'LARGE', 'SPECIAL'] as BreedCategory[]
   } else {
-    return ['SHORT_HAIR', 'LONG_HAIR'] as BreedCategory[];
+    return ['SHORT_HAIR', 'LONG_HAIR'] as BreedCategory[]
   }
 }
 
@@ -40,6 +40,6 @@ export function isValidCategoryForPetType(
   category: BreedCategory,
   petType: 'DOG' | 'CAT'
 ): boolean {
-  const validCategories = getCategoriesByPetType(petType);
-  return validCategories.includes(category);
+  const validCategories = getCategoriesByPetType(petType)
+  return validCategories.includes(category)
 }

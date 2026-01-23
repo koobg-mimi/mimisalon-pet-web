@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { useState, useRef } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import Image from 'next/image';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useState, useRef } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import Image from 'next/image'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { Badge } from '@/components/ui/badge'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import {
   StarIcon,
   CameraIcon,
@@ -19,199 +19,197 @@ import {
   ArrowLeftIcon,
   CheckCircleIcon,
   FolderOpen,
-} from 'lucide-react';
+} from 'lucide-react'
 
 // API에서 반환되는 예약 타입 (route.ts의 response 형태와 일치)
 interface BookingResponse {
-  id: string;
-  appointmentDate: string;
-  startTime: string;
-  endTime: string;
-  status: string;
-  totalAmount: number;
-  paidAmount: number;
-  additionalAmount: number | null;
-  paymentStatus: 'PENDING' | 'PAID';
+  id: string
+  appointmentDate: string
+  startTime: string
+  endTime: string
+  status: string
+  totalAmount: number
+  paidAmount: number
+  additionalAmount: number | null
+  paymentStatus: 'PENDING' | 'PAID'
   pet: {
-    id: string;
-    name: string;
-    species: string;
-    breed: string; // API returns breed name as string
-    weight: number;
-    age: number | null;
-    photoUrl: string | null;
-  };
+    id: string
+    name: string
+    species: string
+    breed: string // API returns breed name as string
+    weight: number
+    age: number | null
+    photoUrl: string | null
+  }
   services: Array<{
-    id: string;
-    name: string;
-    description: string;
-    duration: number;
-    price: number;
-    status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
-  }>;
+    id: string
+    name: string
+    description: string
+    duration: number
+    price: number
+    status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED'
+  }>
   groomer: {
-    id: string;
-    name: string;
-    photoUrl: string | null;
-    rating: number;
-    experience: string | null;
-    phone: string;
+    id: string
+    name: string
+    photoUrl: string | null
+    rating: number
+    experience: string | null
+    phone: string
     salon: {
-      id: string;
-      name: string;
-      address: string;
-      phone: string;
-    };
-  };
+      id: string
+      name: string
+      address: string
+      phone: string
+    }
+  }
   timeline: Array<{
-    id: string;
-    type: string;
-    title: string;
-    description: string;
-    timestamp: string;
-  }>;
-  notes: string | null;
-  estimatedEndTime: string;
+    id: string
+    type: string
+    title: string
+    description: string
+    timestamp: string
+  }>
+  notes: string | null
+  estimatedEndTime: string
 }
 
 interface ImageFile {
-  file: File;
-  preview: string;
+  file: File
+  preview: string
 }
 
 // 타입 정의는 이미 위에서 완료됨
 
 export default function CreateReviewPage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const bookingId = searchParams.get('bookingId');
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const bookingId = searchParams.get('bookingId')
 
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState('');
-  const [images, setImages] = useState<ImageFile[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const [rating, setRating] = useState(0)
+  const [comment, setComment] = useState('')
+  const [images, setImages] = useState<ImageFile[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
 
   // Fetch booking details using React Query
   const { data: booking, isLoading } = useQuery<BookingResponse>({
     queryKey: ['booking', bookingId],
     queryFn: async () => {
-      const response = await fetch(`/api/customer/booking/${bookingId}`);
+      const response = await fetch(`/api/customer/booking/${bookingId}`)
       if (!response.ok) {
-        throw new Error('Failed to fetch booking');
+        throw new Error('Failed to fetch booking')
       }
-      const data: BookingResponse = await response.json();
+      const data: BookingResponse = await response.json()
 
       // 서비스 완료 상태가 아니면 리뷰 작성 불가
       if (data.status !== 'SERVICE_COMPLETED') {
-        router.push(`/customer/booking/${bookingId}`);
-        throw new Error('Booking not completed');
+        router.push(`/customer/booking/${bookingId}`)
+        throw new Error('Booking not completed')
       }
 
-      return data;
+      return data
     },
     enabled: !!bookingId,
     retry: false,
-  });
+  })
 
   // Submit review using React Query mutation (must be called before any conditional returns)
   const submitReviewMutation = useMutation({
     mutationFn: async () => {
-      const formData = new FormData();
-      formData.append('bookingId', bookingId!);
-      formData.append('rating', rating.toString());
-      formData.append('comment', comment);
+      const formData = new FormData()
+      formData.append('bookingId', bookingId!)
+      formData.append('rating', rating.toString())
+      formData.append('comment', comment)
 
       // 이미지 파일들 추가
       images.forEach((img) => {
-        formData.append('images', img.file);
-      });
+        formData.append('images', img.file)
+      })
 
       const response = await fetch('/api/customer/reviews', {
         method: 'POST',
         body: formData,
-      });
+      })
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit review');
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to submit review')
       }
 
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      router.push(`/customer/booking/${bookingId}?reviewSubmitted=true`);
+      router.push(`/customer/booking/${bookingId}?reviewSubmitted=true`)
     },
     onError: (error) => {
-      console.error('Error submitting review:', error);
-      alert('리뷰 등록에 실패했습니다. 다시 시도해주세요.');
+      console.error('Error submitting review:', error)
+      alert('리뷰 등록에 실패했습니다. 다시 시도해주세요.')
     },
-  });
+  })
 
   if (!bookingId) {
-    router.push('/customer/dashboard/overview');
-    return null;
+    router.push('/customer/dashboard/overview')
+    return null
   }
 
   const handleImageUpload = (files: FileList | null) => {
-    if (!files) return;
+    if (!files) return
 
-    const newImages: ImageFile[] = [];
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    const newImages: ImageFile[] = []
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
 
     Array.from(files).forEach((file) => {
       if (!allowedTypes.includes(file.type)) {
-        alert(
-          `${file.name}은(는) 지원하지 않는 파일 형식입니다. JPG, PNG, WEBP, GIF만 가능합니다.`
-        );
-        return;
+        alert(`${file.name}은(는) 지원하지 않는 파일 형식입니다. JPG, PNG, WEBP, GIF만 가능합니다.`)
+        return
       }
       if (file.size > maxSize) {
-        alert(`${file.name}은(는) 파일 크기가 너무 큽니다. 5MB 이하만 가능합니다.`);
-        return;
+        alert(`${file.name}은(는) 파일 크기가 너무 큽니다. 5MB 이하만 가능합니다.`)
+        return
       }
       if (images.length + newImages.length >= 5) {
-        alert('최대 5장까지만 업로드 가능합니다.');
-        return;
+        alert('최대 5장까지만 업로드 가능합니다.')
+        return
       }
 
-      const preview = URL.createObjectURL(file);
-      newImages.push({ file, preview });
-    });
+      const preview = URL.createObjectURL(file)
+      newImages.push({ file, preview })
+    })
 
-    setImages((prev) => [...prev, ...newImages]);
+    setImages((prev) => [...prev, ...newImages])
 
     // Reset file inputs
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = ''
     }
     if (cameraInputRef.current) {
-      cameraInputRef.current.value = '';
+      cameraInputRef.current.value = ''
     }
-  };
+  }
 
   const removeImage = (index: number) => {
     setImages((prev) => {
-      const newImages = [...prev];
-      URL.revokeObjectURL(newImages[index].preview);
-      newImages.splice(index, 1);
-      return newImages;
-    });
-  };
+      const newImages = [...prev]
+      URL.revokeObjectURL(newImages[index].preview)
+      newImages.splice(index, 1)
+      return newImages
+    })
+  }
 
   const handleSubmit = () => {
     if (rating === 0) {
-      alert('별점을 선택해주세요.');
-      return;
+      alert('별점을 선택해주세요.')
+      return
     }
     if (!comment.trim()) {
-      alert('리뷰 내용을 입력해주세요.');
-      return;
+      alert('리뷰 내용을 입력해주세요.')
+      return
     }
 
-    submitReviewMutation.mutate();
-  };
+    submitReviewMutation.mutate()
+  }
 
   if (isLoading) {
     return (
@@ -225,11 +223,11 @@ export default function CreateReviewPage() {
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   if (!booking) {
-    return null;
+    return null
   }
 
   return (
@@ -472,5 +470,5 @@ export default function CreateReviewPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

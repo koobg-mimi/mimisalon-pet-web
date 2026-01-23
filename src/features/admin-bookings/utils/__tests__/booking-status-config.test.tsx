@@ -315,10 +315,7 @@ describe('Status configuration consistency', () => {
     })
 
     // Failed/cancelled statuses should use 'destructive'
-    const negativeStatuses = [
-      BookingStatus.SERVICE_CANCELLED,
-      BookingStatus.BOOKING_FAILED,
-    ]
+    const negativeStatuses = [BookingStatus.SERVICE_CANCELLED, BookingStatus.BOOKING_FAILED]
 
     negativeStatuses.forEach((status) => {
       expect(getStatusVariant(status)).toBe('destructive')

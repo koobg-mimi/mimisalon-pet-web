@@ -1,17 +1,17 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import Link from 'next/link';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { PaymentStatus } from '@mimisalon/shared';
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { Payment } from '../_types/payment.types';
-import { PaymentStatusBadge } from './PaymentStatusBadge';
-import { getMethodText } from '../_utils/payment-status.utils';
+import * as React from 'react'
+import Link from 'next/link'
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
+import { PaymentStatus } from '@mimisalon/shared'
+import type { VariantProps } from 'class-variance-authority'
+import { cva } from 'class-variance-authority'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { Payment } from '../_types/payment.types'
+import { PaymentStatusBadge } from './PaymentStatusBadge'
+import { getMethodText } from '../_utils/payment-status.utils'
 
 const paymentCardVariants = cva('rounded-lg border transition-all duration-300 overflow-hidden', {
   variants: {
@@ -33,7 +33,7 @@ const paymentCardVariants = cva('rounded-lg border transition-all duration-300 o
     variant: 'default',
     size: 'default',
   },
-});
+})
 
 const paymentCardHeaderVariants = cva('flex items-start justify-between', {
   variants: {
@@ -46,7 +46,7 @@ const paymentCardHeaderVariants = cva('flex items-start justify-between', {
   defaultVariants: {
     size: 'default',
   },
-});
+})
 
 const paymentCardTitleVariants = cva('font-semibold', {
   variants: {
@@ -59,12 +59,12 @@ const paymentCardTitleVariants = cva('font-semibold', {
   defaultVariants: {
     size: 'default',
   },
-});
+})
 
 export interface PaymentCardProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof paymentCardVariants> {
-  payment: Payment;
+  payment: Payment
 }
 
 /**
@@ -74,8 +74,8 @@ export interface PaymentCardProps
  */
 const PaymentCard = React.forwardRef<HTMLDivElement, PaymentCardProps>(
   ({ className, variant, size, payment, ...props }, ref) => {
-    const serviceName = payment.booking?.service?.name || payment.orderName || '미용 서비스';
-    const petName = payment.booking?.pet?.name || '';
+    const serviceName = payment.booking?.service?.name || payment.orderName || '미용 서비스'
+    const petName = payment.booking?.pet?.name || ''
 
     return (
       <div ref={ref} className={cn(paymentCardVariants({ variant, size, className }))} {...props}>
@@ -125,10 +125,10 @@ const PaymentCard = React.forwardRef<HTMLDivElement, PaymentCardProps>(
           )}
         </div>
       </div>
-    );
+    )
   }
-);
+)
 
-PaymentCard.displayName = 'PaymentCard';
+PaymentCard.displayName = 'PaymentCard'
 
-export { PaymentCard, paymentCardVariants };
+export { PaymentCard, paymentCardVariants }

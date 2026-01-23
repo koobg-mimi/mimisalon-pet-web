@@ -28,31 +28,31 @@ EXPO_ACCESS_TOKEN=your_expo_access_token_here
 
 ```javascript
 // React Native 코드
-import * as Notifications from 'expo-notifications';
+import * as Notifications from 'expo-notifications'
 
 const getExpoPushToken = async () => {
-  const { status } = await Notifications.requestPermissionsAsync();
+  const { status } = await Notifications.requestPermissionsAsync()
   if (status !== 'granted') {
-    console.log('Permission not granted for push notifications');
-    return null;
+    console.log('Permission not granted for push notifications')
+    return null
   }
 
-  const token = await Notifications.getExpoPushTokenAsync();
-  return token.data;
-};
+  const token = await Notifications.getExpoPushTokenAsync()
+  return token.data
+}
 
 // WebView에 토큰 전송
 const sendTokenToWebView = async (webViewRef) => {
-  const token = await getExpoPushToken();
+  const token = await getExpoPushToken()
   if (token && webViewRef.current) {
     const message = JSON.stringify({
       type: 'EXPO_PUSH_TOKEN',
       token: token,
-    });
+    })
 
-    webViewRef.current.postMessage(message);
+    webViewRef.current.postMessage(message)
   }
-};
+}
 ```
 
 ### 2. React Native에서 토큰 요청 리스너 설정
@@ -61,26 +61,26 @@ const sendTokenToWebView = async (webViewRef) => {
 // WebView에서 토큰 요청을 받았을 때 응답
 const handleWebViewMessage = async (event) => {
   try {
-    const data = JSON.parse(event.nativeEvent.data);
+    const data = JSON.parse(event.nativeEvent.data)
 
     if (data.type === 'REQUEST_EXPO_PUSH_TOKEN') {
-      await sendTokenToWebView(webViewRef);
+      await sendTokenToWebView(webViewRef)
     }
   } catch (error) {
-    console.log('Error handling WebView message:', error);
+    console.log('Error handling WebView message:', error)
   }
-};
+}
 
 // WebView 컴포넌트 설정
-<WebView
+;<WebView
   ref={webViewRef}
   source={{ uri: 'https://your-nextjs-app.com' }}
   onMessage={handleWebViewMessage}
   onLoadEnd={() => {
     // 페이지 로드 완료 후 토큰 전송
-    sendTokenToWebView(webViewRef);
+    sendTokenToWebView(webViewRef)
   }}
-/>;
+/>
 ```
 
 ## 작동 방식

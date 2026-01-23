@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { PhoneInput } from '@/components/ui/phone-input';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { PhoneInput } from '@/components/ui/phone-input'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -19,26 +19,26 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, CheckCircle, Mail, PawPrint, Smartphone, Sparkles } from 'lucide-react';
-import { toast } from 'sonner';
-import { authClient } from '@/lib/auth-client';
-import { OTPInputDialog } from '@/components/auth/otp-input-dialog';
+} from '@/components/ui/form'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ArrowLeft, CheckCircle, Mail, PawPrint, Smartphone, Sparkles } from 'lucide-react'
+import { toast } from 'sonner'
+import { authClient } from '@/lib/auth-client'
+import { OTPInputDialog } from '@/components/auth/otp-input-dialog'
 
 // Types
-type ResetMethod = 'email-otp' | 'sms-otp';
-type ContactType = 'email' | 'phone';
-type Step = 'contact' | 'otp-sent' | 'new-password' | 'success';
+type ResetMethod = 'email-otp' | 'sms-otp'
+type ContactType = 'email' | 'phone'
+type Step = 'contact' | 'otp-sent' | 'new-password' | 'success'
 
 // Validation schemas
 const emailSchema = z.object({
   email: z.string().email('올바른 이메일 주소를 입력해주세요'),
-});
+})
 
 const phoneSchema = z.object({
   phoneNumber: z.string().min(10, '올바른 전화번호를 입력해주세요'),
-});
+})
 
 const passwordSchema = z
   .object({
@@ -53,11 +53,11 @@ const passwordSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: '비밀번호가 일치하지 않습니다',
     path: ['confirmPassword'],
-  });
+  })
 
-type EmailInput = z.infer<typeof emailSchema>;
-type PhoneInputType = z.infer<typeof phoneSchema>;
-type PasswordInput = z.infer<typeof passwordSchema>;
+type EmailInput = z.infer<typeof emailSchema>
+type PhoneInputType = z.infer<typeof phoneSchema>
+type PasswordInput = z.infer<typeof passwordSchema>
 
 /**
  * Forgot Password Page - OTP-Only Implementation
@@ -69,113 +69,113 @@ type PasswordInput = z.infer<typeof passwordSchema>;
  * All methods use better-auth plugins directly (no custom API routes)
  */
 export default function ForgotPasswordPage() {
-  const router = useRouter();
+  const router = useRouter()
 
   // Step management
-  const [step, setStep] = useState<Step>('contact');
-  const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState<Step>('contact')
+  const [isLoading, setIsLoading] = useState(false)
 
   // Contact type
-  const [contactType, setContactType] = useState<ContactType>('email');
+  const [contactType, setContactType] = useState<ContactType>('email')
 
   // User contact info
-  const [email, setEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [email, setEmail] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
 
   // Method (determined by contact type)
-  const [selectedMethod, setSelectedMethod] = useState<ResetMethod | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState<ResetMethod | null>(null)
 
   // OTP handling
-  const [showOTPDialog, setShowOTPDialog] = useState(false);
-  const [verifiedOTP, setVerifiedOTP] = useState('');
+  const [showOTPDialog, setShowOTPDialog] = useState(false)
+  const [verifiedOTP, setVerifiedOTP] = useState('')
 
   // Forms
   const emailForm = useForm<EmailInput>({
     resolver: zodResolver(emailSchema),
     defaultValues: { email: '' },
-  });
+  })
 
   const phoneForm = useForm<PhoneInputType>({
     resolver: zodResolver(phoneSchema),
     defaultValues: { phoneNumber: '' },
-  });
+  })
 
   const passwordForm = useForm<PasswordInput>({
     resolver: zodResolver(passwordSchema),
     defaultValues: { password: '', confirmPassword: '' },
-  });
+  })
 
   /**
    * Step 1: Submit email
    */
   const handleEmailSubmit = async (data: EmailInput) => {
-    setEmail(data.email);
-    setSelectedMethod('email-otp');
-    setIsLoading(true);
+    setEmail(data.email)
+    setSelectedMethod('email-otp')
+    setIsLoading(true)
 
     try {
       await authClient.emailOtp.sendVerificationOtp({
         email: data.email,
         type: 'forget-password',
-      });
+      })
 
-      toast.success('인증코드가 이메일로 전송되었습니다');
-      setShowOTPDialog(true);
+      toast.success('인증코드가 이메일로 전송되었습니다')
+      setShowOTPDialog(true)
     } catch (error: any) {
-      console.error('Send email OTP error:', error);
-      toast.error(error?.message || '전송에 실패했습니다. 다시 시도해주세요');
+      console.error('Send email OTP error:', error)
+      toast.error(error?.message || '전송에 실패했습니다. 다시 시도해주세요')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   /**
    * Step 1: Submit phone number
    */
   const handlePhoneSubmit = async (data: PhoneInputType) => {
-    setPhoneNumber(data.phoneNumber);
-    setSelectedMethod('sms-otp');
-    setIsLoading(true);
+    setPhoneNumber(data.phoneNumber)
+    setSelectedMethod('sms-otp')
+    setIsLoading(true)
 
     try {
       await authClient.phoneNumber.sendOtp({
         phoneNumber: data.phoneNumber,
-      });
+      })
 
-      toast.success('인증코드가 문자로 전송되었습니다');
-      setShowOTPDialog(true);
+      toast.success('인증코드가 문자로 전송되었습니다')
+      setShowOTPDialog(true)
     } catch (error: any) {
-      console.error('Send SMS OTP error:', error);
-      toast.error(error?.message || '전송에 실패했습니다. 다시 시도해주세요');
+      console.error('Send SMS OTP error:', error)
+      toast.error(error?.message || '전송에 실패했습니다. 다시 시도해주세요')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   /**
    * Step 2: OTP verified, show password form
    */
   const handleOTPSuccess = (otp?: string) => {
     if (!otp) {
-      toast.error('인증 코드가 필요합니다');
-      return;
+      toast.error('인증 코드가 필요합니다')
+      return
     }
-    setVerifiedOTP(otp);
-    setShowOTPDialog(false);
-    setStep('new-password');
-    toast.success('인증이 완료되었습니다. 새 비밀번호를 입력하세요');
-  };
+    setVerifiedOTP(otp)
+    setShowOTPDialog(false)
+    setStep('new-password')
+    toast.success('인증이 완료되었습니다. 새 비밀번호를 입력하세요')
+  }
 
   /**
    * Step 3: Reset password with verified OTP
    */
   const handlePasswordSubmit = async (data: PasswordInput) => {
     if (!verifiedOTP) {
-      toast.error('인증이 필요합니다');
-      return;
+      toast.error('인증이 필요합니다')
+      return
     }
 
-    setIsLoading(true);
+    setIsLoading(true)
 
     try {
       if (selectedMethod === 'email-otp') {
@@ -184,12 +184,12 @@ export default function ForgotPasswordPage() {
           email,
           otp: verifiedOTP,
           password: data.password,
-        });
+        })
 
         if (error) {
-          toast.error(error.message || '비밀번호 재설정에 실패했습니다');
-          setIsLoading(false);
-          return;
+          toast.error(error.message || '비밀번호 재설정에 실패했습니다')
+          setIsLoading(false)
+          return
         }
       } else if (selectedMethod === 'sms-otp') {
         // SMS OTP password reset
@@ -197,29 +197,29 @@ export default function ForgotPasswordPage() {
           phoneNumber,
           otp: verifiedOTP,
           newPassword: data.password,
-        });
+        })
 
         if (error) {
-          toast.error(error.message || '비밀번호 재설정에 실패했습니다');
-          setIsLoading(false);
-          return;
+          toast.error(error.message || '비밀번호 재설정에 실패했습니다')
+          setIsLoading(false)
+          return
         }
       }
 
       // Success!
-      setStep('success');
-      toast.success('비밀번호가 성공적으로 변경되었습니다');
+      setStep('success')
+      toast.success('비밀번호가 성공적으로 변경되었습니다')
 
       // Redirect to sign-in after 2 seconds
       setTimeout(() => {
-        router.push('/auth/signin');
-      }, 2000);
+        router.push('/auth/signin')
+      }, 2000)
     } catch (error) {
-      console.error('Password reset error:', error);
-      toast.error('비밀번호 재설정 중 오류가 발생했습니다');
-      setIsLoading(false);
+      console.error('Password reset error:', error)
+      toast.error('비밀번호 재설정 중 오류가 발생했습니다')
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className="bg-background flex min-h-screen items-center justify-center p-4">
@@ -461,5 +461,5 @@ export default function ForgotPasswordPage() {
         )}
       </div>
     </div>
-  );
+  )
 }

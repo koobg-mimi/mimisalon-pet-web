@@ -1,40 +1,40 @@
-'use client';
+'use client'
 
-import { useSession } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { ArrowRight, Calendar, LogIn } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Card, CardContent } from '../ui/card';
+import { useSession } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
+import { ArrowRight, Calendar, LogIn } from 'lucide-react'
+import { Button } from '../ui/button'
+import { Card, CardContent } from '../ui/card'
 
 export function CTA() {
-  const { data: session } = useSession();
-  const router = useRouter();
+  const { data: session } = useSession()
+  const router = useRouter()
 
   const handleLoginClick = () => {
     if (session?.user) {
-      const userRole = session.user.role;
+      const userRole = session.user.role
       if (userRole === 'ADMIN') {
-        router.push('/admin/dashboard/overview');
+        router.push('/admin/dashboard/overview')
       } else if (userRole === 'GROOMER') {
-        router.push('/groomer/dashboard/overview');
+        router.push('/groomer/dashboard/overview')
       } else if (userRole === 'CUSTOMER') {
-        router.push('/customer/dashboard/overview');
+        router.push('/customer/dashboard/overview')
       }
     } else {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
-  };
+  }
 
   const handleBookingClick = () => {
     if (!session?.user) {
-      router.push('/auth/signin?callbackUrl=/booking/new');
+      router.push('/auth/signin?callbackUrl=/booking/new')
     } else {
-      router.push('/booking/new');
+      router.push('/booking/new')
     }
-  };
+  }
 
-  const isLoggedIn = !!session?.user;
-  const currentUser = session?.user;
+  const isLoggedIn = !!session?.user
+  const currentUser = session?.user
 
   return (
     <section data-cy="cta" className="container mx-auto px-4 py-16">
@@ -102,5 +102,5 @@ export function CTA() {
         </Card>
       </div>
     </section>
-  );
+  )
 }

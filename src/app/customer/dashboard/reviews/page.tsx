@@ -1,22 +1,22 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import type { Review, ReviewImage } from '@mimisalon/shared';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ImageGallery } from '@/components/ui/image-gallery';
-import { useConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Image from 'next/image'
+import type { Review, ReviewImage } from '@mimisalon/shared'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ImageGallery } from '@/components/ui/image-gallery'
+import { useConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu'
 import {
   StarIcon,
   CalendarIcon,
@@ -28,31 +28,31 @@ import {
   Eye,
   Clock,
   TrendingUp,
-} from 'lucide-react';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
-import { StatsCard } from '@/components/stats/card';
-import { StatsGrid } from '@/components/stats/grid';
+} from 'lucide-react'
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
+import { cn } from '@/lib/utils'
+import { StatsCard } from '@/components/stats/card'
+import { StatsGrid } from '@/components/stats/grid'
 
 // API 응답 타입
 interface ReviewWithRelations extends Review {
-  images: ReviewImage[];
+  images: ReviewImage[]
   response: {
-    id: string;
-    content: string;
-    createdAt: Date;
-  } | null;
+    id: string
+    content: string
+    createdAt: Date
+  } | null
   booking: {
-    id: string;
-    serviceDate: Date;
-    serviceType: string;
+    id: string
+    serviceDate: Date
+    serviceType: string
     groomer: {
-      id: string;
-      name: string | null;
-      image: string | null;
-    } | null;
-  };
+      id: string
+      name: string | null
+      image: string | null
+    } | null
+  }
 }
 
 // Skeleton component for loading states
@@ -84,14 +84,14 @@ function ReviewSkeleton() {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }
 
 export default function CustomerReviewsPage() {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState('all');
-  const { ConfirmationDialogComponent, showConfirmation } = useConfirmationDialog();
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const [activeTab, setActiveTab] = useState('all')
+  const { ConfirmationDialogComponent, showConfirmation } = useConfirmationDialog()
 
   // Fetch reviews using React Query
   const {
@@ -102,29 +102,29 @@ export default function CustomerReviewsPage() {
   } = useQuery<ReviewWithRelations[]>({
     queryKey: ['customer', 'reviews'],
     queryFn: async () => {
-      const response = await fetch('/api/customer/reviews');
+      const response = await fetch('/api/customer/reviews')
       if (!response.ok) {
-        throw new Error('Failed to fetch reviews');
+        throw new Error('Failed to fetch reviews')
       }
-      return response.json();
+      return response.json()
     },
-  });
+  })
 
   // Delete review mutation
   const deleteReviewMutation = useMutation({
     mutationFn: async (reviewId: string) => {
       const response = await fetch(`/api/customer/reviews/${reviewId}`, {
         method: 'DELETE',
-      });
+      })
       if (!response.ok) {
-        throw new Error('Failed to delete review');
+        throw new Error('Failed to delete review')
       }
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['customer', 'reviews'] });
+      queryClient.invalidateQueries({ queryKey: ['customer', 'reviews'] })
     },
-  });
+  })
 
   const handleDeleteReview = async (reviewId: string) => {
     await showConfirmation({
@@ -135,39 +135,39 @@ export default function CustomerReviewsPage() {
       variant: 'destructive',
       onConfirm: async () => {
         try {
-          await deleteReviewMutation.mutateAsync(reviewId);
+          await deleteReviewMutation.mutateAsync(reviewId)
         } catch (error) {
-          console.error('Error deleting review:', error);
-          alert('리뷰 삭제 중 오류가 발생했습니다.');
+          console.error('Error deleting review:', error)
+          alert('리뷰 삭제 중 오류가 발생했습니다.')
         }
       },
-    });
-  };
+    })
+  }
 
   const filteredReviews = reviews.filter((review) => {
-    if (activeTab === 'all') return true;
-    if (activeTab === 'with-photos') return review.images.length > 0;
-    if (activeTab === 'with-response') return review.response !== null;
-    return true;
-  });
+    if (activeTab === 'all') return true
+    if (activeTab === 'with-photos') return review.images.length > 0
+    if (activeTab === 'with-response') return review.response !== null
+    return true
+  })
 
   const averageRating =
     reviews.length > 0
       ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
-      : 0;
+      : 0
 
   const stats = {
     total: reviews.length,
     withPhotos: reviews.filter((r) => r.images.length > 0).length,
     withResponse: reviews.filter((r) => r.response !== null).length,
     thisMonth: reviews.filter((r) => {
-      const reviewDate = new Date(r.createdAt);
-      const now = new Date();
+      const reviewDate = new Date(r.createdAt)
+      const now = new Date()
       return (
         reviewDate.getMonth() === now.getMonth() && reviewDate.getFullYear() === now.getFullYear()
-      );
+      )
     }).length,
-  };
+  }
 
   if (isLoading) {
     return (
@@ -199,7 +199,7 @@ export default function CustomerReviewsPage() {
           ))}
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -458,5 +458,5 @@ export default function CustomerReviewsPage() {
         )}
       </div>
     </>
-  );
+  )
 }

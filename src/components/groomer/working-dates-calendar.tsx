@@ -1,30 +1,30 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import { Calendar as CalendarIcon, Clock, Plus, Trash2 } from 'lucide-react';
-import { format, addDays, isBefore, startOfDay } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import * as React from 'react'
+import { Calendar as CalendarIcon, Clock, Plus, Trash2 } from 'lucide-react'
+import { format, addDays, isBefore, startOfDay } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
 
 export interface WorkingDate {
-  date: Date;
-  startTime: string;
-  endTime: string;
+  date: Date
+  startTime: string
+  endTime: string
 }
 
 interface WorkingDatesCalendarProps {
-  workingDates: WorkingDate[];
-  onChange: (dates: WorkingDate[]) => void;
-  maxDaysInAdvance?: number;
-  defaultStartTime?: string;
-  defaultEndTime?: string;
+  workingDates: WorkingDate[]
+  onChange: (dates: WorkingDate[]) => void
+  maxDaysInAdvance?: number
+  defaultStartTime?: string
+  defaultEndTime?: string
 }
 
 export function WorkingDatesCalendar({
@@ -34,75 +34,75 @@ export function WorkingDatesCalendar({
   defaultStartTime = '09:00',
   defaultEndTime = '18:00',
 }: WorkingDatesCalendarProps) {
-  const [currentSelectedDate, setCurrentSelectedDate] = React.useState<Date | null>(null);
+  const [currentSelectedDate, setCurrentSelectedDate] = React.useState<Date | null>(null)
 
-  const minDate = startOfDay(new Date());
-  const maxDate = addDays(minDate, maxDaysInAdvance);
+  const minDate = startOfDay(new Date())
+  const maxDate = addDays(minDate, maxDaysInAdvance)
 
   // Get current selected date's time values
   const getCurrentTimes = () => {
     if (!currentSelectedDate) {
-      return { startTime: defaultStartTime, endTime: defaultEndTime };
+      return { startTime: defaultStartTime, endTime: defaultEndTime }
     }
 
-    const dateStr = format(currentSelectedDate, 'yyyy-MM-dd', { locale: ko });
+    const dateStr = format(currentSelectedDate, 'yyyy-MM-dd', { locale: ko })
     const workingDate = workingDates.find(
       (wd) => format(wd.date, 'yyyy-MM-dd', { locale: ko }) === dateStr
-    );
+    )
 
     return {
       startTime: workingDate?.startTime || defaultStartTime,
       endTime: workingDate?.endTime || defaultEndTime,
-    };
-  };
+    }
+  }
 
-  const currentTimes = getCurrentTimes();
+  const currentTimes = getCurrentTimes()
 
   const handleDateSelect = (date: Date | undefined) => {
-    if (!date) return;
+    if (!date) return
 
-    const dateStr = format(date, 'yyyy-MM-dd', { locale: ko });
+    const dateStr = format(date, 'yyyy-MM-dd', { locale: ko })
     const existing = workingDates.find(
       (wd) => format(wd.date, 'yyyy-MM-dd', { locale: ko }) === dateStr
-    );
+    )
 
     if (existing) {
       // If already selected, remove it (toggle behavior)
-      handleRemoveDate(date);
+      handleRemoveDate(date)
     } else {
       // Add new date with default times
       const newWorkingDate: WorkingDate = {
         date,
         startTime: defaultStartTime,
         endTime: defaultEndTime,
-      };
+      }
       const newWorkingDates = [...workingDates, newWorkingDate].sort(
         (a, b) => a.date.getTime() - b.date.getTime()
-      );
-      onChange(newWorkingDates);
-      setCurrentSelectedDate(date);
+      )
+      onChange(newWorkingDates)
+      setCurrentSelectedDate(date)
     }
-  };
+  }
 
   const handleTimeChange = (field: 'startTime' | 'endTime', value: string) => {
-    if (!currentSelectedDate) return;
+    if (!currentSelectedDate) return
 
-    const dateStr = format(currentSelectedDate, 'yyyy-MM-dd', { locale: ko });
+    const dateStr = format(currentSelectedDate, 'yyyy-MM-dd', { locale: ko })
     const newWorkingDates = workingDates.map((wd) => {
       if (format(wd.date, 'yyyy-MM-dd', { locale: ko }) === dateStr) {
-        return { ...wd, [field]: value };
+        return { ...wd, [field]: value }
       }
-      return wd;
-    });
-    onChange(newWorkingDates);
-  };
+      return wd
+    })
+    onChange(newWorkingDates)
+  }
 
   const handleRemoveDate = (dateToRemove: Date) => {
-    const dateStr = format(dateToRemove, 'yyyy-MM-dd', { locale: ko });
+    const dateStr = format(dateToRemove, 'yyyy-MM-dd', { locale: ko })
     const newWorkingDates = workingDates.filter(
       (wd) => format(wd.date, 'yyyy-MM-dd', { locale: ko }) !== dateStr
-    );
-    onChange(newWorkingDates);
+    )
+    onChange(newWorkingDates)
 
     // If removed date was current, switch to next available date
     if (
@@ -113,29 +113,29 @@ export function WorkingDatesCalendar({
         // Find the index of removed date
         const removedIndex = workingDates.findIndex(
           (wd) => format(wd.date, 'yyyy-MM-dd', { locale: ko }) === dateStr
-        );
+        )
 
         // Try to select next date, or previous if it was the last
         if (removedIndex < newWorkingDates.length) {
-          setCurrentSelectedDate(newWorkingDates[removedIndex].date);
+          setCurrentSelectedDate(newWorkingDates[removedIndex].date)
         } else {
-          setCurrentSelectedDate(newWorkingDates[newWorkingDates.length - 1].date);
+          setCurrentSelectedDate(newWorkingDates[newWorkingDates.length - 1].date)
         }
       } else {
-        setCurrentSelectedDate(null);
+        setCurrentSelectedDate(null)
       }
     }
-  };
+  }
 
   const isDateDisabled = (date: Date) => {
-    const today = startOfDay(new Date());
-    return isBefore(date, today) || date > maxDate;
-  };
+    const today = startOfDay(new Date())
+    return isBefore(date, today) || date > maxDate
+  }
 
   const isDateSelected = (date: Date) => {
-    const dateStr = format(date, 'yyyy-MM-dd', { locale: ko });
-    return workingDates.some((wd) => format(wd.date, 'yyyy-MM-dd', { locale: ko }) === dateStr);
-  };
+    const dateStr = format(date, 'yyyy-MM-dd', { locale: ko })
+    return workingDates.some((wd) => format(wd.date, 'yyyy-MM-dd', { locale: ko }) === dateStr)
+  }
 
   return (
     <div className="space-y-6">
@@ -238,5 +238,5 @@ export function WorkingDatesCalendar({
         </Card>
       )}
     </div>
-  );
+  )
 }

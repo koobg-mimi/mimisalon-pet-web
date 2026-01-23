@@ -1,53 +1,53 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import auth from '@/lib/auth';
-import { prisma } from '@mimisalon/shared';
-import { Prisma, PaymentStatus } from '@mimisalon/shared';
+import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import auth from '@/lib/auth'
+import { prisma } from '@mimisalon/shared'
+import { Prisma, PaymentStatus } from '@mimisalon/shared'
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     if (session.user.role !== 'CUSTOMER') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     // Parse query parameters
-    const searchParams = request.nextUrl.searchParams;
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const status = searchParams.get('status');
+    const searchParams = request.nextUrl.searchParams
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '20')
+    const status = searchParams.get('status')
 
     // Get user
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-    });
+    })
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
     // Build where clause
     const where: Prisma.PaymentWhereInput = {
       customerId: user.id,
-    };
+    }
 
     // Handle multiple statuses (comma-separated)
     if (status && status !== 'ALL') {
-      const statuses = status.split(',').map((s) => s.trim()) as PaymentStatus[];
+      const statuses = status.split(',').map((s) => s.trim()) as PaymentStatus[]
       if (statuses.length > 1) {
-        where.status = { in: statuses };
+        where.status = { in: statuses }
       } else {
-        where.status = statuses[0];
+        where.status = statuses[0]
       }
     }
 
     // Get total count
-    const totalPayments = await prisma.payment.count({ where });
+    const totalPayments = await prisma.payment.count({ where })
 
     // Get paginated payments
     const payments = await prisma.payment.findMany({
@@ -85,12 +85,12 @@ export async function GET(request: NextRequest) {
       },
       skip: (page - 1) * limit,
       take: limit,
-    });
+    })
 
     // Transform payments to match expected format
     const transformedPayments = payments.map((payment) => {
-      const firstBookingPet = payment.booking?.bookingPets[0];
-      const firstService = firstBookingPet?.services[0]?.service;
+      const firstBookingPet = payment.booking?.bookingPets[0]
+      const firstService = firstBookingPet?.services[0]?.service
 
       return {
         id: payment.id,
@@ -120,8 +120,8 @@ export async function GET(request: NextRequest) {
               service: firstService,
             }
           : null,
-      };
-    });
+      }
+    })
 
     return NextResponse.json({
       payments: transformedPayments,
@@ -129,9 +129,9 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil(totalPayments / limit),
       page,
       limit,
-    });
+    })
   } catch (error) {
-    console.error('Customer payments error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Customer payments error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

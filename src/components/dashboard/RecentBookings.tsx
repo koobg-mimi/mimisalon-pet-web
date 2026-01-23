@@ -1,63 +1,63 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { Calendar } from 'lucide-react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { useDashboardStats } from '@/hooks/useDashboardStats';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Calendar } from 'lucide-react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { useDashboardStats } from '@/hooks/useDashboardStats'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface RecentBookingsProps {
-  limit?: number;
+  limit?: number
 }
 
 export function RecentBookings({ limit = 5 }: RecentBookingsProps) {
-  const { data: stats, isLoading } = useDashboardStats();
+  const { data: stats, isLoading } = useDashboardStats()
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'PENDING':
       case 'FIRST_PAYMENT_PENDING':
-        return 'text-yellow-600 bg-yellow-50';
+        return 'text-yellow-600 bg-yellow-50'
       case 'CONFIRMED':
       case 'FIRST_PAYMENT_COMPLETED':
-        return 'text-blue-600 bg-blue-50';
+        return 'text-blue-600 bg-blue-50'
       case 'COMPLETED':
       case 'FINAL_PAYMENT_COMPLETED':
-        return 'text-green-600 bg-green-50';
+        return 'text-green-600 bg-green-50'
       case 'CANCELLED':
-        return 'text-red-600 bg-red-50';
+        return 'text-red-600 bg-red-50'
       case 'IN_PROGRESS':
-        return 'text-purple-600 bg-purple-50';
+        return 'text-purple-600 bg-purple-50'
       default:
-        return 'text-gray-600 bg-gray-50';
+        return 'text-gray-600 bg-gray-50'
     }
-  };
+  }
 
   const getStatusText = (status: string) => {
     switch (status) {
       case 'PENDING':
-        return '대기중';
+        return '대기중'
       case 'FIRST_PAYMENT_PENDING':
-        return '1차 결제 대기';
+        return '1차 결제 대기'
       case 'FIRST_PAYMENT_COMPLETED':
-        return '1차 결제 완료';
+        return '1차 결제 완료'
       case 'CONFIRMED':
-        return '확정';
+        return '확정'
       case 'IN_PROGRESS':
-        return '진행중';
+        return '진행중'
       case 'COMPLETED':
-        return '완료';
+        return '완료'
       case 'FINAL_PAYMENT_COMPLETED':
-        return '최종 결제 완료';
+        return '최종 결제 완료'
       case 'CANCELLED':
-        return '취소';
+        return '취소'
       default:
-        return status;
+        return status
     }
-  };
+  }
 
   if (isLoading) {
     return (
@@ -80,10 +80,10 @@ export function RecentBookings({ limit = 5 }: RecentBookingsProps) {
           ))}
         </div>
       </div>
-    );
+    )
   }
 
-  const recentBookings = stats?.recentBookings.slice(0, limit) || [];
+  const recentBookings = stats?.recentBookings.slice(0, limit) || []
 
   return (
     <div className="border-border bg-card rounded-lg border p-4 md:p-6">
@@ -148,5 +148,5 @@ export function RecentBookings({ limit = 5 }: RecentBookingsProps) {
         </div>
       )}
     </div>
-  );
+  )
 }

@@ -1,108 +1,108 @@
-'use client';
+'use client'
 
-import {format} from 'date-fns';
-import {ko} from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import {useSession} from '@/lib/auth-client';
-import {useRouter} from 'next/navigation';
-import {use, useEffect} from 'react';
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
-import {Button} from '@/components/ui/button';
-import {LoadingSpinner} from '@/components/ui/loading-spinner';
-import Link from 'next/link';
+import { useSession } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
+import { use, useEffect } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import Link from 'next/link'
 
 interface BookingDetail {
-  id: string;
-  status: string;
-  date: string;
-  time: string;
-  createdAt: string;
-  specialRequests?: string;
+  id: string
+  status: string
+  date: string
+  time: string
+  createdAt: string
+  specialRequests?: string
   customer: {
-    name: string;
-    email: string;
-    phone?: string;
-  };
+    name: string
+    email: string
+    phone?: string
+  }
   pet: {
-    name: string;
-    breed: string;
-    weight?: number;
-    specialNotes?: string;
-  };
+    name: string
+    breed: string
+    weight?: number
+    specialNotes?: string
+  }
   service: {
-    name: string;
-    description: string;
-    price: number;
-    duration: number;
-  };
+    name: string
+    description: string
+    price: number
+    duration: number
+  }
   groomer: {
-    name: string;
-    email: string;
-    phone?: string;
-    rating: number;
-  };
+    name: string
+    email: string
+    phone?: string
+    rating: number
+  }
   location: {
-    name: string;
-    address: string;
-    phone: string;
-  };
+    name: string
+    address: string
+    phone: string
+  }
   payment?: {
-    id: string;
-    amount: number;
-    method: string;
-    status: string;
-    createdAt: string;
-  };
+    id: string
+    amount: number
+    method: string
+    status: string
+    createdAt: string
+  }
 }
 
 export default function BookingDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-  const resolvedParams = use(params);
-  const bookingId = resolvedParams.id;
-  const queryClient = useQueryClient();
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const resolvedParams = use(params)
+  const bookingId = resolvedParams.id
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
-  }, [router, session]);
+  }, [router, session])
 
   // Fetch booking details using React Query
   const { data: booking, isLoading } = useQuery<BookingDetail>({
     queryKey: ['booking', bookingId],
     queryFn: async () => {
-      const response = await fetch(`/api/bookings/${bookingId}`);
+      const response = await fetch(`/api/bookings/${bookingId}`)
       if (!response.ok) {
         if (response.status === 404) {
-          router.push('/404');
+          router.push('/404')
         }
-        throw new Error('Failed to fetch booking');
+        throw new Error('Failed to fetch booking')
       }
-      return response.json();
+      return response.json()
     },
     enabled: !!session && !!bookingId,
     retry: false,
-  });
+  })
 
   // Cancel booking mutation
   const cancelBookingMutation = useMutation({
     mutationFn: async () => {
       const response = await fetch(`/api/bookings/${bookingId}/cancel`, {
         method: 'POST',
-      });
+      })
       if (!response.ok) {
-        throw new Error('Failed to cancel booking');
+        throw new Error('Failed to cancel booking')
       }
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['booking', bookingId] });
+      queryClient.invalidateQueries({ queryKey: ['booking', bookingId] })
     },
     onError: (error) => {
-      console.error('Failed to cancel booking:', error);
+      console.error('Failed to cancel booking:', error)
     },
-  });
+  })
 
   // Update booking status mutation
   const updateStatusMutation = useMutation({
@@ -113,86 +113,86 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ status: newStatus }),
-      });
+      })
       if (!response.ok) {
-        throw new Error('Failed to update booking status');
+        throw new Error('Failed to update booking status')
       }
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['booking', bookingId]}).then();
+      queryClient.invalidateQueries({ queryKey: ['booking', bookingId] }).then()
     },
     onError: (error) => {
-      console.error('Failed to update booking status:', error);
+      console.error('Failed to update booking status:', error)
     },
-  });
+  })
 
   const handleCancelBooking = async () => {
-    if (!confirm('정말 예약을 취소하시겠습니까?')) return;
-    cancelBookingMutation.mutate();
-  };
+    if (!confirm('정말 예약을 취소하시겠습니까?')) return
+    cancelBookingMutation.mutate()
+  }
 
   const handleUpdateStatus = async (newStatus: string) => {
-    updateStatusMutation.mutate(newStatus);
-  };
+    updateStatusMutation.mutate(newStatus)
+  }
 
   function getStatusColor(status: string) {
     switch (status) {
       case 'PENDING':
-        return 'text-yellow-600 bg-yellow-50';
+        return 'text-yellow-600 bg-yellow-50'
       case 'CONFIRMED':
-        return 'text-blue-600 bg-blue-50';
+        return 'text-blue-600 bg-blue-50'
       case 'IN_PROGRESS':
-        return 'text-purple-600 bg-purple-50';
+        return 'text-purple-600 bg-purple-50'
       case 'COMPLETED':
-        return 'text-green-600 bg-green-50';
+        return 'text-green-600 bg-green-50'
       case 'CANCELLED':
-        return 'text-red-600 bg-red-50';
+        return 'text-red-600 bg-red-50'
       default:
-        return 'text-gray-600 bg-gray-50';
+        return 'text-gray-600 bg-gray-50'
     }
   }
 
   function getStatusText(status: string) {
     switch (status) {
       case 'PENDING':
-        return '대기중';
+        return '대기중'
       case 'CONFIRMED':
-        return '확정';
+        return '확정'
       case 'IN_PROGRESS':
-        return '진행중';
+        return '진행중'
       case 'COMPLETED':
-        return '완료';
+        return '완료'
       case 'CANCELLED':
-        return '취소';
+        return '취소'
       default:
-        return status;
+        return status
     }
   }
 
   function getPaymentStatusColor(status: string) {
     switch (status) {
       case 'COMPLETED':
-        return 'text-green-600 bg-green-50';
+        return 'text-green-600 bg-green-50'
       case 'PENDING':
-        return 'text-yellow-600 bg-yellow-50';
+        return 'text-yellow-600 bg-yellow-50'
       case 'FAILED':
-        return 'text-red-600 bg-red-50';
+        return 'text-red-600 bg-red-50'
       default:
-        return 'text-gray-600 bg-gray-50';
+        return 'text-gray-600 bg-gray-50'
     }
   }
 
   function getPaymentStatusText(status: string) {
     switch (status) {
       case 'COMPLETED':
-        return '완료';
+        return '완료'
       case 'PENDING':
-        return '처리중';
+        return '처리중'
       case 'FAILED':
-        return '실패';
+        return '실패'
       default:
-        return status;
+        return status
     }
   }
 
@@ -211,7 +211,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
         ))}
         <span className="text-muted-foreground ml-1 text-sm">({rating})</span>
       </div>
-    );
+    )
   }
 
   if (isPending || isLoading) {
@@ -219,16 +219,16 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   if (!session || !booking) {
-    return null;
+    return null
   }
 
-  const isCustomer = session.user?.role === 'CUSTOMER';
-  const isGroomer = session.user?.role === 'GROOMER';
-  const isAdmin = session.user?.role === 'ADMIN';
+  const isCustomer = session.user?.role === 'CUSTOMER'
+  const isGroomer = session.user?.role === 'GROOMER'
+  const isAdmin = session.user?.role === 'ADMIN'
 
   return (
     <div className="bg-background min-h-screen">
@@ -532,5 +532,5 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
         </div>
       </main>
     </div>
-  );
+  )
 }

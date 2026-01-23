@@ -1,73 +1,73 @@
-import { ko } from 'date-fns/locale';
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import auth from '@/lib/auth';
-import { prisma } from '@mimisalon/shared';
-import { format } from 'date-fns';
-import { Prisma } from '@mimisalon/shared';
+import { ko } from 'date-fns/locale'
+import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import auth from '@/lib/auth'
+import { prisma } from '@mimisalon/shared'
+import { format } from 'date-fns'
+import { Prisma } from '@mimisalon/shared'
 
 // Response type definition
 interface GroomerBookingDetailResponse {
-  id: string;
-  bookingNumber: string;
-  appointmentDate: string;
-  startTime: string;
-  endTime: string;
-  status: string;
-  paymentStatus: string;
-  totalAmount: number;
-  paidAmount: number;
+  id: string
+  bookingNumber: string
+  appointmentDate: string
+  startTime: string
+  endTime: string
+  status: string
+  paymentStatus: string
+  totalAmount: number
+  paidAmount: number
   customer: {
-    id: string;
-    name: string;
-    phone: string;
-    email: string;
-  };
+    id: string
+    name: string
+    phone: string
+    email: string
+  }
   groomer: {
-    id: string;
-    name: string;
-    phone: string;
-    email: string;
-    photoUrl: string | null;
-    experience: string | null;
-  } | null;
+    id: string
+    name: string
+    phone: string
+    email: string
+    photoUrl: string | null
+    experience: string | null
+  } | null
   pets: Array<{
-    id: string;
-    name: string;
-    species: string;
-    breed: string; // breed name as string, not object
-    age: number;
-    weight: number;
-    photoUrl: string | null;
+    id: string
+    name: string
+    species: string
+    breed: string // breed name as string, not object
+    age: number
+    weight: number
+    photoUrl: string | null
     services: Array<{
-      id: string;
-      serviceId: string;
-      name: string;
-      description: string;
-      duration: number;
-      price: number;
-      status: string;
-    }>;
+      id: string
+      serviceId: string
+      name: string
+      description: string
+      duration: number
+      price: number
+      status: string
+    }>
     options: Array<{
-      id: string;
-      name: string;
-      description: string;
-      price: number;
-    }>;
-  }>;
+      id: string
+      name: string
+      description: string
+      price: number
+    }>
+  }>
   location: {
-    address: string;
-    zipCode: string;
-  } | null;
-  notes: string | null;
-  specialRequests: string | null;
-  serviceType: string;
-  serviceDescription: string | null;
-  actualStartTime: string | null;
-  actualEndTime: string | null;
-  estimatedEndTime: string;
-  createdAt: string;
-  updatedAt: string;
+    address: string
+    zipCode: string
+  } | null
+  notes: string | null
+  specialRequests: string | null
+  serviceType: string
+  serviceDescription: string | null
+  actualStartTime: string | null
+  actualEndTime: string | null
+  estimatedEndTime: string
+  createdAt: string
+  updatedAt: string
 }
 
 // Prisma의 include를 활용한 타입 정의
@@ -146,17 +146,17 @@ const bookingDetailInclude = {
       createdAt: true,
     },
   },
-} satisfies Prisma.BookingInclude;
+} satisfies Prisma.BookingInclude
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session?.user || session.user.role !== 'GROOMER') {
-      return NextResponse.json({ error: '미용사 권한이 필요합니다' }, { status: 403 });
+      return NextResponse.json({ error: '미용사 권한이 필요합니다' }, { status: 403 })
     }
 
-    const { id } = await params;
+    const { id } = await params
 
     // 예약 상세 정보 조회
     const booking = await prisma.booking.findFirst({
@@ -165,10 +165,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         groomerId: session.user.id,
       },
       include: bookingDetailInclude,
-    });
+    })
 
     if (!booking) {
-      return NextResponse.json({ error: '예약을 찾을 수 없습니다' }, { status: 404 });
+      return NextResponse.json({ error: '예약을 찾을 수 없습니다' }, { status: 404 })
     }
 
     // 응답 데이터 변환 (UI에 맞게 가공)
@@ -261,24 +261,24 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
       createdAt: booking.createdAt.toISOString(),
       updatedAt: booking.updatedAt.toISOString(),
-    };
+    }
 
-    return NextResponse.json(response);
+    return NextResponse.json(response)
   } catch (error) {
-    console.error('Groomer booking detail fetch error:', error);
+    console.error('Groomer booking detail fetch error:', error)
     return NextResponse.json(
       { error: '예약 정보를 불러오는 중 오류가 발생했습니다' },
       { status: 500 }
-    );
+    )
   }
 }
 
 // 종료 시간 계산 헬퍼 함수
 function calculateEndTime(startTime: string, durationMinutes: number): string {
-  const [hours, minutes] = startTime.split(':').map(Number);
-  const totalMinutes = hours * 60 + minutes + durationMinutes;
-  const endHours = Math.floor(totalMinutes / 60);
-  const endMinutes = totalMinutes % 60;
+  const [hours, minutes] = startTime.split(':').map(Number)
+  const totalMinutes = hours * 60 + minutes + durationMinutes
+  const endHours = Math.floor(totalMinutes / 60)
+  const endMinutes = totalMinutes % 60
 
-  return `${String(endHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`;
+  return `${String(endHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`
 }

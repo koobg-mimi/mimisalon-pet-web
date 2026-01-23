@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { useSession } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { DollarSign, Calculator } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useSession } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { DollarSign, Calculator } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import {
   Table,
   TableBody,
@@ -17,7 +17,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Pagination,
   PaginationContent,
@@ -26,74 +26,74 @@ import {
   PaginationNext,
   PaginationPrevious,
   PaginationEllipsis,
-} from '@/components/ui/pagination';
-import Link from 'next/link';
+} from '@/components/ui/pagination'
+import Link from 'next/link'
 
 interface Settlement {
-  id: string;
-  groomerId: string;
-  period: string;
-  totalBookings: number;
-  totalRevenue: number;
-  commission: number;
-  netAmount: number;
-  status: 'PENDING' | 'CALCULATED' | 'PAID' | 'FAILED' | 'CANCELLED';
-  calculatedAt: string | null;
-  paidAt: string | null;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  groomerId: string
+  period: string
+  totalBookings: number
+  totalRevenue: number
+  commission: number
+  netAmount: number
+  status: 'PENDING' | 'CALCULATED' | 'PAID' | 'FAILED' | 'CANCELLED'
+  calculatedAt: string | null
+  paidAt: string | null
+  createdAt: string
+  updatedAt: string
   groomer?: {
-    name: string;
-    email: string;
-    commissionRate: number;
-    bankName: string | null;
-    bankAccountNumber: string | null;
-    bankAccountHolderName: string | null;
-  };
+    name: string
+    email: string
+    commissionRate: number
+    bankName: string | null
+    bankAccountNumber: string | null
+    bankAccountHolderName: string | null
+  }
   bookings?: Array<{
-    id: string;
-    bookingCode: string;
-    totalAmount: number;
-    completedAt: string;
+    id: string
+    bookingCode: string
+    totalAmount: number
+    completedAt: string
     service?: {
-      name: string;
-    };
-  }>;
+      name: string
+    }
+  }>
 }
 
 interface SettlementsResponse {
-  settlements: Settlement[];
-  totalCount: number;
-  totalPages: number;
-  currentPage: number;
+  settlements: Settlement[]
+  totalCount: number
+  totalPages: number
+  currentPage: number
   summary: {
-    totalPendingAmount: number;
-    totalPaidAmount: number;
-    totalCommission: number;
-    pendingCount: number;
-  };
+    totalPendingAmount: number
+    totalPaidAmount: number
+    totalCommission: number
+    pendingCount: number
+  }
 }
 
 export default function AdminSettlementManagementPage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-  const queryClient = useQueryClient();
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const queryClient = useQueryClient()
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'ALL' | Settlement['status']>('ALL');
-  const [periodFilter, setPeriodFilter] = useState('');
-  const [selectedSettlement, setSelectedSettlement] = useState<Settlement | null>(null);
-  const [selectedSettlements, setSelectedSettlements] = useState<Set<string>>(new Set());
+  const [currentPage, setCurrentPage] = useState(1)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'ALL' | Settlement['status']>('ALL')
+  const [periodFilter, setPeriodFilter] = useState('')
+  const [selectedSettlement, setSelectedSettlement] = useState<Settlement | null>(null)
+  const [selectedSettlements, setSelectedSettlements] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
     if (session?.user?.role && session.user.role !== 'ADMIN') {
-      router.push('/admin/dashboard/overview');
+      router.push('/admin/dashboard/overview')
     }
-  }, [session, router]);
+  }, [session, router])
 
   // Fetch settlements with React Query
   const {
@@ -109,26 +109,26 @@ export default function AdminSettlementManagementPage() {
         search: searchQuery,
         status: statusFilter,
         period: periodFilter,
-      });
+      })
 
-      const response = await fetch(`/api/admin/settlements?${params}`);
+      const response = await fetch(`/api/admin/settlements?${params}`)
       if (!response.ok) {
-        throw new Error('Failed to fetch settlements');
+        throw new Error('Failed to fetch settlements')
       }
-      return response.json();
+      return response.json()
     },
     enabled: session?.user?.role === 'ADMIN',
-  });
+  })
 
-  const settlements = settlementsData?.settlements ?? [];
-  const totalPages = settlementsData?.totalPages ?? 1;
-  const totalCount = settlementsData?.totalCount ?? 0;
+  const settlements = settlementsData?.settlements ?? []
+  const totalPages = settlementsData?.totalPages ?? 1
+  const totalCount = settlementsData?.totalCount ?? 0
   const summary = settlementsData?.summary ?? {
     totalPendingAmount: 0,
     totalPaidAmount: 0,
     totalCommission: 0,
     pendingCount: 0,
-  };
+  }
 
   // Bulk payment mutation
   const bulkPaymentMutation = useMutation({
@@ -137,53 +137,53 @@ export default function AdminSettlementManagementPage() {
         fetch(`/api/admin/settlements/${id}/pay`, {
           method: 'PATCH',
         })
-      );
-      const results = await Promise.all(promises);
-      return results.filter((r) => r.ok).length;
+      )
+      const results = await Promise.all(promises)
+      return results.filter((r) => r.ok).length
     },
     onSuccess: (successCount, settlementIds) => {
-      alert(`✅ ${successCount}건의 정산이 지급 처리되었습니다.`);
-      queryClient.invalidateQueries({ queryKey: ['settlements'] });
-      setSelectedSettlements(new Set());
+      alert(`✅ ${successCount}건의 정산이 지급 처리되었습니다.`)
+      queryClient.invalidateQueries({ queryKey: ['settlements'] })
+      setSelectedSettlements(new Set())
     },
     onError: (error) => {
-      console.error('Failed to process bulk payment:', error);
-      alert('❌ 지급 처리 중 오류가 발생했습니다.');
+      console.error('Failed to process bulk payment:', error)
+      alert('❌ 지급 처리 중 오류가 발생했습니다.')
     },
-  });
+  })
 
   const handleToggleSelectAll = () => {
     if (selectedSettlements.size === settlements.length) {
-      setSelectedSettlements(new Set());
+      setSelectedSettlements(new Set())
     } else {
-      setSelectedSettlements(new Set(settlements.map((s) => s.id)));
+      setSelectedSettlements(new Set(settlements.map((s) => s.id)))
     }
-  };
+  }
 
   const handleToggleSelect = (settlementId: string) => {
-    const newSelected = new Set(selectedSettlements);
+    const newSelected = new Set(selectedSettlements)
     if (newSelected.has(settlementId)) {
-      newSelected.delete(settlementId);
+      newSelected.delete(settlementId)
     } else {
-      newSelected.add(settlementId);
+      newSelected.add(settlementId)
     }
-    setSelectedSettlements(newSelected);
-  };
+    setSelectedSettlements(newSelected)
+  }
 
   const handleBulkPayment = () => {
     if (selectedSettlements.size === 0) {
-      alert('지급할 정산을 선택해주세요.');
-      return;
+      alert('지급할 정산을 선택해주세요.')
+      return
     }
 
     const confirmPay = confirm(
       `선택된 ${selectedSettlements.size}건의 정산을 지급 처리하시겠습니까?`
-    );
+    )
 
-    if (!confirmPay) return;
+    if (!confirmPay) return
 
-    bulkPaymentMutation.mutate(Array.from(selectedSettlements));
-  };
+    bulkPaymentMutation.mutate(Array.from(selectedSettlements))
+  }
 
   // Settlement action mutation (calculate, pay)
   const settlementActionMutation = useMutation({
@@ -191,28 +191,28 @@ export default function AdminSettlementManagementPage() {
       settlementId,
       action,
     }: {
-      settlementId: string;
-      action: 'calculate' | 'pay';
+      settlementId: string
+      action: 'calculate' | 'pay'
     }) => {
       const response = await fetch(`/api/admin/settlements/${settlementId}/${action}`, {
         method: 'PATCH',
-      });
+      })
 
       if (!response.ok) {
-        throw new Error(`Failed to ${action} settlement`);
+        throw new Error(`Failed to ${action} settlement`)
       }
 
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['settlements'] });
-      setSelectedSettlement(null);
+      queryClient.invalidateQueries({ queryKey: ['settlements'] })
+      setSelectedSettlement(null)
     },
     onError: (error: Error) => {
-      console.error('Settlement action failed:', error);
-      alert(`❌ ${error.message}`);
+      console.error('Settlement action failed:', error)
+      alert(`❌ ${error.message}`)
     },
-  });
+  })
 
   // Weekly settlement creation mutation
   const weeklySettlementMutation = useMutation({
@@ -223,15 +223,15 @@ export default function AdminSettlementManagementPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ weekOffset }),
-      });
+      })
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || '정산 생성 중 오류가 발생했습니다.');
+        throw new Error(result.error || '정산 생성 중 오류가 발생했습니다.')
       }
 
-      return result;
+      return result
     },
     onSuccess: (result) => {
       alert(
@@ -241,79 +241,79 @@ export default function AdminSettlementManagementPage() {
           `- 생성된 정산: ${result.summary.totalCreated}건\n` +
           `- 총 정산액: ${result.summary.totalAmount.toLocaleString('ko-KR')}원\n` +
           `${result.summary.failed > 0 ? `- 실패: ${result.summary.failed}건` : ''}`
-      );
-      queryClient.invalidateQueries({ queryKey: ['settlements'] });
+      )
+      queryClient.invalidateQueries({ queryKey: ['settlements'] })
     },
     onError: (error: Error, variables, context) => {
-      alert(`❌ ${error.message}`);
+      alert(`❌ ${error.message}`)
     },
-  });
+  })
 
   const handleBulkCalculation = () => {
     const confirmCreate = confirm(
       '지난주 정산을 생성하시겠습니까?\n' + '완료된 예약을 기준으로 미용사 수수료가 계산됩니다.'
-    );
+    )
 
-    if (!confirmCreate) return;
+    if (!confirmCreate) return
 
-    weeklySettlementMutation.mutate(1); // 지난주 정산
-  };
+    weeklySettlementMutation.mutate(1) // 지난주 정산
+  }
 
   const getStatusBadgeColor = (status: Settlement['status']) => {
     switch (status) {
       case 'PENDING':
-        return 'bg-yellow-100 text-yellow-700';
+        return 'bg-yellow-100 text-yellow-700'
       case 'CALCULATED':
-        return 'bg-blue-100 text-blue-700';
+        return 'bg-blue-100 text-blue-700'
       case 'PAID':
-        return 'bg-green-100 text-green-700';
+        return 'bg-green-100 text-green-700'
       case 'FAILED':
-        return 'bg-red-100 text-red-700';
+        return 'bg-red-100 text-red-700'
       case 'CANCELLED':
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-100 text-gray-700'
     }
-  };
+  }
 
   const getStatusDisplayName = (status: Settlement['status']) => {
     switch (status) {
       case 'PENDING':
-        return '대기중';
+        return '대기중'
       case 'CALCULATED':
-        return '계산됨';
+        return '계산됨'
       case 'PAID':
-        return '지급완료';
+        return '지급완료'
       case 'FAILED':
-        return '실패';
+        return '실패'
       case 'CANCELLED':
-        return '취소';
+        return '취소'
     }
-  };
+  }
 
   const formatDate = (dateString: string) => {
-    return format(new Date(dateString), 'yyyy-MM-dd', { locale: ko });
-  };
+    return format(new Date(dateString), 'yyyy-MM-dd', { locale: ko })
+  }
 
   const formatPeriod = (period: string) => {
     // Handle ISO week format: "2024-W39"
     if (period.includes('W')) {
-      const [year, week] = period.split('-W');
-      return `${year}년 ${week}주차`;
+      const [year, week] = period.split('-W')
+      return `${year}년 ${week}주차`
     }
     // Fallback for month format: "2024-09"
-    const [year, month] = period.split('-');
-    return `${year}년 ${month}월`;
-  };
+    const [year, month] = period.split('-')
+    return `${year}년 ${month}월`
+  }
 
   if (isPending || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   if (!session || session.user?.role !== 'ADMIN') {
-    return null;
+    return null
   }
 
   return (
@@ -477,8 +477,8 @@ export default function AdminSettlementManagementPage() {
                     <PaginationPrevious
                       href="#"
                       onClick={(e) => {
-                        e.preventDefault();
-                        setCurrentPage(Math.max(1, currentPage - 1));
+                        e.preventDefault()
+                        setCurrentPage(Math.max(1, currentPage - 1))
                       }}
                       className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
                     />
@@ -497,30 +497,30 @@ export default function AdminSettlementManagementPage() {
                             href="#"
                             isActive={page === currentPage}
                             onClick={(e) => {
-                              e.preventDefault();
-                              setCurrentPage(page);
+                              e.preventDefault()
+                              setCurrentPage(page)
                             }}
                           >
                             {page}
                           </PaginationLink>
                         </PaginationItem>
-                      );
+                      )
                     } else if (page === currentPage - 2 || page === currentPage + 2) {
                       return (
                         <PaginationItem key={page}>
                           <PaginationEllipsis />
                         </PaginationItem>
-                      );
+                      )
                     }
-                    return null;
+                    return null
                   })}
 
                   <PaginationItem>
                     <PaginationNext
                       href="#"
                       onClick={(e) => {
-                        e.preventDefault();
-                        setCurrentPage(Math.min(totalPages, currentPage + 1));
+                        e.preventDefault()
+                        setCurrentPage(Math.min(totalPages, currentPage + 1))
                       }}
                       className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
                     />
@@ -712,5 +712,5 @@ export default function AdminSettlementManagementPage() {
         </div>
       )}
     </div>
-  );
+  )
 }

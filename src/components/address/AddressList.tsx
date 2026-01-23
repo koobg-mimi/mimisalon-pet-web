@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { Edit2, MapPin, Plus, Star, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Edit2, MapPin, Plus, Star, Trash2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,28 +12,28 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { useState } from 'react';
+} from '@/components/ui/alert-dialog'
+import { useState } from 'react'
 
 interface Address {
-  id: string;
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-  isDefault: boolean;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  street: string
+  city: string
+  state: string
+  zipCode: string
+  country: string
+  isDefault: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 interface AddressListProps {
-  addresses: Address[];
-  onAdd: () => void;
-  onEdit: (address: Address) => void;
-  onDelete: (addressId: string) => void;
-  onSetDefault: (addressId: string) => void;
-  isLoading?: boolean;
+  addresses: Address[]
+  onAdd: () => void
+  onEdit: (address: Address) => void
+  onDelete: (addressId: string) => void
+  onSetDefault: (addressId: string) => void
+  isLoading?: boolean
 }
 
 export function AddressList({
@@ -44,21 +44,21 @@ export function AddressList({
   onSetDefault,
   isLoading = false,
 }: AddressListProps) {
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [addressToDelete, setAddressToDelete] = useState<string | null>(null)
 
   const handleDeleteClick = (addressId: string) => {
-    setAddressToDelete(addressId);
-    setDeleteDialogOpen(true);
-  };
+    setAddressToDelete(addressId)
+    setDeleteDialogOpen(true)
+  }
 
   const handleConfirmDelete = () => {
     if (addressToDelete) {
-      onDelete(addressToDelete);
-      setAddressToDelete(null);
+      onDelete(addressToDelete)
+      setAddressToDelete(null)
     }
-    setDeleteDialogOpen(false);
-  };
+    setDeleteDialogOpen(false)
+  }
 
   if (isLoading) {
     return (
@@ -70,7 +70,7 @@ export function AddressList({
           </div>
         ))}
       </div>
-    );
+    )
   }
 
   if (addresses.length === 0) {
@@ -84,7 +84,7 @@ export function AddressList({
           주소 추가
         </Button>
       </div>
-    );
+    )
   }
 
   return (
@@ -169,5 +169,5 @@ export function AddressList({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  );
+  )
 }

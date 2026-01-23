@@ -1,22 +1,22 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { Checkbox } from '@/components/ui/checkbox';
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 import {
   ScissorsIcon,
   SearchIcon,
@@ -27,39 +27,39 @@ import {
   MinusIcon,
   AlertCircleIcon,
   CheckCircleIcon,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface Service {
-  id: string;
-  name: string;
-  description: string;
-  duration: number;
-  price: number; // 계산된 가격
-  petTypes: string[];
-  requirements?: string;
-  afterCareInstructions?: string;
-  imageUrl?: string;
-  isPopular: boolean;
-  isRecommended: boolean;
-  averageRating: number;
-  bookingCount: number;
+  id: string
+  name: string
+  description: string
+  duration: number
+  price: number // 계산된 가격
+  petTypes: string[]
+  requirements?: string
+  afterCareInstructions?: string
+  imageUrl?: string
+  isPopular: boolean
+  isRecommended: boolean
+  averageRating: number
+  bookingCount: number
 }
 
 interface Pet {
-  id: string;
-  name: string;
-  species: string;
-  breed: string;
-  weight: number;
-  breedId?: string;
+  id: string
+  name: string
+  species: string
+  breed: string
+  weight: number
+  breedId?: string
 }
 
 interface ServiceSelectorProps {
-  pet: Pet;
-  selectedServices: Service[];
-  onServicesChange: (services: Service[]) => void;
-  maxServices?: number;
+  pet: Pet
+  selectedServices: Service[]
+  onServicesChange: (services: Service[]) => void
+  maxServices?: number
 }
 
 export function ServiceSelector({
@@ -68,122 +68,122 @@ export function ServiceSelector({
   onServicesChange,
   maxServices = 5,
 }: ServiceSelectorProps) {
-  const [services, setServices] = useState<Service[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<string>('popular');
-  const [showRecommended, setShowRecommended] = useState(true);
+  const [services, setServices] = useState<Service[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [sortBy, setSortBy] = useState<string>('popular')
+  const [showRecommended, setShowRecommended] = useState(true)
 
   // 서비스 목록 조회
   useEffect(() => {
     const fetchServices = async () => {
-      setIsLoading(true);
+      setIsLoading(true)
       try {
         const response = await fetch(`/api/customer/services?petId=${pet.id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-        });
+        })
 
         if (!response.ok) {
-          throw new Error('서비스 목록을 불러오는데 실패했습니다');
+          throw new Error('서비스 목록을 불러오는데 실패했습니다')
         }
 
-        const data = await response.json();
-        setServices(data);
+        const data = await response.json()
+        setServices(data)
       } catch (error) {
-        console.error('Error fetching services:', error);
+        console.error('Error fetching services:', error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchServices();
-  }, [pet.id]);
+    fetchServices()
+  }, [pet.id])
 
   // 서비스 필터링 및 정렬
   const filteredAndSortedServices = services
     .filter((service) => {
       const matchesSearch =
         service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        service.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesPetType = service.petTypes.includes(pet.species);
+        service.description.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesPetType = service.petTypes.includes(pet.species)
 
-      return matchesSearch && matchesPetType;
+      return matchesSearch && matchesPetType
     })
     .sort((a, b) => {
       switch (sortBy) {
         case 'popular':
-          return b.bookingCount - a.bookingCount;
+          return b.bookingCount - a.bookingCount
         case 'price-low':
-          return a.price - b.price;
+          return a.price - b.price
         case 'price-high':
-          return b.price - a.price;
+          return b.price - a.price
         case 'duration-short':
-          return a.duration - b.duration;
+          return a.duration - b.duration
         case 'duration-long':
-          return b.duration - a.duration;
+          return b.duration - a.duration
         case 'rating':
-          return b.averageRating - a.averageRating;
+          return b.averageRating - a.averageRating
         default:
-          return 0;
+          return 0
       }
-    });
+    })
 
   // 추천 서비스 분리
   const recommendedServices = showRecommended
     ? filteredAndSortedServices.filter((service) => service.isRecommended)
-    : [];
+    : []
 
   const regularServices = filteredAndSortedServices.filter(
     (service) => !showRecommended || !service.isRecommended
-  );
+  )
 
   const isServiceSelected = (serviceId: string) => {
-    return selectedServices.some((s) => s.id === serviceId);
-  };
+    return selectedServices.some((s) => s.id === serviceId)
+  }
 
   const canAddService = () => {
-    return selectedServices.length < maxServices;
-  };
+    return selectedServices.length < maxServices
+  }
 
   const handleServiceToggle = (service: Service) => {
-    const isSelected = isServiceSelected(service.id);
+    const isSelected = isServiceSelected(service.id)
 
     if (isSelected) {
       // 서비스 제거
-      const newServices = selectedServices.filter((s) => s.id !== service.id);
-      onServicesChange(newServices);
+      const newServices = selectedServices.filter((s) => s.id !== service.id)
+      onServicesChange(newServices)
     } else {
       // 서비스 추가
       if (canAddService()) {
-        const newServices = [...selectedServices, service];
-        onServicesChange(newServices);
+        const newServices = [...selectedServices, service]
+        onServicesChange(newServices)
       }
     }
-  };
+  }
 
   const getTotalDuration = () => {
-    return selectedServices.reduce((acc, service) => acc + service.duration, 0);
-  };
+    return selectedServices.reduce((acc, service) => acc + service.duration, 0)
+  }
 
   const getTotalPrice = () => {
-    return selectedServices.reduce((acc, service) => acc + service.price, 0);
-  };
+    return selectedServices.reduce((acc, service) => acc + service.price, 0)
+  }
 
   const getServiceCompatibility = (service: Service) => {
-    const warnings = [];
+    const warnings = []
 
     // 총 시간 초과 체크
-    const totalDuration = getTotalDuration() + service.duration;
+    const totalDuration = getTotalDuration() + service.duration
     if (totalDuration > 240) {
       // 4시간 초과
-      warnings.push('총 시간이 4시간을 초과할 수 있습니다');
+      warnings.push('총 시간이 4시간을 초과할 수 있습니다')
     }
 
-    return warnings;
-  };
+    return warnings
+  }
 
   if (isLoading) {
     return (
@@ -195,7 +195,7 @@ export function ServiceSelector({
           </div>
         </CardContent>
       </Card>
-    );
+    )
   }
 
   return (
@@ -348,15 +348,15 @@ export function ServiceSelector({
         )}
       </div>
     </div>
-  );
+  )
 }
 
 interface ServiceCardProps {
-  service: Service;
-  isSelected: boolean;
-  canSelect: boolean;
-  onToggle: () => void;
-  compatibility: string[];
+  service: Service
+  isSelected: boolean
+  canSelect: boolean
+  onToggle: () => void
+  compatibility: string[]
 }
 
 function ServiceCard({
@@ -461,5 +461,5 @@ function ServiceCard({
         </Button>
       </CardContent>
     </Card>
-  );
+  )
 }

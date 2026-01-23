@@ -1,9 +1,9 @@
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { FilterType } from '../_constants/payment-filters';
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { FilterType } from '../_constants/payment-filters'
 
 interface EmptyPaymentStateProps {
-  filter: FilterType;
+  filter: FilterType
 }
 
 export function EmptyPaymentState({ filter }: EmptyPaymentStateProps) {
@@ -13,31 +13,31 @@ export function EmptyPaymentState({ filter }: EmptyPaymentStateProps) {
         return {
           title: '완료된 결제 내역이 없습니다',
           description: '미용 서비스를 예약하고 결제를 완료해보세요.',
-        };
+        }
       case 'PENDING':
         return {
           title: '대기 중인 결제가 없습니다',
           description: '모든 결제가 완료되었습니다.',
-        };
+        }
       case 'FAILED':
         return {
           title: '실패한 결제 내역이 없습니다',
           description: '모든 결제가 성공적으로 처리되었습니다.',
-        };
+        }
       case 'REFUNDED':
         return {
           title: '환불 내역이 없습니다',
           description: '환불 처리된 결제가 없습니다.',
-        };
+        }
       default:
         return {
           title: '결제 내역이 없습니다',
           description: '첫 번째 미용 서비스를 예약해보세요.',
-        };
+        }
     }
-  };
+  }
 
-  const { title, description } = getEmptyMessage();
+  const { title, description } = getEmptyMessage()
 
   return (
     <div className="py-12 text-center">
@@ -64,5 +64,5 @@ export function EmptyPaymentState({ filter }: EmptyPaymentStateProps) {
         </Button>
       )}
     </div>
-  );
+  )
 }

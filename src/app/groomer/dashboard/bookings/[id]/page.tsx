@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { use } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { use } from 'react'
+import { useRouter } from 'next/navigation'
+import Image from 'next/image'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import {
   CalendarIcon,
   ClockIcon,
@@ -22,75 +22,75 @@ import {
   ArrowLeftIcon,
   PlayIcon,
   MapPinIcon,
-} from 'lucide-react';
+} from 'lucide-react'
 
 interface Service {
-  id: string;
-  serviceId: string;
-  name: string;
-  description: string;
-  category: string;
-  duration: number;
-  price: number;
-  status: string;
+  id: string
+  serviceId: string
+  name: string
+  description: string
+  category: string
+  duration: number
+  price: number
+  status: string
 }
 
 interface ServiceOption {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
+  id: string
+  name: string
+  description: string
+  price: number
 }
 
 interface Pet {
-  id: string;
-  name: string;
-  species: string;
-  breed: string;
-  age: number;
-  weight: number;
-  photoUrl?: string | null;
-  services: Service[];
-  options: ServiceOption[];
+  id: string
+  name: string
+  species: string
+  breed: string
+  age: number
+  weight: number
+  photoUrl?: string | null
+  services: Service[]
+  options: ServiceOption[]
 }
 
 interface BookingDetail {
-  id: string;
-  bookingNumber: string;
-  appointmentDate: string;
-  startTime: string;
-  endTime: string;
-  status: string;
-  paymentStatus: string;
-  totalAmount: number;
-  paidAmount: number;
+  id: string
+  bookingNumber: string
+  appointmentDate: string
+  startTime: string
+  endTime: string
+  status: string
+  paymentStatus: string
+  totalAmount: number
+  paidAmount: number
   customer: {
-    id: string;
-    name: string;
-    phone: string;
-    email: string;
-    photoUrl?: string | null;
-    experience?: string | null; // Will be added to schema later
-  } | null;
+    id: string
+    name: string
+    phone: string
+    email: string
+    photoUrl?: string | null
+    experience?: string | null // Will be added to schema later
+  } | null
   groomer?: {
-    id: string;
-    name: string;
-    phone: string;
-    email: string;
-    photoUrl?: string | null;
-    experience?: string | null;
-  } | null;
-  pets: Pet[];
+    id: string
+    name: string
+    phone: string
+    email: string
+    photoUrl?: string | null
+    experience?: string | null
+  } | null
+  pets: Pet[]
   location?: {
-    address: string;
-    zipCode: string;
-  } | null;
-  notes?: string | null;
-  specialRequests?: string | null;
-  serviceType: string;
-  serviceDescription?: string | null;
-  actualStartTime?: string | null;
-  actualEndTime?: string | null;
+    address: string
+    zipCode: string
+  } | null
+  notes?: string | null
+  specialRequests?: string | null
+  serviceType: string
+  serviceDescription?: string | null
+  actualStartTime?: string | null
+  actualEndTime?: string | null
 }
 
 // 상태에 따른 Badge variant 반환
@@ -98,19 +98,19 @@ function getStatusVariant(status: string): 'default' | 'secondary' | 'success' |
   switch (status) {
     case 'GROOMER_CONFIRM':
     case 'CONFIRMED':
-      return 'default';
+      return 'default'
     case 'WORK_IN_PROGRESS':
     case 'IN_PROGRESS':
-      return 'default';
+      return 'default'
     case 'SERVICE_COMPLETED':
     case 'COMPLETED':
-      return 'success';
+      return 'success'
     case 'SERVICE_CANCELLED':
     case 'BOOKING_FAILED':
     case 'CANCELLED':
-      return 'destructive';
+      return 'destructive'
     default:
-      return 'secondary';
+      return 'secondary'
   }
 }
 
@@ -130,15 +130,15 @@ function getStatusLabel(status: string): string {
     COMPLETED: '완료',
     CANCELLED: '취소',
     PENDING: '대기',
-  };
+  }
 
-  return statusMap[status] || status;
+  return statusMap[status] || status
 }
 
 export default function GroomerBookingDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
-  const router = useRouter();
-  const queryClient = useQueryClient();
+  const resolvedParams = use(params)
+  const router = useRouter()
+  const queryClient = useQueryClient()
 
   const {
     data: booking,
@@ -147,27 +147,27 @@ export default function GroomerBookingDetailPage({ params }: { params: Promise<{
   } = useQuery<BookingDetail>({
     queryKey: ['groomer', 'bookings', resolvedParams.id],
     queryFn: async () => {
-      const response = await fetch(`/api/groomer/bookings/${resolvedParams.id}`);
+      const response = await fetch(`/api/groomer/bookings/${resolvedParams.id}`)
 
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error('Booking not found');
+          throw new Error('Booking not found')
         }
-        throw new Error('Failed to fetch booking details');
+        throw new Error('Failed to fetch booking details')
       }
 
-      return response.json();
+      return response.json()
     },
-  });
+  })
 
   const handleServiceUpdate = async (serviceId: string, status: string) => {
     try {
       // Update service status
-      console.log('Updating service:', serviceId, status);
+      console.log('Updating service:', serviceId, status)
     } catch (error) {
-      console.error('Error updating service:', error);
+      console.error('Error updating service:', error)
     }
-  };
+  }
 
   const completeAllMutation = useMutation({
     mutationFn: async () => {
@@ -176,32 +176,32 @@ export default function GroomerBookingDetailPage({ params }: { params: Promise<{
         headers: {
           'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || '완료 처리에 실패했습니다');
+        const error = await response.json()
+        throw new Error(error.error || '완료 처리에 실패했습니다')
       }
 
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['groomer', 'bookings', resolvedParams.id] });
-      queryClient.invalidateQueries({ queryKey: ['groomer', 'bookings'] });
-      alert('모든 서비스가 완료되었습니다');
+      queryClient.invalidateQueries({ queryKey: ['groomer', 'bookings', resolvedParams.id] })
+      queryClient.invalidateQueries({ queryKey: ['groomer', 'bookings'] })
+      alert('모든 서비스가 완료되었습니다')
     },
     onError: (error: Error) => {
-      console.error('Complete all services error:', error);
-      alert(error.message || '완료 처리 중 오류가 발생했습니다');
+      console.error('Complete all services error:', error)
+      alert(error.message || '완료 처리 중 오류가 발생했습니다')
     },
-  });
+  })
 
   const handleCompleteAll = () => {
     if (!confirm('모든 서비스를 완료 처리하시겠습니까?')) {
-      return;
+      return
     }
-    completeAllMutation.mutate();
-  };
+    completeAllMutation.mutate()
+  }
 
   if (isLoading) {
     return (
@@ -215,7 +215,7 @@ export default function GroomerBookingDetailPage({ params }: { params: Promise<{
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   if (error || !booking) {
@@ -236,7 +236,7 @@ export default function GroomerBookingDetailPage({ params }: { params: Promise<{
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   return (
@@ -601,5 +601,5 @@ export default function GroomerBookingDetailPage({ params }: { params: Promise<{
         )}
       </div>
     </div>
-  );
+  )
 }

@@ -1,33 +1,33 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 import {
   CreditCardIcon,
   BanknoteIcon,
   SmartphoneIcon,
   ShieldCheckIcon,
   AlertCircleIcon,
-} from 'lucide-react';
-import { paymentMethodSchema, type PaymentMethod } from '@/lib/validations/payment';
-import { cn } from '@/lib/utils';
+} from 'lucide-react'
+import { paymentMethodSchema, type PaymentMethod } from '@/lib/validations/payment'
+import { cn } from '@/lib/utils'
 
 interface PaymentMethodSelectorProps {
-  selectedMethod: PaymentMethod | null;
-  onMethodChange: (method: PaymentMethod) => void;
-  className?: string;
+  selectedMethod: PaymentMethod | null
+  onMethodChange: (method: PaymentMethod) => void
+  className?: string
 }
 
 const PAYMENT_TYPES = [
@@ -52,13 +52,13 @@ const PAYMENT_TYPES = [
     icon: BanknoteIcon,
     color: 'purple',
   },
-] as const;
+] as const
 
 const DIGITAL_WALLETS = [
   { value: 'KAKAO_PAY', label: '카카오페이' },
   { value: 'TOSS_PAY', label: '토스페이' },
   { value: 'NAVER_PAY', label: '네이버페이' },
-] as const;
+] as const
 
 const BANK_CODES = [
   { value: '004', label: 'KB국민은행' },
@@ -71,14 +71,14 @@ const BANK_CODES = [
   { value: '007', label: '수협은행' },
   { value: '023', label: 'SC제일은행' },
   { value: '039', label: '경남은행' },
-] as const;
+] as const
 
 export function PaymentMethodSelector({
   selectedMethod,
   onMethodChange,
   className,
 }: PaymentMethodSelectorProps) {
-  const [selectedType, setSelectedType] = useState<string>(selectedMethod?.type || '');
+  const [selectedType, setSelectedType] = useState<string>(selectedMethod?.type || '')
 
   const {
     register,
@@ -87,50 +87,50 @@ export function PaymentMethodSelector({
   } = useForm<PaymentMethod>({
     resolver: zodResolver(paymentMethodSchema),
     defaultValues: selectedMethod || { type: 'CARD' },
-  });
+  })
 
   const handleTypeChange = (type: string) => {
-    setSelectedType(type);
-    setValue('type', type as PaymentMethod['type']);
+    setSelectedType(type)
+    setValue('type', type as PaymentMethod['type'])
 
     // Create new payment method object and notify parent
-    const newMethod: PaymentMethod = { type: type as PaymentMethod['type'] };
-    onMethodChange(newMethod);
+    const newMethod: PaymentMethod = { type: type as PaymentMethod['type'] }
+    onMethodChange(newMethod)
 
     // Reset other fields when type changes
-    setValue('cardNumber', undefined);
-    setValue('expiryDate', undefined);
-    setValue('cvv', undefined);
-    setValue('cardHolderName', undefined);
-    setValue('bankCode', undefined);
-    setValue('accountNumber', undefined);
-    setValue('walletProvider', undefined);
-  };
+    setValue('cardNumber', undefined)
+    setValue('expiryDate', undefined)
+    setValue('cvv', undefined)
+    setValue('cardHolderName', undefined)
+    setValue('bankCode', undefined)
+    setValue('accountNumber', undefined)
+    setValue('walletProvider', undefined)
+  }
 
   const formatCardNumber = (value: string) => {
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    const matches = v.match(/\d{4,16}/g);
-    const match = (matches && matches[0]) || '';
-    const parts = [];
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '')
+    const matches = v.match(/\d{4,16}/g)
+    const match = (matches && matches[0]) || ''
+    const parts = []
 
     for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
+      parts.push(match.substring(i, i + 4))
     }
 
     if (parts.length) {
-      return parts.join(' ');
+      return parts.join(' ')
     } else {
-      return v;
+      return v
     }
-  };
+  }
 
   const formatExpiryDate = (value: string) => {
-    const v = value.replace(/\D/g, '');
+    const v = value.replace(/\D/g, '')
     if (v.length >= 2) {
-      return v.substring(0, 2) + '/' + v.substring(2, 4);
+      return v.substring(0, 2) + '/' + v.substring(2, 4)
     }
-    return v;
-  };
+    return v
+  }
 
   return (
     <div className={cn('space-y-6', className)}>
@@ -144,7 +144,7 @@ export function PaymentMethodSelector({
         <CardContent className="space-y-6">
           <RadioGroup value={selectedType} onValueChange={handleTypeChange} className="space-y-4">
             {PAYMENT_TYPES.map((type) => {
-              const Icon = type.icon;
+              const Icon = type.icon
               return (
                 <div key={type.id} className="space-y-4">
                   <div className="flex items-center space-x-3">
@@ -182,8 +182,8 @@ export function PaymentMethodSelector({
                               maxLength={19}
                               {...register('cardNumber')}
                               onChange={(e) => {
-                                const formatted = formatCardNumber(e.target.value);
-                                setValue('cardNumber', formatted);
+                                const formatted = formatCardNumber(e.target.value)
+                                setValue('cardNumber', formatted)
                               }}
                             />
                             {errors.cardNumber && (
@@ -200,8 +200,8 @@ export function PaymentMethodSelector({
                               maxLength={5}
                               {...register('expiryDate')}
                               onChange={(e) => {
-                                const formatted = formatExpiryDate(e.target.value);
-                                setValue('expiryDate', formatted);
+                                const formatted = formatExpiryDate(e.target.value)
+                                setValue('expiryDate', formatted)
                               }}
                             />
                             {errors.expiryDate && (
@@ -312,11 +312,11 @@ export function PaymentMethodSelector({
                     </div>
                   )}
                 </div>
-              );
+              )
             })}
           </RadioGroup>
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

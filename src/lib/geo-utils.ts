@@ -3,13 +3,13 @@
  * Uses the Haversine formula for accurate distance calculations on Earth's surface
  */
 
-const EARTH_RADIUS_KM = 6371; // Earth's radius in kilometers
+const EARTH_RADIUS_KM = 6371 // Earth's radius in kilometers
 
 /**
  * Converts degrees to radians
  */
 function toRadians(degrees: number): number {
-  return degrees * (Math.PI / 180);
+  return degrees * (Math.PI / 180)
 }
 
 /**
@@ -21,16 +21,16 @@ function toRadians(degrees: number): number {
  * @returns Distance in kilometers
  */
 export function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const dLat = toRadians(lat2 - lat1);
-  const dLng = toRadians(lng2 - lng1);
+  const dLat = toRadians(lat2 - lat1)
+  const dLng = toRadians(lng2 - lng1)
 
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2)
 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 
-  return EARTH_RADIUS_KM * c;
+  return EARTH_RADIUS_KM * c
 }
 
 /**
@@ -49,8 +49,8 @@ export function isWithinServiceArea(
   groomerLng: number,
   radiusKm: number
 ): boolean {
-  const distance = calculateDistance(customerLat, customerLng, groomerLat, groomerLng);
-  return distance <= radiusKm;
+  const distance = calculateDistance(customerLat, customerLng, groomerLat, groomerLng)
+  return distance <= radiusKm
 }
 
 /**
@@ -64,32 +64,32 @@ export function findClosestWorkArea(
   customerLat: number,
   customerLng: number,
   workAreas: Array<{
-    id: string;
-    centerLat: number;
-    centerLng: number;
-    radiusKm: number;
-    name?: string;
+    id: string
+    centerLat: number
+    centerLng: number
+    radiusKm: number
+    name?: string
   }>
 ): {
   workArea: {
-    id: string;
-    centerLat: number;
-    centerLng: number;
-    radiusKm: number;
-    name?: string;
-  };
-  distance: number;
-  isWithinRange: boolean;
+    id: string
+    centerLat: number
+    centerLng: number
+    radiusKm: number
+    name?: string
+  }
+  distance: number
+  isWithinRange: boolean
 } | null {
-  if (workAreas.length === 0) return null;
+  if (workAreas.length === 0) return null
 
-  let closest = workAreas[0];
+  let closest = workAreas[0]
   let closestDistance = calculateDistance(
     customerLat,
     customerLng,
     closest.centerLat,
     closest.centerLng
-  );
+  )
 
   // Find the closest work area
   for (const workArea of workAreas.slice(1)) {
@@ -98,11 +98,11 @@ export function findClosestWorkArea(
       customerLng,
       workArea.centerLat,
       workArea.centerLng
-    );
+    )
 
     if (distance < closestDistance) {
-      closest = workArea;
-      closestDistance = distance;
+      closest = workArea
+      closestDistance = distance
     }
   }
 
@@ -110,7 +110,7 @@ export function findClosestWorkArea(
     workArea: closest,
     distance: closestDistance,
     isWithinRange: closestDistance <= closest.radiusKm,
-  };
+  }
 }
 
 /**
@@ -124,9 +124,9 @@ export function canServiceLocation(
   customerLat: number,
   customerLng: number,
   workAreas: Array<{
-    centerLat: number;
-    centerLng: number;
-    radiusKm: number;
+    centerLat: number
+    centerLng: number
+    radiusKm: number
   }>
 ): boolean {
   return workAreas.some((workArea) =>
@@ -137,7 +137,7 @@ export function canServiceLocation(
       workArea.centerLng,
       workArea.radiusKm
     )
-  );
+  )
 }
 
 /**
@@ -150,10 +150,10 @@ export function canServiceLocation(
 export function sortGroomersByDistance<
   T extends {
     workAreas: Array<{
-      centerLat: number;
-      centerLng: number;
-      radiusKm: number;
-    }>;
+      centerLat: number
+      centerLng: number
+      radiusKm: number
+    }>
   },
 >(groomers: T[], customerLat: number, customerLng: number): Array<T & { closestDistance: number }> {
   return groomers
@@ -162,14 +162,14 @@ export function sortGroomersByDistance<
       const workAreasWithId = groomer.workAreas.map((workArea, index) => ({
         ...workArea,
         id: `workArea-${index}`,
-      }));
+      }))
 
-      const closestWorkArea = findClosestWorkArea(customerLat, customerLng, workAreasWithId);
+      const closestWorkArea = findClosestWorkArea(customerLat, customerLng, workAreasWithId)
 
       return {
         ...groomer,
         closestDistance: closestWorkArea?.distance ?? Infinity,
-      };
+      }
     })
-    .sort((a, b) => a.closestDistance - b.closestDistance);
+    .sort((a, b) => a.closestDistance - b.closestDistance)
 }

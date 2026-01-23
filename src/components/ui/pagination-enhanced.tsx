@@ -1,27 +1,27 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import * as React from 'react'
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 
 interface EnhancedPaginationProps {
-  currentPage: number;
-  totalPages: number;
-  pageSize: number;
-  onPageChange: (page: number) => void;
-  onPageSizeChange?: (size: number) => void;
-  className?: string;
-  pageSizeOptions?: number[];
-  showPageSizeSelector?: boolean;
-  maxVisiblePages?: number;
+  currentPage: number
+  totalPages: number
+  pageSize: number
+  onPageChange: (page: number) => void
+  onPageSizeChange?: (size: number) => void
+  className?: string
+  pageSizeOptions?: number[]
+  showPageSizeSelector?: boolean
+  maxVisiblePages?: number
 }
 
 /**
@@ -39,56 +39,56 @@ export function EnhancedPagination({
   showPageSizeSelector = true,
   maxVisiblePages = 5,
 }: EnhancedPaginationProps) {
-  const canGoPrevious = currentPage > 1;
-  const canGoNext = currentPage < totalPages;
+  const canGoPrevious = currentPage > 1
+  const canGoNext = currentPage < totalPages
 
   // Calculate which page numbers to show
   const getVisiblePages = (): (number | 'ellipsis')[] => {
     if (totalPages <= maxVisiblePages + 2) {
       // Show all pages if total is small
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
+      return Array.from({ length: totalPages }, (_, i) => i + 1)
     }
 
-    const pages: (number | 'ellipsis')[] = [];
-    const halfVisible = Math.floor(maxVisiblePages / 2);
+    const pages: (number | 'ellipsis')[] = []
+    const halfVisible = Math.floor(maxVisiblePages / 2)
 
     // Always show first page
-    pages.push(1);
+    pages.push(1)
 
-    let start = Math.max(2, currentPage - halfVisible);
-    let end = Math.min(totalPages - 1, currentPage + halfVisible);
+    let start = Math.max(2, currentPage - halfVisible)
+    let end = Math.min(totalPages - 1, currentPage + halfVisible)
 
     // Adjust if we're near the start or end
     if (currentPage <= halfVisible + 1) {
-      end = Math.min(totalPages - 1, maxVisiblePages);
+      end = Math.min(totalPages - 1, maxVisiblePages)
     } else if (currentPage >= totalPages - halfVisible) {
-      start = Math.max(2, totalPages - maxVisiblePages);
+      start = Math.max(2, totalPages - maxVisiblePages)
     }
 
     // Add ellipsis after first page if needed
     if (start > 2) {
-      pages.push('ellipsis');
+      pages.push('ellipsis')
     }
 
     // Add middle pages
     for (let i = start; i <= end; i++) {
-      pages.push(i);
+      pages.push(i)
     }
 
     // Add ellipsis before last page if needed
     if (end < totalPages - 1) {
-      pages.push('ellipsis');
+      pages.push('ellipsis')
     }
 
     // Always show last page
     if (totalPages > 1) {
-      pages.push(totalPages);
+      pages.push(totalPages)
     }
 
-    return pages;
-  };
+    return pages
+  }
 
-  const visiblePages = getVisiblePages();
+  const visiblePages = getVisiblePages()
 
   return (
     <div
@@ -139,10 +139,10 @@ export function EnhancedPagination({
                 <div key={`ellipsis-${index}`} className="flex h-9 w-9 items-center justify-center">
                   <span className="text-muted-foreground">...</span>
                 </div>
-              );
+              )
             }
 
-            const isActive = page === currentPage;
+            const isActive = page === currentPage
 
             return (
               <Button
@@ -156,7 +156,7 @@ export function EnhancedPagination({
               >
                 {page}
               </Button>
-            );
+            )
           })}
         </div>
 
@@ -178,7 +178,7 @@ export function EnhancedPagination({
         {currentPage} / {totalPages} 페이지
       </div>
     </div>
-  );
+  )
 }
 
 /**
@@ -193,8 +193,8 @@ export function CompactPagination({
   className,
   pageSizeOptions = [10, 20, 50],
 }: EnhancedPaginationProps) {
-  const canGoPrevious = currentPage > 1;
-  const canGoNext = currentPage < totalPages;
+  const canGoPrevious = currentPage > 1
+  const canGoNext = currentPage < totalPages
 
   return (
     <div className={cn('flex flex-col items-center gap-4', className)}>
@@ -252,5 +252,5 @@ export function CompactPagination({
         </Button>
       </div>
     </div>
-  );
+  )
 }

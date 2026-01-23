@@ -1,6 +1,6 @@
-import type { Preview } from '@storybook/nextjs-vite';
-import React from 'react';
-import '../src/app/globals.css';
+import type { Preview } from '@storybook/nextjs-vite'
+import React from 'react'
+import '../src/app/globals.css'
 
 const preview: Preview = {
   parameters: {
@@ -49,6 +49,6 @@ const preview: Preview = {
       </div>
     ),
   ],
-};
+}
 
-export default preview;
+export default preview

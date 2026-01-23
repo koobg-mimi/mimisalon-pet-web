@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { createAuthClient } from 'better-auth/react';
-import { adminClient, emailOTPClient, phoneNumberClient } from 'better-auth/client/plugins';
-import auth from './auth';
+import { createAuthClient } from 'better-auth/react'
+import { adminClient, emailOTPClient, phoneNumberClient } from 'better-auth/client/plugins'
+import auth from './auth'
 
 /**
  * Better Auth Client Configuration
@@ -39,20 +39,20 @@ export const authClient = createAuthClient({
     // Phone Number plugin for SMS authentication
     phoneNumberClient(),
   ],
-});
+})
 
 /**
  * Type-safe session hook
  * Automatically infers types from server auth configuration
  */
-export const useSession = authClient.useSession;
+export const useSession = authClient.useSession
 
 /**
  * Convenience exports for common auth operations
  */
-export const { signIn, signOut, signUp } = authClient;
+export const { signIn, signOut, signUp } = authClient
 
 /**
  * Type exports for TypeScript inference
  */
-export type Session = typeof auth.$Infer.Session;
+export type Session = typeof auth.$Infer.Session

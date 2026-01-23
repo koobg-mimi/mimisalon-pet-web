@@ -1,15 +1,15 @@
-import { ServicePriceRange } from '@/types/service';
+import { ServicePriceRange } from '@/types/service'
 
 export interface PetInfo {
-  type: 'DOG' | 'CAT';
-  weight: number;
-  breedId?: string;
+  type: 'DOG' | 'CAT'
+  weight: number
+  breedId?: string
 }
 
 export interface ServiceInfo {
-  id: string;
-  name: string;
-  priceRanges: ServicePriceRange[];
+  id: string
+  name: string
+  priceRanges: ServicePriceRange[]
 }
 
 /**
@@ -19,9 +19,9 @@ export interface ServiceInfo {
  */
 export function getBasePrice(service: ServiceInfo): number {
   if (!service.priceRanges || service.priceRanges.length === 0) {
-    throw new Error(`Service ${service.id} has no price ranges`);
+    throw new Error(`Service ${service.id} has no price ranges`)
   }
-  return Math.min(...service.priceRanges.map((r) => r.price));
+  return Math.min(...service.priceRanges.map((r) => r.price))
 }
 
 /**
@@ -41,11 +41,11 @@ export function getBasePrice(service: ServiceInfo): number {
  */
 export function calculateServicePrice(service: ServiceInfo, pet: PetInfo): number {
   if (!service.priceRanges || service.priceRanges.length === 0) {
-    throw new Error(`Service ${service.id} has no price ranges`);
+    throw new Error(`Service ${service.id} has no price ranges`)
   }
 
   // 해당 펫 타입의 가격 구간 필터링
-  const applicableRanges = service.priceRanges.filter((range) => range.petType === pet.type);
+  const applicableRanges = service.priceRanges.filter((range) => range.petType === pet.type)
 
   // 1. 품종별 가격이 설정된 경우 우선 확인
   if (pet.breedId) {
@@ -54,17 +54,17 @@ export function calculateServicePrice(service: ServiceInfo, pet: PetInfo): numbe
       if (range.selectedBreedIds && range.selectedBreedIds.length > 0) {
         if (range.selectedBreedIds.includes(pet.breedId!)) {
           // 무게 조건 확인
-          const minWeight = range.minWeight ?? 0;
-          const isMinWeightValid = pet.weight >= minWeight;
-          const isMaxWeightValid = range.maxWeight == null || pet.weight <= range.maxWeight;
-          return isMinWeightValid && isMaxWeightValid;
+          const minWeight = range.minWeight ?? 0
+          const isMinWeightValid = pet.weight >= minWeight
+          const isMaxWeightValid = range.maxWeight == null || pet.weight <= range.maxWeight
+          return isMinWeightValid && isMaxWeightValid
         }
       }
-      return false;
-    });
+      return false
+    })
 
     if (breedSpecificRange) {
-      return breedSpecificRange.price;
+      return breedSpecificRange.price
     }
   }
 
@@ -72,32 +72,32 @@ export function calculateServicePrice(service: ServiceInfo, pet: PetInfo): numbe
   const matchingRange = applicableRanges.find((range) => {
     // 품종이 지정되지 않은 가격 범위만 확인 (일반 가격)
     if (!range.selectedBreedIds || range.selectedBreedIds.length === 0) {
-      const minWeight = range.minWeight ?? 0;
-      const isMinWeightValid = pet.weight >= minWeight;
-      const isMaxWeightValid = range.maxWeight == null || pet.weight <= range.maxWeight;
-      return isMinWeightValid && isMaxWeightValid;
+      const minWeight = range.minWeight ?? 0
+      const isMinWeightValid = pet.weight >= minWeight
+      const isMaxWeightValid = range.maxWeight == null || pet.weight <= range.maxWeight
+      return isMinWeightValid && isMaxWeightValid
     }
-    return false;
-  });
+    return false
+  })
 
   if (matchingRange) {
-    return matchingRange.price;
+    return matchingRange.price
   }
 
   // 3. 매칭되는 구간이 없으면 펫 타입에 관계없이 모든 구간에서 찾기
   const fallbackRange = service.priceRanges.find((range) => {
-    const minWeight = range.minWeight ?? 0;
-    const isMinWeightValid = pet.weight >= minWeight;
-    const isMaxWeightValid = range.maxWeight == null || pet.weight <= range.maxWeight;
-    return isMinWeightValid && isMaxWeightValid;
-  });
+    const minWeight = range.minWeight ?? 0
+    const isMinWeightValid = pet.weight >= minWeight
+    const isMaxWeightValid = range.maxWeight == null || pet.weight <= range.maxWeight
+    return isMinWeightValid && isMaxWeightValid
+  })
 
   if (fallbackRange) {
-    return fallbackRange.price;
+    return fallbackRange.price
   }
 
   // 기본값: 최소 가격 반환
-  return getBasePrice(service);
+  return getBasePrice(service)
 }
 
 /**
@@ -108,8 +108,8 @@ export function calculateServicePrice(service: ServiceInfo, pet: PetInfo): numbe
  */
 export function calculateTotalPrice(services: ServiceInfo[], pet: PetInfo): number {
   return services.reduce((total, service) => {
-    return total + calculateServicePrice(service, pet);
-  }, 0);
+    return total + calculateServicePrice(service, pet)
+  }, 0)
 }
 
 /**
@@ -123,7 +123,7 @@ export function formatPrice(price: number): string {
     currency: 'KRW',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(price);
+  }).format(price)
 }
 
 /**
@@ -137,16 +137,16 @@ export function getPetSizeByWeight(
   petType: 'DOG' | 'CAT'
 ): 'SMALL' | 'MEDIUM' | 'LARGE' | 'EXTRA_LARGE' {
   if (petType === 'CAT') {
-    if (weight <= 4) return 'SMALL';
-    if (weight <= 6) return 'MEDIUM';
-    if (weight <= 8) return 'LARGE';
-    return 'EXTRA_LARGE';
+    if (weight <= 4) return 'SMALL'
+    if (weight <= 6) return 'MEDIUM'
+    if (weight <= 8) return 'LARGE'
+    return 'EXTRA_LARGE'
   } else {
     // DOG
-    if (weight <= 7) return 'SMALL';
-    if (weight <= 25) return 'MEDIUM';
-    if (weight <= 40) return 'LARGE';
-    return 'EXTRA_LARGE';
+    if (weight <= 7) return 'SMALL'
+    if (weight <= 25) return 'MEDIUM'
+    if (weight <= 40) return 'LARGE'
+    return 'EXTRA_LARGE'
   }
 }
 
@@ -158,12 +158,12 @@ export function getPetSizeByWeight(
  */
 export function formatWeightRange(minWeight: number, maxWeight: number | null): string {
   if (maxWeight === null) {
-    return `${minWeight}kg 이상`;
+    return `${minWeight}kg 이상`
   }
   if (minWeight === 0) {
-    return `${maxWeight}kg 이하`;
+    return `${maxWeight}kg 이하`
   }
-  return `${minWeight}kg - ${maxWeight}kg`;
+  return `${minWeight}kg - ${maxWeight}kg`
 }
 
 /**
@@ -173,15 +173,15 @@ export function formatWeightRange(minWeight: number, maxWeight: number | null): 
  */
 export function getServicePricingSummary(service: ServiceInfo): string {
   if (!service.priceRanges || service.priceRanges.length === 0) {
-    throw new Error(`Service ${service.id} has no price ranges`);
+    throw new Error(`Service ${service.id} has no price ranges`)
   }
 
-  const minPrice = Math.min(...service.priceRanges.map((r) => r.price));
-  const maxPrice = Math.max(...service.priceRanges.map((r) => r.price));
+  const minPrice = Math.min(...service.priceRanges.map((r) => r.price))
+  const maxPrice = Math.max(...service.priceRanges.map((r) => r.price))
 
   if (minPrice === maxPrice) {
-    return formatPrice(minPrice);
+    return formatPrice(minPrice)
   }
 
-  return `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`;
+  return `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
 }

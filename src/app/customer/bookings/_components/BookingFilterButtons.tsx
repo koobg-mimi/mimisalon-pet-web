@@ -1,10 +1,10 @@
-import { Button } from '@/components/ui/button';
-import { FilterType, FILTER_OPTIONS } from '../_constants/booking-filters';
-import { getFilterLabel } from '../_utils/booking-status.utils';
+import { Button } from '@/components/ui/button'
+import { FilterType, FILTER_OPTIONS } from '../_constants/booking-filters'
+import { getFilterLabel } from '../_utils/booking-status.utils'
 
 interface BookingFilterButtonsProps {
-  activeFilter: FilterType;
-  onFilterChange: (filter: FilterType) => void;
+  activeFilter: FilterType
+  onFilterChange: (filter: FilterType) => void
 }
 
 /**
@@ -26,5 +26,5 @@ export function BookingFilterButtons({ activeFilter, onFilterChange }: BookingFi
         ))}
       </div>
     </div>
-  );
+  )
 }

@@ -1,11 +1,11 @@
-import { prisma } from '@mimisalon/shared';
-import { Prisma } from '@mimisalon/shared';
+import { prisma } from '@mimisalon/shared'
+import { Prisma } from '@mimisalon/shared'
 
 /**
  * 서비스 후 정리 및 준비 시간 (분)
  * 모든 예약에 대해 서비스 시간 외에 추가로 차단되는 시간
  */
-export const CLEANUP_BUFFER_MINUTES = 90;
+export const CLEANUP_BUFFER_MINUTES = 90
 
 /**
  * 예약 시 필요한 시간 슬롯 목록 생성
@@ -14,21 +14,21 @@ export const CLEANUP_BUFFER_MINUTES = 90;
  * @returns 필요한 시간 슬롯 배열
  */
 export function generateRequiredTimeSlots(startTime: string, durationMinutes: number): string[] {
-  const slots: string[] = [];
-  const [startHour, startMinute] = startTime.split(':').map(Number);
+  const slots: string[] = []
+  const [startHour, startMinute] = startTime.split(':').map(Number)
 
-  let currentMinutes = startHour * 60 + startMinute;
-  const endMinutes = currentMinutes + durationMinutes;
+  let currentMinutes = startHour * 60 + startMinute
+  const endMinutes = currentMinutes + durationMinutes
 
   while (currentMinutes < endMinutes) {
-    const hour = Math.floor(currentMinutes / 60);
-    const minute = currentMinutes % 60;
-    const timeSlot = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-    slots.push(timeSlot);
-    currentMinutes += 30; // 30분 단위 슬롯
+    const hour = Math.floor(currentMinutes / 60)
+    const minute = currentMinutes % 60
+    const timeSlot = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
+    slots.push(timeSlot)
+    currentMinutes += 30 // 30분 단위 슬롯
   }
 
-  return slots;
+  return slots
 }
 
 /**
@@ -56,24 +56,24 @@ export async function checkGroomerAvailability(
       serviceTime: true,
       estimatedDurationMinutes: true,
     },
-  });
+  })
 
-  const conflictingSlots = new Set<string>();
+  const conflictingSlots = new Set<string>()
 
   // 2. 각 기존 예약의 시간 슬롯 계산 (정리 시간 포함)
   for (const booking of existingBookings) {
     const bookedSlots = generateRequiredTimeSlots(
       booking.serviceTime,
       (booking.estimatedDurationMinutes || 60) + CLEANUP_BUFFER_MINUTES
-    );
-    bookedSlots.forEach((slot) => conflictingSlots.add(slot));
+    )
+    bookedSlots.forEach((slot) => conflictingSlots.add(slot))
   }
 
   // 3. 요청된 시간 슬롯과 충돌 확인
-  const conflicts = timeSlots.filter((slot) => conflictingSlots.has(slot));
+  const conflicts = timeSlots.filter((slot) => conflictingSlots.has(slot))
 
   if (conflicts.length > 0) {
-    return { available: false, conflicts };
+    return { available: false, conflicts }
   }
 
   // 4. GroomerAvailability 테이블 확인 (명시적으로 차단된 시간)
@@ -87,16 +87,16 @@ export async function checkGroomerAvailability(
     select: {
       timeSlot: true,
     },
-  });
+  })
 
   if (blockedSlots.length > 0) {
     return {
       available: false,
       conflicts: blockedSlots.map((s) => s.timeSlot),
-    };
+    }
   }
 
-  return { available: true };
+  return { available: true }
 }
 
 /**
@@ -130,29 +130,29 @@ export async function blockTimeSlots(
       serviceTime: true,
       estimatedDurationMinutes: true,
     },
-  });
+  })
 
-  const conflictingSlots = new Set<string>();
+  const conflictingSlots = new Set<string>()
   for (const booking of existingBookings) {
     const bookedSlots = generateRequiredTimeSlots(
       booking.serviceTime,
       (booking.estimatedDurationMinutes || 60) + CLEANUP_BUFFER_MINUTES
-    );
-    bookedSlots.forEach((slot) => conflictingSlots.add(slot));
+    )
+    bookedSlots.forEach((slot) => conflictingSlots.add(slot))
   }
 
-  const conflicts = timeSlots.filter((slot) => conflictingSlots.has(slot));
+  const conflicts = timeSlots.filter((slot) => conflictingSlots.has(slot))
   if (conflicts.length > 0) {
-    throw new Error(`다음 시간은 이미 예약되었습니다: ${conflicts.join(', ')}`);
+    throw new Error(`다음 시간은 이미 예약되었습니다: ${conflicts.join(', ')}`)
   }
 
   // 2. GroomerAvailability 레코드 생성 또는 업데이트
   // 먼저 스케줄 확인
   const schedule = await tx.groomerSchedule.findUnique({
     where: { groomerId },
-  });
+  })
 
-  const scheduleId = schedule?.id;
+  const scheduleId = schedule?.id
 
   // 3. 각 시간 슬롯을 차단
   for (const timeSlot of timeSlots) {
@@ -178,7 +178,7 @@ export async function blockTimeSlots(
         bookingId,
         isAvailable: false,
       },
-    });
+    })
   }
 }
 
@@ -196,7 +196,7 @@ export async function releaseTimeSlots(bookingId: string): Promise<void> {
       bookingId: undefined,
       isAvailable: true,
     },
-  });
+  })
 }
 
 /**
@@ -226,7 +226,7 @@ export async function getGroomerDaySchedule(groomerId: string, date: Date) {
         },
       },
     },
-  });
+  })
 
   // 2. 명시적으로 차단된 시간 조회
   const blockedSlots = await prisma.groomerAvailability.findMany({
@@ -240,25 +240,25 @@ export async function getGroomerDaySchedule(groomerId: string, date: Date) {
       isBooked: true,
       bookingId: true,
     },
-  });
+  })
 
   // 3. 시간별 상태 맵 생성
   const timeSlotStatus = new Map<
     string,
     {
-      available: boolean;
-      bookingId?: string;
-      customerName?: string;
-      status?: string;
+      available: boolean
+      bookingId?: string
+      customerName?: string
+      status?: string
     }
-  >();
+  >()
 
   // 예약된 시간 처리 (정리 시간 포함)
   for (const booking of bookings) {
     const slots = generateRequiredTimeSlots(
       booking.serviceTime,
       (booking.estimatedDurationMinutes || 60) + CLEANUP_BUFFER_MINUTES
-    );
+    )
 
     slots.forEach((slot) => {
       timeSlotStatus.set(slot, {
@@ -266,8 +266,8 @@ export async function getGroomerDaySchedule(groomerId: string, date: Date) {
         bookingId: booking.id,
         customerName: booking.customer?.name || undefined,
         status: booking.status,
-      });
-    });
+      })
+    })
   }
 
   // 명시적으로 차단된 시간 처리
@@ -276,9 +276,9 @@ export async function getGroomerDaySchedule(groomerId: string, date: Date) {
       timeSlotStatus.set(blocked.timeSlot, {
         available: false,
         bookingId: blocked.bookingId || undefined,
-      });
+      })
     }
   }
 
-  return timeSlotStatus;
+  return timeSlotStatus
 }

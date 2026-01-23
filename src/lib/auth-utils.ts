@@ -1,6 +1,6 @@
-import auth from '@/lib/auth';
-import { UserRole } from '@mimisalon/shared';
-import { headers } from 'next/headers';
+import auth from '@/lib/auth'
+import { UserRole } from '@mimisalon/shared'
+import { headers } from 'next/headers'
 
 /**
  * Authentication utility functions for better-auth
@@ -19,10 +19,10 @@ export async function getSession() {
   try {
     return await auth.api.getSession({
       headers: await headers(),
-    });
+    })
   } catch (error) {
-    console.error('Failed to get session:', error);
-    return null;
+    console.error('Failed to get session:', error)
+    return null
   }
 }
 
@@ -33,8 +33,8 @@ export async function getSession() {
  * @returns User object or null
  */
 export async function getCurrentUser() {
-  const session = await getSession();
-  return session?.user || null;
+  const session = await getSession()
+  return session?.user || null
 }
 
 /**
@@ -44,11 +44,11 @@ export async function getCurrentUser() {
  * @returns True if user has one of the specified roles
  */
 export async function hasRole(role: UserRole | UserRole[]): Promise<boolean> {
-  const user = await getCurrentUser();
-  if (!user) return false;
+  const user = await getCurrentUser()
+  if (!user) return false
 
-  const roles = Array.isArray(role) ? role : [role];
-  return roles.includes(user.role as UserRole);
+  const roles = Array.isArray(role) ? role : [role]
+  return roles.includes(user.role as UserRole)
 }
 
 /**
@@ -59,11 +59,11 @@ export async function hasRole(role: UserRole | UserRole[]): Promise<boolean> {
  * @returns Session object
  */
 export async function requireAuth() {
-  const session = await getSession();
+  const session = await getSession()
   if (!session?.user) {
-    throw new Error('Unauthorized: Authentication required');
+    throw new Error('Unauthorized: Authentication required')
   }
-  return session;
+  return session
 }
 
 /**
@@ -74,14 +74,14 @@ export async function requireAuth() {
  * @returns Session object
  */
 export async function requireRole(role: UserRole | UserRole[]) {
-  const session = await requireAuth();
+  const session = await requireAuth()
 
-  const roles = Array.isArray(role) ? role : [role];
+  const roles = Array.isArray(role) ? role : [role]
   if (!roles.includes(session.user.role as UserRole)) {
-    throw new Error(`Unauthorized: Requires ${roles.join(' or ')} role`);
+    throw new Error(`Unauthorized: Requires ${roles.join(' or ')} role`)
   }
 
-  return session;
+  return session
 }
 
 /**
@@ -98,11 +98,11 @@ export async function canAccessResource(
   resourceId: string,
   action: 'view' | 'create' | 'update' | 'delete'
 ): Promise<boolean> {
-  const user = await getCurrentUser();
-  if (!user) return false;
+  const user = await getCurrentUser()
+  if (!user) return false
 
   // Admin can access everything
-  if (user.role === 'ADMIN') return true;
+  if (user.role === 'ADMIN') return true
 
   // Implement resource-specific logic here
   switch (resourceType) {
@@ -110,34 +110,34 @@ export async function canAccessResource(
       // Customers can manage their own pets
       if (user.role === 'CUSTOMER') {
         // Would need to check if the pet belongs to the user
-        return action === 'view' || action === 'create';
+        return action === 'view' || action === 'create'
       }
-      break;
+      break
 
     case 'booking':
       // Customers can view/create their bookings
       // Groomers can view assigned bookings
       if (user.role === 'CUSTOMER') {
-        return action === 'view' || action === 'create';
+        return action === 'view' || action === 'create'
       }
       if (user.role === 'GROOMER') {
-        return action === 'view' || action === 'update';
+        return action === 'view' || action === 'update'
       }
-      break;
+      break
 
     case 'service':
       // Only admins can manage services
-      return false;
+      return false
 
     case 'user':
       // Users can view/update their own profile
       if (resourceId === user.id) {
-        return action === 'view' || action === 'update';
+        return action === 'view' || action === 'update'
       }
-      break;
+      break
   }
 
-  return false;
+  return false
 }
 
 /**
@@ -148,14 +148,14 @@ export async function canAccessResource(
  * @returns Random token string
  */
 export function generateToken(length: number = 32): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let token = '';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let token = ''
 
   for (let i = 0; i < length; i++) {
-    token += chars.charAt(Math.floor(Math.random() * chars.length));
+    token += chars.charAt(Math.floor(Math.random() * chars.length))
   }
 
-  return token;
+  return token
 }
 
 /**
@@ -166,13 +166,13 @@ export function generateToken(length: number = 32): string {
  * @returns Numeric OTP string
  */
 export function generateOTP(length: number = 6): string {
-  let otp = '';
+  let otp = ''
 
   for (let i = 0; i < length; i++) {
-    otp += Math.floor(Math.random() * 10).toString();
+    otp += Math.floor(Math.random() * 10).toString()
   }
 
-  return otp;
+  return otp
 }
 
 /**
@@ -182,7 +182,7 @@ export function generateOTP(length: number = 6): string {
  * @returns Formatted display name
  */
 export function getUserDisplayName(user: { name?: string | null; email: string }): string {
-  return user.name || user.email.split('@')[0];
+  return user.name || user.email.split('@')[0]
 }
 
 /**
@@ -196,9 +196,9 @@ export function getRoleDisplayName(role: UserRole): string {
     CUSTOMER: '고객',
     GROOMER: '미용사',
     ADMIN: '관리자',
-  };
+  }
 
-  return roleNames[role] || role;
+  return roleNames[role] || role
 }
 
 /**

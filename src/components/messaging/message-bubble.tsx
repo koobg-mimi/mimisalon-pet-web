@@ -1,18 +1,18 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { useState } from 'react';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useState } from 'react'
+import Image from 'next/image'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu'
 import {
   CheckIcon,
   CheckCheckIcon,
@@ -24,44 +24,44 @@ import {
   CalendarIcon,
   FileIcon,
   AlertCircleIcon,
-} from 'lucide-react';
-import { type MessageType, type MessageStatus } from '@/lib/validations/message';
-import { cn } from '@/lib/utils';
+} from 'lucide-react'
+import { type MessageType, type MessageStatus } from '@/lib/validations/message'
+import { cn } from '@/lib/utils'
 
 interface Message {
-  id: string;
-  content: string;
-  type: MessageType;
-  status: MessageStatus;
-  senderId: string;
-  senderName: string;
-  senderAvatar?: string;
-  createdAt: string;
-  updatedAt?: string;
-  readAt?: string;
+  id: string
+  content: string
+  type: MessageType
+  status: MessageStatus
+  senderId: string
+  senderName: string
+  senderAvatar?: string
+  createdAt: string
+  updatedAt?: string
+  readAt?: string
   attachments?: Array<{
-    fileName: string;
-    fileUrl: string;
-    fileSize: number;
-    mimeType: string;
-  }>;
+    fileName: string
+    fileUrl: string
+    fileSize: number
+    mimeType: string
+  }>
   replyTo?: {
-    id: string;
-    content: string;
-    senderName: string;
-  };
-  metadata?: Record<string, string | number | boolean>;
+    id: string
+    content: string
+    senderName: string
+  }
+  metadata?: Record<string, string | number | boolean>
 }
 
 interface MessageBubbleProps {
-  message: Message;
-  isOwn: boolean;
-  showSender?: boolean;
-  showTimestamp?: boolean;
-  onReply?: (message: Message) => void;
-  onDelete?: (messageId: string) => void;
-  onEdit?: (messageId: string, content: string) => void;
-  className?: string;
+  message: Message
+  isOwn: boolean
+  showSender?: boolean
+  showTimestamp?: boolean
+  onReply?: (message: Message) => void
+  onDelete?: (messageId: string) => void
+  onEdit?: (messageId: string, content: string) => void
+  className?: string
 }
 
 export function MessageBubble({
@@ -73,67 +73,67 @@ export function MessageBubble({
   onDelete,
   className,
 }: MessageBubbleProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const formatTimestamp = (dateString: string): string => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const date = new Date(dateString)
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
 
     if (messageDate.getTime() === today.getTime()) {
       // 오늘: 시간만 표시
-      return format(date, 'HH:mm:ss', { locale: ko });
+      return format(date, 'HH:mm:ss', { locale: ko })
     } else if (messageDate.getTime() === today.getTime() - 24 * 60 * 60 * 1000) {
       // 어제
-      return `어제 ${format(date, 'HH:mm:ss', { locale: ko })}`;
+      return `어제 ${format(date, 'HH:mm:ss', { locale: ko })}`
     } else {
       // 그 외: 날짜와 시간
-      return format(date, 'yyyy-MM-dd HH:mm:ss', { locale: ko });
+      return format(date, 'yyyy-MM-dd HH:mm:ss', { locale: ko })
     }
-  };
+  }
 
   const getStatusIcon = (status: MessageStatus) => {
     switch (status) {
       case 'SENT':
-        return <CheckIcon className="h-3 w-3" />;
+        return <CheckIcon className="h-3 w-3" />
       case 'DELIVERED':
-        return <CheckCheckIcon className="h-3 w-3" />;
+        return <CheckCheckIcon className="h-3 w-3" />
       case 'READ':
-        return <CheckCheckIcon className="h-3 w-3 text-blue-500" />;
+        return <CheckCheckIcon className="h-3 w-3 text-blue-500" />
       case 'FAILED':
-        return <AlertCircleIcon className="h-3 w-3 text-red-500" />;
+        return <AlertCircleIcon className="h-3 w-3 text-red-500" />
       default:
-        return null;
+        return null
     }
-  };
+  }
 
   const handleCopyMessage = () => {
-    navigator.clipboard.writeText(message.content);
-    setIsMenuOpen(false);
-  };
+    navigator.clipboard.writeText(message.content)
+    setIsMenuOpen(false)
+  }
 
   const handleDownloadFile = (attachment: NonNullable<Message['attachments']>[0]) => {
-    const link = document.createElement('a');
-    link.href = attachment.fileUrl;
-    link.download = attachment.fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+    const link = document.createElement('a')
+    link.href = attachment.fileUrl
+    link.download = attachment.fileName
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
 
   const renderMessageContent = () => {
     switch (message.type) {
       case 'TEXT':
-        return <div className="break-words whitespace-pre-wrap">{message.content}</div>;
+        return <div className="break-words whitespace-pre-wrap">{message.content}</div>
 
       case 'IMAGE':
         return (
@@ -152,7 +152,7 @@ export function MessageBubble({
             ))}
             {message.content && <div className="text-sm">{message.content}</div>}
           </div>
-        );
+        )
 
       case 'FILE':
         return (
@@ -174,7 +174,7 @@ export function MessageBubble({
             ))}
             {message.content && <div className="text-sm">{message.content}</div>}
           </div>
-        );
+        )
 
       case 'BOOKING_INFO':
         return (
@@ -197,7 +197,7 @@ export function MessageBubble({
               </Button>
             )}
           </div>
-        );
+        )
 
       case 'SYSTEM':
         return (
@@ -206,17 +206,15 @@ export function MessageBubble({
               {message.content}
             </Badge>
           </div>
-        );
+        )
 
       default:
-        return <div>{message.content}</div>;
+        return <div>{message.content}</div>
     }
-  };
+  }
 
   if (message.type === 'SYSTEM') {
-    return (
-      <div className={cn('my-4 flex justify-center', className)}>{renderMessageContent()}</div>
-    );
+    return <div className={cn('my-4 flex justify-center', className)}>{renderMessageContent()}</div>
   }
 
   return (
@@ -323,5 +321,5 @@ export function MessageBubble({
         )}
       </div>
     </div>
-  );
+  )
 }

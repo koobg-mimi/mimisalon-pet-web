@@ -1,19 +1,19 @@
-'use client';
+'use client'
 
-import { ko } from 'date-fns/locale';
+import { ko } from 'date-fns/locale'
 
-import { format } from 'date-fns';
-import { User as UserIcon, Phone, Mail, Filter } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { format } from 'date-fns'
+import { User as UserIcon, Phone, Mail, Filter } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -21,45 +21,45 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { useQueries, useQueryClient } from '@tanstack/react-query';
-import { useSession } from '@/lib/auth-client';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import styles from './AdminUserTable.module.css';
-import { User } from '@/hooks/useAdminUsers';
+} from '@/components/ui/table'
+import { useQueries, useQueryClient } from '@tanstack/react-query'
+import { useSession } from '@/lib/auth-client'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import styles from './AdminUserTable.module.css'
+import { User } from '@/hooks/useAdminUsers'
 
 interface UsersResponse {
-  users: User[];
-  totalCount: number;
-  totalPages: number;
-  currentPage: number;
+  users: User[]
+  totalCount: number
+  totalPages: number
+  currentPage: number
 }
 
 const getRoleBadgeColor = (role: User['role']) => {
   switch (role) {
     case 'ADMIN':
-      return 'bg-red-100 text-red-700';
+      return 'bg-red-100 text-red-700'
     case 'GROOMER':
-      return 'bg-blue-100 text-blue-700';
+      return 'bg-blue-100 text-blue-700'
     case 'CUSTOMER':
-      return 'bg-green-100 text-green-700';
+      return 'bg-green-100 text-green-700'
   }
-};
+}
 
 const getRoleDisplayName = (role: User['role']) => {
   switch (role) {
     case 'ADMIN':
-      return '관리자';
+      return '관리자'
     case 'GROOMER':
-      return '미용사';
+      return '미용사'
     case 'CUSTOMER':
-      return '고객';
+      return '고객'
   }
-};
+}
 
 const formatDate = (dateString: string) => {
-  return format(new Date(dateString), 'yyyy-MM-dd', { locale: ko });
-};
+  return format(new Date(dateString), 'yyyy-MM-dd', { locale: ko })
+}
 
 // Query configuration constants
 const QUERY_CONFIG = {
@@ -68,42 +68,42 @@ const QUERY_CONFIG = {
   PAGE_SIZE: 50,
   ROOT_MARGIN: '100px',
   THRESHOLD: 0.1,
-} as const;
+} as const
 
 export function AdminUserTable() {
-  const { data: session } = useSession();
-  const queryClient = useQueryClient();
+  const { data: session } = useSession()
+  const queryClient = useQueryClient()
 
   // Filter state
-  const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState<'ALL' | 'CUSTOMER' | 'GROOMER' | 'ADMIN'>('ALL');
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
+  const [searchQuery, setSearchQuery] = useState('')
+  const [roleFilter, setRoleFilter] = useState<'ALL' | 'CUSTOMER' | 'GROOMER' | 'ADMIN'>('ALL')
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL')
 
   // Applied filters (triggers API calls)
-  const [appliedSearchQuery, setAppliedSearchQuery] = useState('');
+  const [appliedSearchQuery, setAppliedSearchQuery] = useState('')
   const [appliedRoleFilter, setAppliedRoleFilter] = useState<
     'ALL' | 'CUSTOMER' | 'GROOMER' | 'ADMIN'
-  >('ALL');
+  >('ALL')
   const [appliedStatusFilter, setAppliedStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>(
     'ALL'
-  );
+  )
 
   // Infinite scroll state
-  const [loadedPages, setLoadedPages] = useState([1]);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
-  const totalPagesRef = useRef(1);
+  const [loadedPages, setLoadedPages] = useState([1])
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const loadMoreTriggerRef = useRef<HTMLDivElement>(null)
+  const totalPagesRef = useRef(1)
 
-  const limit = QUERY_CONFIG.PAGE_SIZE;
+  const limit = QUERY_CONFIG.PAGE_SIZE
 
   // Apply filters
   const applyFilters = useCallback(() => {
-    setAppliedSearchQuery(searchQuery);
-    setAppliedRoleFilter(roleFilter);
-    setAppliedStatusFilter(statusFilter);
-    setLoadedPages([1]); // Reset to first page
-  }, [searchQuery, roleFilter, statusFilter]);
+    setAppliedSearchQuery(searchQuery)
+    setAppliedRoleFilter(roleFilter)
+    setAppliedStatusFilter(statusFilter)
+    setLoadedPages([1]) // Reset to first page
+  }, [searchQuery, roleFilter, statusFilter])
 
   // Fetch function for a single page
   const fetchPage = useCallback(
@@ -114,28 +114,28 @@ export function AdminUserTable() {
         search: appliedSearchQuery,
         role: appliedRoleFilter,
         status: appliedStatusFilter,
-      });
+      })
 
       const response = await fetch(`/api/admin/users?${params}`, {
         headers: {
           'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (!response.ok) {
         if (response.status === 401) {
-          throw new Error('Unauthorized: Admin access required');
+          throw new Error('Unauthorized: Admin access required')
         }
         if (response.status === 403) {
-          throw new Error('Forbidden: Insufficient permissions');
+          throw new Error('Forbidden: Insufficient permissions')
         }
-        throw new Error(`Failed to fetch users: ${response.statusText}`);
+        throw new Error(`Failed to fetch users: ${response.statusText}`)
       }
 
-      return response.json();
+      return response.json()
     },
     [appliedSearchQuery, appliedRoleFilter, appliedStatusFilter, limit]
-  );
+  )
 
   // Create queries for all loaded pages using useQueries
   const queries = loadedPages.map((page) => ({
@@ -157,58 +157,58 @@ export function AdminUserTable() {
     gcTime: QUERY_CONFIG.GC_TIME,
     retry: (failureCount: number, error: Error) => {
       if (error.message.includes('Unauthorized') || error.message.includes('Forbidden')) {
-        return false;
+        return false
       }
-      return failureCount < 2;
+      return failureCount < 2
     },
     refetchOnWindowFocus: false,
-  }));
+  }))
 
-  const results = useQueries({ queries });
+  const results = useQueries({ queries })
 
   // Extract stable values from results for useMemo dependency
-  const resultData = results.map((r) => r.data);
+  const resultData = results.map((r) => r.data)
   const resultStatuses = results.map((r) => ({
     isLoading: r.isLoading,
     isError: r.isError,
     error: r.error,
-  }));
+  }))
 
   // Aggregate data from all loaded pages with deduplication
   const aggregatedData = useMemo((): {
-    allUsers: User[];
-    totalCount: number;
-    totalPages: number;
-    isLoading: boolean;
-    isError: boolean;
-    error: Error | null;
+    allUsers: User[]
+    totalCount: number
+    totalPages: number
+    isLoading: boolean
+    isError: boolean
+    error: Error | null
   } => {
-    const userMap = new Map<string, User>();
-    let totalCount = 0;
-    let totalPages = 1;
-    let isLoading = false;
-    let isError = false;
-    let error: Error | null = null;
+    const userMap = new Map<string, User>()
+    let totalCount = 0
+    let totalPages = 1
+    let isLoading = false
+    let isError = false
+    let error: Error | null = null
 
     resultData.forEach((data, index) => {
       if (data) {
         // Deduplicate users by ID
-        data.users.forEach((user) => userMap.set(user.id, user));
+        data.users.forEach((user) => userMap.set(user.id, user))
         // Use the latest metadata from the most recent page
         if (index === resultData.length - 1) {
-          totalCount = data.totalCount;
-          totalPages = data.totalPages;
+          totalCount = data.totalCount
+          totalPages = data.totalPages
         }
       }
-    });
+    })
 
     resultStatuses.forEach((status) => {
-      if (status.isLoading) isLoading = true;
+      if (status.isLoading) isLoading = true
       if (status.isError) {
-        isError = true;
-        error = status.error as Error;
+        isError = true
+        error = status.error as Error
       }
-    });
+    })
 
     return {
       allUsers: Array.from(userMap.values()),
@@ -217,26 +217,26 @@ export function AdminUserTable() {
       isLoading,
       isError,
       error,
-    };
-  }, [resultData, resultStatuses]);
+    }
+  }, [resultData, resultStatuses])
 
-  const { allUsers, totalCount, totalPages, isLoading, isError, error } = aggregatedData;
+  const { allUsers, totalCount, totalPages, isLoading, isError, error } = aggregatedData
 
   // Update totalPagesRef when totalPages changes
   useEffect(() => {
-    totalPagesRef.current = totalPages;
-  }, [totalPages]);
+    totalPagesRef.current = totalPages
+  }, [totalPages])
 
-  const hasMore = loadedPages[loadedPages.length - 1] < totalPages;
+  const hasMore = loadedPages[loadedPages.length - 1] < totalPages
 
   // Load next page
   const loadMore = useCallback(() => {
     if (hasMore && !isLoading) {
       setLoadedPages((prev) => {
-        const nextPage = prev[prev.length - 1] + 1;
+        const nextPage = prev[prev.length - 1] + 1
 
         // Prefetch the next page ahead
-        const prefetchPage = nextPage + 1;
+        const prefetchPage = nextPage + 1
         if (prefetchPage <= totalPagesRef.current) {
           queryClient.prefetchQuery({
             queryKey: [
@@ -253,11 +253,11 @@ export function AdminUserTable() {
             ],
             queryFn: () => fetchPage(prefetchPage),
             staleTime: QUERY_CONFIG.STALE_TIME,
-          });
+          })
         }
 
-        return [...prev, nextPage];
-      });
+        return [...prev, nextPage]
+      })
     }
   }, [
     hasMore,
@@ -268,24 +268,24 @@ export function AdminUserTable() {
     appliedStatusFilter,
     fetchPage,
     limit,
-  ]);
+  ])
 
   // Reset when filters change
   useEffect(() => {
-    setLoadedPages([1]);
-  }, [appliedSearchQuery, appliedRoleFilter, appliedStatusFilter]);
+    setLoadedPages([1])
+  }, [appliedSearchQuery, appliedRoleFilter, appliedStatusFilter])
 
   // Set up Intersection Observer for infinite scroll
   useEffect(() => {
-    const trigger = loadMoreTriggerRef.current;
+    const trigger = loadMoreTriggerRef.current
 
-    if (!trigger) return;
+    if (!trigger) return
 
     observerRef.current = new IntersectionObserver(
       (entries) => {
-        const [entry] = entries;
+        const [entry] = entries
         if (entry.isIntersecting && hasMore && !isLoading) {
-          loadMore();
+          loadMore()
         }
       },
       {
@@ -293,16 +293,16 @@ export function AdminUserTable() {
         rootMargin: QUERY_CONFIG.ROOT_MARGIN,
         threshold: QUERY_CONFIG.THRESHOLD,
       }
-    );
+    )
 
-    observerRef.current.observe(trigger);
+    observerRef.current.observe(trigger)
 
     return () => {
       if (observerRef.current) {
-        observerRef.current.disconnect();
+        observerRef.current.disconnect()
       }
-    };
-  }, [hasMore, isLoading, loadMore]);
+    }
+  }, [hasMore, isLoading, loadMore])
 
   // Loading and error states
   if (isLoading && allUsers.length === 0) {
@@ -310,7 +310,7 @@ export function AdminUserTable() {
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-muted-foreground">로딩 중...</div>
       </div>
-    );
+    )
   }
 
   if (isError && allUsers.length === 0) {
@@ -323,7 +323,7 @@ export function AdminUserTable() {
           </p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -482,5 +482,5 @@ export function AdminUserTable() {
         </CardContent>
       </Card>
     </>
-  );
+  )
 }

@@ -1,19 +1,19 @@
-'use client';
+'use client'
 
-import { useState, useEffect, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useState, useEffect, useCallback } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { NotificationCard } from './notification-card';
+} from '@/components/ui/select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Badge } from '@/components/ui/badge'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { NotificationCard } from './notification-card'
 import {
   BellIcon,
   SettingsIcon,
@@ -22,76 +22,73 @@ import {
   TrashIcon,
   SearchIcon,
   RefreshCwIcon,
-} from 'lucide-react';
+} from 'lucide-react'
 import {
   type NotificationType,
   type NotificationPriority,
   type NotificationFilter,
-} from '@/lib/validations/notification';
-import { cn } from '@/lib/utils';
-import type {
-  GetNotificationsResponse,
-  NotificationItem,
-} from '@/app/api/notifications/route';
+} from '@/lib/validations/notification'
+import { cn } from '@/lib/utils'
+import type { GetNotificationsResponse, NotificationItem } from '@/app/api/notifications/route'
 
 // Use the API response type
-type Notification = NotificationItem;
+type Notification = NotificationItem
 
 interface NotificationCenterProps {
-  onNavigate?: (notification: Notification) => void;
-  className?: string;
+  onNavigate?: (notification: Notification) => void
+  className?: string
 }
 
 export function NotificationCenter({ onNavigate, className }: NotificationCenterProps) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const [filter, setFilter] = useState<NotificationFilter>({
     page: 1,
     limit: 20,
-  });
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTab, setSelectedTab] = useState('all');
-  const [selectedNotifications, setSelectedNotifications] = useState<string[]>([]);
+  })
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedTab, setSelectedTab] = useState('all')
+  const [selectedNotifications, setSelectedNotifications] = useState<string[]>([])
 
   // 알림 목록 로드
   const fetchNotifications = useCallback(
     async (refresh = false) => {
       if (refresh) {
-        setIsRefreshing(true);
+        setIsRefreshing(true)
       } else {
-        setIsLoading(true);
+        setIsLoading(true)
       }
 
       try {
-        const params = new URLSearchParams();
-        if (filter.status) params.append('status', filter.status);
-        if (filter.type) params.append('type', filter.type);
-        if (filter.priority) params.append('priority', filter.priority);
-        if (searchTerm) params.append('search', searchTerm);
-        params.append('page', filter.page.toString());
-        params.append('limit', filter.limit.toString());
+        const params = new URLSearchParams()
+        if (filter.status) params.append('status', filter.status)
+        if (filter.type) params.append('type', filter.type)
+        if (filter.priority) params.append('priority', filter.priority)
+        if (searchTerm) params.append('search', searchTerm)
+        params.append('page', filter.page.toString())
+        params.append('limit', filter.limit.toString())
 
-        const response = await fetch(`/api/notifications?${params}`);
+        const response = await fetch(`/api/notifications?${params}`)
         if (!response.ok) {
-          throw new Error('알림을 불러올 수 없습니다');
+          throw new Error('알림을 불러올 수 없습니다')
         }
 
-        const data: GetNotificationsResponse = await response.json();
-        setNotifications(data.notifications);
+        const data: GetNotificationsResponse = await response.json()
+        setNotifications(data.notifications)
       } catch (error) {
-        console.error('Error fetching notifications:', error);
+        console.error('Error fetching notifications:', error)
       } finally {
-        setIsLoading(false);
-        setIsRefreshing(false);
+        setIsLoading(false)
+        setIsRefreshing(false)
       }
     },
     [filter, searchTerm]
-  );
+  )
 
   useEffect(() => {
-    void fetchNotifications();
-  }, [filter, searchTerm, fetchNotifications]);
+    void fetchNotifications()
+  }, [filter, searchTerm, fetchNotifications])
 
   // 알림 읽음 처리
   const handleMarkAsRead = async (notificationId: string) => {
@@ -105,7 +102,7 @@ export function NotificationCenter({ onNavigate, className }: NotificationCenter
           status: 'READ',
           readAt: new Date(),
         }),
-      });
+      })
 
       if (response.ok) {
         setNotifications((prev) =>
@@ -118,12 +115,12 @@ export function NotificationCenter({ onNavigate, className }: NotificationCenter
                 }
               : notification
           )
-        );
+        )
       }
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      console.error('Error marking notification as read:', error)
     }
-  };
+  }
 
   // 알림 읽지 않음 처리
   const handleMarkAsUnread = async (notificationId: string) => {
@@ -137,7 +134,7 @@ export function NotificationCenter({ onNavigate, className }: NotificationCenter
           status: 'UNREAD',
           readAt: null,
         }),
-      });
+      })
 
       if (response.ok) {
         setNotifications((prev) =>
@@ -150,12 +147,12 @@ export function NotificationCenter({ onNavigate, className }: NotificationCenter
                 }
               : notification
           )
-        );
+        )
       }
     } catch (error) {
-      console.error('Error marking notification as unread:', error);
+      console.error('Error marking notification as unread:', error)
     }
-  };
+  }
 
   // 알림 보관
   const handleArchive = async (notificationId: string) => {
@@ -169,7 +166,7 @@ export function NotificationCenter({ onNavigate, className }: NotificationCenter
           status: 'ARCHIVED',
           archivedAt: new Date(),
         }),
-      });
+      })
 
       if (response.ok) {
         setNotifications((prev) =>
@@ -178,33 +175,33 @@ export function NotificationCenter({ onNavigate, className }: NotificationCenter
               ? { ...notification, status: 'ARCHIVED' as const }
               : notification
           )
-        );
+        )
       }
     } catch (error) {
-      console.error('Error archiving notification:', error);
+      console.error('Error archiving notification:', error)
     }
-  };
+  }
 
   // 알림 삭제
   const handleDelete = async (notificationId: string) => {
     try {
       const response = await fetch(`/api/notifications/${notificationId}`, {
         method: 'DELETE',
-      });
+      })
 
       if (response.ok) {
         setNotifications((prev) =>
           prev.filter((notification) => notification.id !== notificationId)
-        );
+        )
       }
     } catch (error) {
-      console.error('Error deleting notification:', error);
+      console.error('Error deleting notification:', error)
     }
-  };
+  }
 
   // 선택된 알림 일괄 처리
   const handleBatchAction = async (action: 'read' | 'archive' | 'delete') => {
-    if (selectedNotifications.length === 0) return;
+    if (selectedNotifications.length === 0) return
 
     try {
       const response = await fetch('/api/notifications/batch', {
@@ -216,7 +213,7 @@ export function NotificationCenter({ onNavigate, className }: NotificationCenter
           notificationIds: selectedNotifications,
           action,
         }),
-      });
+      })
 
       if (response.ok) {
         switch (action) {
@@ -231,8 +228,8 @@ export function NotificationCenter({ onNavigate, className }: NotificationCenter
                     }
                   : notification
               )
-            );
-            break;
+            )
+            break
           case 'archive':
             setNotifications((prev) =>
               prev.map((notification) =>
@@ -240,30 +237,30 @@ export function NotificationCenter({ onNavigate, className }: NotificationCenter
                   ? { ...notification, status: 'ARCHIVED' as const }
                   : notification
               )
-            );
-            break;
+            )
+            break
           case 'delete':
             setNotifications((prev) =>
               prev.filter((notification) => !selectedNotifications.includes(notification.id))
-            );
-            break;
+            )
+            break
         }
-        setSelectedNotifications([]);
+        setSelectedNotifications([])
       }
     } catch (error) {
-      console.error('Error performing batch action:', error);
+      console.error('Error performing batch action:', error)
     }
-  };
+  }
 
   // 필터링된 알림
   const filteredNotifications = notifications.filter((notification) => {
-    if (selectedTab === 'unread' && notification.status !== 'UNREAD') return false;
-    if (selectedTab === 'read' && notification.status !== 'READ') return false;
-    if (selectedTab === 'archived' && notification.status !== 'ARCHIVED') return false;
-    return true;
-  });
+    if (selectedTab === 'unread' && notification.status !== 'UNREAD') return false
+    if (selectedTab === 'read' && notification.status !== 'READ') return false
+    if (selectedTab === 'archived' && notification.status !== 'ARCHIVED') return false
+    return true
+  })
 
-  const unreadCount = notifications.filter((n) => n.status === 'UNREAD').length;
+  const unreadCount = notifications.filter((n) => n.status === 'UNREAD').length
 
   return (
     <div className={cn('space-y-6', className)}>
@@ -427,5 +424,5 @@ export function NotificationCenter({ onNavigate, className }: NotificationCenter
         </TabsContent>
       </Tabs>
     </div>
-  );
+  )
 }

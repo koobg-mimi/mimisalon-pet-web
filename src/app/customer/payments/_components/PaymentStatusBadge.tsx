@@ -1,9 +1,9 @@
-import { PaymentStatus } from '@mimisalon/shared';
-import { getStatusColor, getStatusText } from '../_utils/payment-status.utils';
+import { PaymentStatus } from '@mimisalon/shared'
+import { getStatusColor, getStatusText } from '../_utils/payment-status.utils'
 
 interface PaymentStatusBadgeProps {
-  status: PaymentStatus;
-  className?: string;
+  status: PaymentStatus
+  className?: string
 }
 
 /**
@@ -17,5 +17,5 @@ export function PaymentStatusBadge({ status, className = '' }: PaymentStatusBadg
     >
       {getStatusText(status)}
     </span>
-  );
+  )
 }

@@ -1,42 +1,42 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useSession } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { Calendar, Home, LogIn, Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import Image from 'next/image';
+import { useState } from 'react'
+import { useSession } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
+import { Calendar, Home, LogIn, Menu, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 
 export function Header() {
-  const { data: session } = useSession();
-  const router = useRouter();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { data: session } = useSession()
+  const router = useRouter()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleLoginClick = () => {
     if (session?.user) {
-      const userRole = session.user.role;
+      const userRole = session.user.role
       if (userRole === 'ADMIN') {
-        router.push('/admin/dashboard/overview');
+        router.push('/admin/dashboard/overview')
       } else if (userRole === 'GROOMER') {
-        router.push('/groomer/dashboard/overview');
+        router.push('/groomer/dashboard/overview')
       } else if (userRole === 'CUSTOMER') {
-        router.push('/customer/dashboard/overview');
+        router.push('/customer/dashboard/overview')
       }
     } else {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
-  };
+  }
 
   const handleBookingClick = () => {
     if (!session?.user) {
-      router.push('/auth/signin?callbackUrl=/booking/new');
+      router.push('/auth/signin?callbackUrl=/booking/new')
     } else {
-      router.push('/booking/new');
+      router.push('/booking/new')
     }
-  };
+  }
 
-  const isLoggedIn = !!session?.user;
-  const currentUser = session?.user;
+  const isLoggedIn = !!session?.user
+  const currentUser = session?.user
 
   return (
     <header className="bg-card sticky top-0 z-50 border-b" data-cy="header">
@@ -164,8 +164,8 @@ export function Header() {
                     variant="outline"
                     size="lg"
                     onClick={() => {
-                      handleLoginClick();
-                      setMobileMenuOpen(false);
+                      handleLoginClick()
+                      setMobileMenuOpen(false)
                     }}
                     className="mx-2 justify-start font-medium"
                     aria-label={
@@ -179,8 +179,8 @@ export function Header() {
                     variant="mobile-primary"
                     size="lg"
                     onClick={() => {
-                      handleBookingClick();
-                      setMobileMenuOpen(false);
+                      handleBookingClick()
+                      setMobileMenuOpen(false)
                     }}
                     className="mx-2 justify-start shadow-lg"
                     aria-label="펫 미용 예약하기"
@@ -195,8 +195,8 @@ export function Header() {
                     variant="outline"
                     size="lg"
                     onClick={() => {
-                      handleLoginClick();
-                      setMobileMenuOpen(false);
+                      handleLoginClick()
+                      setMobileMenuOpen(false)
                     }}
                     className="mx-2 justify-start font-medium"
                     aria-label="로그인 페이지로 이동"
@@ -208,8 +208,8 @@ export function Header() {
                     variant="mobile-primary"
                     size="lg"
                     onClick={() => {
-                      handleBookingClick();
-                      setMobileMenuOpen(false);
+                      handleBookingClick()
+                      setMobileMenuOpen(false)
                     }}
                     className="mx-2 justify-start shadow-lg"
                     aria-label="펫 미용 예약하기"
@@ -224,5 +224,5 @@ export function Header() {
         </div>
       </div>
     </header>
-  );
+  )
 }

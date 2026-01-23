@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import auth from '@/lib/auth';
-import { prisma } from '@mimisalon/shared';
-import { z } from 'zod';
-import { BookingNotificationService } from '@/lib/booking-notifications';
+import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import auth from '@/lib/auth'
+import { prisma } from '@mimisalon/shared'
+import { z } from 'zod'
+import { BookingNotificationService } from '@/lib/booking-notifications'
 
 // Request schema - EXPORTED
 export const quoteRequestSchema = z.object({
@@ -18,80 +18,80 @@ export const quoteRequestSchema = z.object({
   totalAdditionalAmount: z.number().positive('총 추가 금액은 0보다 커야 합니다'),
   reason: z.string().optional(),
   estimatedTime: z.number().optional(),
-});
+})
 
-export type QuoteRequestRequest = z.infer<typeof quoteRequestSchema>;
+export type QuoteRequestRequest = z.infer<typeof quoteRequestSchema>
 
 // Response types - EXPORTED
 export type QuoteRequestResponse = {
-  message: string;
+  message: string
   booking: {
-    id: string;
-    status: string;
-    additionalCharges: number;
-  };
+    id: string
+    status: string
+    additionalCharges: number
+  }
   quote: {
     additionalServices: Array<{
-      name: string;
-      description?: string;
-      price: number;
-      quantity: number;
-    }>;
-    totalAdditionalAmount: number;
-    estimatedTime?: number;
-  };
-};
+      name: string
+      description?: string
+      price: number
+      quantity: number
+    }>
+    totalAdditionalAmount: number
+    estimatedTime?: number
+  }
+}
 
 export type QuoteInfoResponse = {
   booking: {
-    id: string;
-    status: string;
-    basePrice: number;
-    additionalCharges: number;
-    totalPrice: number;
-    serviceDate: Date;
-    serviceTime: string;
+    id: string
+    status: string
+    basePrice: number
+    additionalCharges: number
+    totalPrice: number
+    serviceDate: Date
+    serviceTime: string
     customer: {
-      name: string | null;
-      phone: string | null;
-    };
+      name: string | null
+      phone: string | null
+    }
     groomer: {
-      name: string | null | undefined;
-    };
+      name: string | null | undefined
+    }
     pets: Array<{
-      name: string;
-      breed: string;
+      name: string
+      breed: string
       services: Array<{
-        name: string;
-        price: number;
-      }>;
-    }>;
-  };
+        name: string
+        price: number
+      }>
+    }>
+  }
   additionalServices: Array<{
-    name: string;
-    description?: string;
-    price: number;
-    quantity: number;
-  }>;
-  totalAdditionalAmount: number;
-};
+    name: string
+    description?: string
+    price: number
+    quantity: number
+  }>
+  totalAdditionalAmount: number
+}
 
 type ErrorResponse = {
-  error: string;
-  details?: unknown;
-};
+  error: string
+  details?: unknown
+}
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session?.user || session.user.role !== 'GROOMER') {
-      return NextResponse.json({ error: '미용사 권한이 필요합니다' }, { status: 403 });
+      return NextResponse.json({ error: '미용사 권한이 필요합니다' }, { status: 403 })
     }
 
-    const { id: bookingId } = await params;
-    const body = await request.json();
-    const quoteData = quoteRequestSchema.parse(body);
+    const { id: bookingId } = await params
+    const body = await request.json()
+    const quoteData = quoteRequestSchema.parse(body)
 
     // 예약 정보 조회 및 권한 확인
     const booking = await prisma.booking.findUnique({
@@ -114,14 +114,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           },
         },
       },
-    });
+    })
 
     if (!booking) {
-      return NextResponse.json({ error: '예약을 찾을 수 없습니다' }, { status: 404 });
+      return NextResponse.json({ error: '예약을 찾을 수 없습니다' }, { status: 404 })
     }
 
     if (booking.groomerId !== session.user.id) {
-      return NextResponse.json({ error: '해당 예약에 대한 권한이 없습니다' }, { status: 403 });
+      return NextResponse.json({ error: '해당 예약에 대한 권한이 없습니다' }, { status: 403 })
     }
 
     // 견적 요청 가능한 상태인지 확인
@@ -129,7 +129,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json(
         { error: '현재 상태에서는 견적을 요청할 수 없습니다' },
         { status: 400 }
-      );
+      )
     }
 
     // 예약에 추가 서비스 정보 저장
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         notes: quoteData.reason || booking.notes,
         updatedAt: new Date(),
       },
-    });
+    })
 
     // 추가 서비스 정보를 JSON으로 저장하거나 별도 테이블에 저장
     // 여기서는 간단히 notes 필드에 저장하는 예시
@@ -153,7 +153,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       estimatedTime: quoteData.estimatedTime,
       requestedAt: new Date(),
       requestedBy: session.user.id,
-    });
+    })
 
     // 실제로는 별도 테이블에 저장하는 것이 좋습니다
     await prisma.booking.update({
@@ -161,7 +161,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       data: {
         specialRequests: additionalServicesJson,
       },
-    });
+    })
 
     // 고객에게 견적 요청 알림 발송
     await BookingNotificationService.notifyCustomerQuoteRequested(booking.customerId, {
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       petNames: booking.bookingPets.map((bp) => bp.pet.name),
       totalPrice: booking.totalPrice || 0,
       totalAdditionalAmount: quoteData.totalAdditionalAmount,
-    });
+    })
 
     return NextResponse.json({
       message: '견적이 성공적으로 요청되었습니다',
@@ -188,31 +188,31 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         totalAdditionalAmount: quoteData.totalAdditionalAmount,
         estimatedTime: quoteData.estimatedTime,
       },
-    });
+    })
   } catch (error) {
-    console.error('Quote request error:', error);
+    console.error('Quote request error:', error)
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: '잘못된 견적 요청 데이터입니다', details: error.issues },
         { status: 400 }
-      );
+      )
     }
 
-    return NextResponse.json({ error: '견적 요청 중 오류가 발생했습니다' }, { status: 500 });
+    return NextResponse.json({ error: '견적 요청 중 오류가 발생했습니다' }, { status: 500 })
   }
 }
 
 // 견적 정보 조회
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session?.user) {
-      return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 });
+      return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
     }
 
-    const { id: bookingId } = await params;
+    const { id: bookingId } = await params
 
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
@@ -234,29 +234,29 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           },
         },
       },
-    });
+    })
 
     if (!booking) {
-      return NextResponse.json({ error: '예약을 찾을 수 없습니다' }, { status: 404 });
+      return NextResponse.json({ error: '예약을 찾을 수 없습니다' }, { status: 404 })
     }
 
     // 권한 확인 (고객 본인 또는 담당 미용사)
     if (session.user.role === 'CUSTOMER' && booking.customerId !== session.user.id) {
-      return NextResponse.json({ error: '해당 예약에 대한 권한이 없습니다' }, { status: 403 });
+      return NextResponse.json({ error: '해당 예약에 대한 권한이 없습니다' }, { status: 403 })
     }
 
     if (session.user.role === 'GROOMER' && booking.groomerId !== session.user.id) {
-      return NextResponse.json({ error: '해당 예약에 대한 권한이 없습니다' }, { status: 403 });
+      return NextResponse.json({ error: '해당 예약에 대한 권한이 없습니다' }, { status: 403 })
     }
 
     // 추가 서비스 정보 파싱
-    let additionalServices = [];
+    let additionalServices = []
     if (booking.specialRequests) {
       try {
-        const parsed = JSON.parse(booking.specialRequests);
-        additionalServices = parsed.services || [];
+        const parsed = JSON.parse(booking.specialRequests)
+        additionalServices = parsed.services || []
       } catch (e) {
-        console.error('Failed to parse additional services:', e);
+        console.error('Failed to parse additional services:', e)
       }
     }
 
@@ -287,9 +287,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       },
       additionalServices,
       totalAdditionalAmount: booking.additionalCharges,
-    });
+    })
   } catch (error) {
-    console.error('Quote fetch error:', error);
-    return NextResponse.json({ error: '견적 정보 조회 중 오류가 발생했습니다' }, { status: 500 });
+    console.error('Quote fetch error:', error)
+    return NextResponse.json({ error: '견적 정보 조회 중 오류가 발생했습니다' }, { status: 500 })
   }
 }

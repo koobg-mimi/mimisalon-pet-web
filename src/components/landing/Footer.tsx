@@ -1,10 +1,10 @@
-import { Building, Mail, Phone, AlertTriangle } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { CUSTOMER_SERVICE } from '@/lib/constants/customer-service';
+import { Building, Mail, Phone, AlertTriangle } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { CUSTOMER_SERVICE } from '@/lib/constants/customer-service'
 
 export function Footer() {
-  const customerServicePhone = CUSTOMER_SERVICE.PHONE;
+  const customerServicePhone = CUSTOMER_SERVICE.PHONE
   return (
     <footer data-cy="footer" className="bg-card border-t">
       <div className="container mx-auto px-4 py-12">
@@ -151,5 +151,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  );
+  )
 }

@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useState } from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
   Sheet,
   SheetContent,
@@ -12,7 +12,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet';
+} from '@/components/ui/sheet'
 import {
   MenuIcon,
   HomeIcon,
@@ -26,22 +26,22 @@ import {
   HelpCircleIcon,
   LogOutIcon,
   XIcon,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface NavigationItem {
-  label: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-  badge?: number;
-  description?: string;
+  label: string
+  href: string
+  icon: React.ComponentType<{ className?: string }>
+  badge?: number
+  description?: string
 }
 
 interface MobileNavigationProps {
-  userRole: 'CUSTOMER' | 'GROOMER' | 'ADMIN';
-  unreadNotifications?: number;
-  unreadMessages?: number;
-  className?: string;
+  userRole: 'CUSTOMER' | 'GROOMER' | 'ADMIN'
+  unreadNotifications?: number
+  unreadMessages?: number
+  className?: string
 }
 
 const CUSTOMER_NAVIGATION: NavigationItem[] = [
@@ -87,7 +87,7 @@ const CUSTOMER_NAVIGATION: NavigationItem[] = [
     icon: UserIcon,
     description: '프로필 및 반려동물 정보',
   },
-];
+]
 
 const GROOMER_NAVIGATION: NavigationItem[] = [
   {
@@ -120,7 +120,7 @@ const GROOMER_NAVIGATION: NavigationItem[] = [
     icon: UserIcon,
     description: '프로필 및 업무 설정',
   },
-];
+]
 
 const ADMIN_NAVIGATION: NavigationItem[] = [
   {
@@ -153,7 +153,7 @@ const ADMIN_NAVIGATION: NavigationItem[] = [
     icon: BellIcon,
     description: '시스템 알림 관리',
   },
-];
+]
 
 const COMMON_NAVIGATION: NavigationItem[] = [
   {
@@ -168,7 +168,7 @@ const COMMON_NAVIGATION: NavigationItem[] = [
     icon: HelpCircleIcon,
     description: '문의 및 도움말',
   },
-];
+]
 
 export function MobileNavigation({
   userRole,
@@ -176,46 +176,46 @@ export function MobileNavigation({
   unreadMessages = 0,
   className,
 }: MobileNavigationProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false)
+  const pathname = usePathname()
 
   const getNavigationItems = () => {
     switch (userRole) {
       case 'CUSTOMER':
-        return CUSTOMER_NAVIGATION;
+        return CUSTOMER_NAVIGATION
       case 'GROOMER':
-        return GROOMER_NAVIGATION;
+        return GROOMER_NAVIGATION
       case 'ADMIN':
-        return ADMIN_NAVIGATION;
+        return ADMIN_NAVIGATION
       default:
-        return [];
+        return []
     }
-  };
+  }
 
-  const navigationItems = getNavigationItems();
+  const navigationItems = getNavigationItems()
 
   const handleLinkClick = () => {
-    setIsOpen(false);
-  };
+    setIsOpen(false)
+  }
 
   const getBadgeCount = (href: string) => {
-    if (href.includes('/notifications')) return unreadNotifications;
-    if (href.includes('/messages')) return unreadMessages;
-    return undefined;
-  };
+    if (href.includes('/notifications')) return unreadNotifications
+    if (href.includes('/messages')) return unreadMessages
+    return undefined
+  }
 
   const getRoleLabel = (role: string) => {
     switch (role) {
       case 'CUSTOMER':
-        return '고객';
+        return '고객'
       case 'GROOMER':
-        return '미용사';
+        return '미용사'
       case 'ADMIN':
-        return '관리자';
+        return '관리자'
       default:
-        return '';
+        return ''
     }
-  };
+  }
 
   return (
     <div className={cn('lg:hidden', className)}>
@@ -252,11 +252,11 @@ export function MobileNavigation({
                 {/* 주요 메뉴 */}
                 <div className="space-y-1">
                   {navigationItems.map((item) => {
-                    const Icon = item.icon;
+                    const Icon = item.icon
                     const isActive =
                       pathname === item.href ||
-                      (item.href !== '/' && pathname.startsWith(item.href));
-                    const badgeCount = getBadgeCount(item.href);
+                      (item.href !== '/' && pathname.startsWith(item.href))
+                    const badgeCount = getBadgeCount(item.href)
 
                     return (
                       <Link
@@ -289,7 +289,7 @@ export function MobileNavigation({
                           )}
                         </div>
                       </Link>
-                    );
+                    )
                   })}
                 </div>
 
@@ -299,8 +299,8 @@ export function MobileNavigation({
                 {/* 공통 메뉴 */}
                 <div className="space-y-1">
                   {COMMON_NAVIGATION.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = pathname === item.href;
+                    const Icon = item.icon
+                    const isActive = pathname === item.href
 
                     return (
                       <Link
@@ -323,7 +323,7 @@ export function MobileNavigation({
                           )}
                         </div>
                       </Link>
-                    );
+                    )
                   })}
                 </div>
               </nav>
@@ -336,8 +336,8 @@ export function MobileNavigation({
                 className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
                 onClick={() => {
                   // 로그아웃 처리
-                  console.log('Logout');
-                  handleLinkClick();
+                  console.log('Logout')
+                  handleLinkClick()
                 }}
               >
                 <LogOutIcon className="mr-3 h-5 w-5" />
@@ -348,5 +348,5 @@ export function MobileNavigation({
         </SheetContent>
       </Sheet>
     </div>
-  );
+  )
 }

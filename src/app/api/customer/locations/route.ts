@@ -1,21 +1,21 @@
-import { NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import auth from '@/lib/auth';
-import { prisma } from '@mimisalon/shared';
+import { NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import auth from '@/lib/auth'
+import { prisma } from '@mimisalon/shared'
 
 // GET /api/customer/locations - Get all service areas available
 export async function GET() {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session?.user?.id) {
-      return new NextResponse('Unauthorized', { status: 401 });
+      return new NextResponse('Unauthorized', { status: 401 })
     }
 
     if (session.user.role !== 'CUSTOMER') {
       return new NextResponse('Forbidden - Customer access only', {
         status: 403,
-      });
+      })
     }
 
     // Get all active groomer work areas with groomer count
@@ -34,13 +34,13 @@ export async function GET() {
       orderBy: {
         name: 'asc',
       },
-    });
+    })
 
     // Group by area name and count groomers
-    const locationMap = new Map();
+    const locationMap = new Map()
 
     workAreas.forEach((area) => {
-      const key = area.name;
+      const key = area.name
       if (!locationMap.has(key)) {
         locationMap.set(key, {
           id: area.id, // Use the first area's id as representative
@@ -48,22 +48,22 @@ export async function GET() {
           address: area.address || '',
           groomers: [],
           groomerCount: 0,
-        });
+        })
       }
 
-      const location = locationMap.get(key);
+      const location = locationMap.get(key)
       if (
         !location.groomers.find(
           (g: { id: string; name: string | null }) => g.id === area.groomer.id
         )
       ) {
-        location.groomers.push(area.groomer);
-        location.groomerCount++;
+        location.groomers.push(area.groomer)
+        location.groomerCount++
       }
-    });
+    })
 
     // Convert map to array and add some default locations for demo
-    const locations = Array.from(locationMap.values());
+    const locations = Array.from(locationMap.values())
 
     // Add some default service areas if none exist
     if (locations.length === 0) {
@@ -89,7 +89,7 @@ export async function GET() {
           groomers: [],
           groomerCount: 1,
         }
-      );
+      )
     }
 
     // Transform to the expected format
@@ -100,11 +100,11 @@ export async function GET() {
       phone: '02-1234-5678', // Placeholder
       groomerCount: location.groomerCount,
       availableServices: ['기본 미용', '스파', '네일 케어'], // Placeholder
-    }));
+    }))
 
-    return NextResponse.json(formattedLocations);
+    return NextResponse.json(formattedLocations)
   } catch (error) {
-    console.error('Failed to fetch locations:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    console.error('Failed to fetch locations:', error)
+    return new NextResponse('Internal Server Error', { status: 500 })
   }
 }

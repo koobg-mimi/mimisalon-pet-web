@@ -1,7 +1,7 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import { useSession } from '@/lib/auth-client';
+import * as React from 'react'
+import { useSession } from '@/lib/auth-client'
 import {
   BarChart3,
   Calendar,
@@ -17,26 +17,26 @@ import {
   User as UserIcon,
   UserCog,
   Users,
-} from 'lucide-react';
+} from 'lucide-react'
 
-import { NavMain } from '@/components/nav-main';
-import { NavUser } from '@/components/nav-user';
-import { SidebarSkeleton } from '@/components/sidebar-skeleton';
-import { TeamSwitcher } from '@/components/team-switcher';
+import { NavMain } from '@/components/nav-main'
+import { NavUser } from '@/components/nav-user'
+import { SidebarSkeleton } from '@/components/sidebar-skeleton'
+import { TeamSwitcher } from '@/components/team-switcher'
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from '@/components/ui/sidebar';
+} from '@/components/ui/sidebar'
 
 // User interface for type safety
 interface User {
-  name?: string;
-  email?: string;
-  profileImage?: string;
-  role?: string;
+  name?: string
+  email?: string
+  profileImage?: string
+  role?: string
 }
 
 // Role-based navigation data
@@ -53,10 +53,10 @@ const getNavigationData = (user: User | null) => {
         plan: getRolePlan(user?.role),
       },
     ],
-  };
+  }
 
   // Normalize role
-  const normalizedRole = user?.role?.toUpperCase();
+  const normalizedRole = user?.role?.toUpperCase()
 
   switch (normalizedRole) {
     case 'CUSTOMER':
@@ -104,7 +104,7 @@ const getNavigationData = (user: User | null) => {
             icon: Users,
           },
         ],
-      };
+      }
 
     case 'GROOMER':
       return {
@@ -142,7 +142,7 @@ const getNavigationData = (user: User | null) => {
             icon: Settings2,
           },
         ],
-      };
+      }
 
     case 'ADMIN':
       return {
@@ -225,7 +225,7 @@ const getNavigationData = (user: User | null) => {
             icon: TestTube,
           },
         ],
-      };
+      }
 
     default:
       return {
@@ -239,31 +239,31 @@ const getNavigationData = (user: User | null) => {
           },
         ],
         projects: [],
-      };
+      }
   }
-};
+}
 
 function getRolePlan(role?: string) {
   switch (role?.toUpperCase()) {
     case 'CUSTOMER':
-      return '고객';
+      return '고객'
     case 'GROOMER':
-      return '미용사';
+      return '미용사'
     case 'ADMIN':
-      return '관리자';
+      return '관리자'
     default:
-      return '사용자';
+      return '사용자'
   }
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: session, isPending } = useSession();
+  const { data: session, isPending } = useSession()
 
   // Use navigation data based on user role - compute before early return
   const data = React.useMemo(() => {
     // Return default navigation if not authenticated or no user/role
     if (!session?.user || !session.user.role) {
-      return getNavigationData(null);
+      return getNavigationData(null)
     }
 
     return getNavigationData({
@@ -271,12 +271,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       email: session.user.email || '',
       profileImage: session.user.image || '',
       role: session.user.role,
-    });
-  }, [session]);
+    })
+  }, [session])
 
   // Show skeleton during loading to prevent navigation flash
   if (isPending) {
-    return <SidebarSkeleton {...props} />;
+    return <SidebarSkeleton {...props} />
   }
 
   return (
@@ -292,5 +292,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  );
+  )
 }

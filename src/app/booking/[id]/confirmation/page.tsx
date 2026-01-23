@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { use, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { use, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
+import Link from 'next/link'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import {
   CheckCircleIcon,
   CalendarIcon,
@@ -19,68 +19,68 @@ import {
   HomeIcon,
   ListIcon,
   AlertCircleIcon,
-} from 'lucide-react';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+} from 'lucide-react'
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
 interface BookingDetails {
-  id: string;
-  appointmentDate: string;
-  startTime: string;
-  status: string;
-  totalAmount: number;
-  paidAmount: number;
-  additionalAmount: number;
-  paymentStatus: string;
+  id: string
+  appointmentDate: string
+  startTime: string
+  status: string
+  totalAmount: number
+  paidAmount: number
+  additionalAmount: number
+  paymentStatus: string
   groomer: {
-    id: string;
-    name: string;
-    photoUrl: string | null;
-    phone: string;
+    id: string
+    name: string
+    photoUrl: string | null
+    phone: string
     salon: {
-      id: string;
-      name: string;
-      address: string;
-      phone: string;
-    };
-  };
+      id: string
+      name: string
+      address: string
+      phone: string
+    }
+  }
   pet: {
-    id: string;
-    name: string;
-    species: string;
-    breed: string;
-    weight: number;
-    age: number | null;
-    photoUrl: string | null;
-  };
+    id: string
+    name: string
+    species: string
+    breed: string
+    weight: number
+    age: number | null
+    photoUrl: string | null
+  }
   services: Array<{
-    id: string;
-    name: string;
-    description: string;
-    duration: number;
-    price: number;
-    status: string;
-  }>;
+    id: string
+    name: string
+    description: string
+    duration: number
+    price: number
+    status: string
+  }>
   options: Array<{
-    id: string;
-    name: string;
-    description: string;
-    price: number;
-  }>;
+    id: string
+    name: string
+    description: string
+    price: number
+  }>
   timeline: Array<{
-    id: string;
-    type: string;
-    title: string;
-    description: string;
-    timestamp: string;
-  }>;
-  notes: string | null;
-  estimatedEndTime: string;
+    id: string
+    type: string
+    title: string
+    description: string
+    timestamp: string
+  }>
+  notes: string | null
+  estimatedEndTime: string
 }
 
 export default function BookingConfirmationPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
-  const router = useRouter();
+  const resolvedParams = use(params)
+  const router = useRouter()
 
   // Fetch booking details using React Query
   const {
@@ -90,28 +90,28 @@ export default function BookingConfirmationPage({ params }: { params: Promise<{ 
   } = useQuery<BookingDetails>({
     queryKey: ['booking', resolvedParams.id],
     queryFn: async () => {
-      const response = await fetch(`/api/customer/booking/${resolvedParams.id}`);
+      const response = await fetch(`/api/customer/booking/${resolvedParams.id}`)
       if (!response.ok) {
-        throw new Error('예약 정보를 불러올 수 없습니다');
+        throw new Error('예약 정보를 불러올 수 없습니다')
       }
-      return response.json();
+      return response.json()
     },
     retry: false,
-  });
+  })
 
   // Redirect on error (must be in useEffect to avoid render-time navigation)
   useEffect(() => {
     if (isError) {
-      router.push('/customer/bookings');
+      router.push('/customer/bookings')
     }
-  }, [isError, router]);
+  }, [isError, router])
 
   if (isLoading || isError) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner />
       </div>
-    );
+    )
   }
 
   if (!booking) {
@@ -129,12 +129,12 @@ export default function BookingConfirmationPage({ params }: { params: Promise<{ 
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   const formatDate = (dateString: string) => {
-    return format(new Date(dateString), 'yyyy년 MM월 dd일 (EEEE)', { locale: ko });
-  };
+    return format(new Date(dateString), 'yyyy년 MM월 dd일 (EEEE)', { locale: ko })
+  }
 
   return (
     <div className="from-primary/5 to-background min-h-screen bg-gradient-to-b">
@@ -276,5 +276,5 @@ export default function BookingConfirmationPage({ params }: { params: Promise<{ 
         </div>
       </div>
     </div>
-  );
+  )
 }

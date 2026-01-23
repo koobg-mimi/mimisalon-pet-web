@@ -1,19 +1,19 @@
-'use client';
+'use client'
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { MapPinIcon, SearchIcon } from 'lucide-react';
-import { billingAddressSchema, type BillingAddress } from '@/lib/validations/payment';
-import { cn } from '@/lib/utils';
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { MapPinIcon, SearchIcon } from 'lucide-react'
+import { billingAddressSchema, type BillingAddress } from '@/lib/validations/payment'
+import { cn } from '@/lib/utils'
 
 interface BillingAddressFormProps {
-  defaultValues?: Partial<BillingAddress>;
-  onAddressChange: (address: BillingAddress) => void;
-  className?: string;
+  defaultValues?: Partial<BillingAddress>
+  onAddressChange: (address: BillingAddress) => void
+  className?: string
 }
 
 export function BillingAddressForm({
@@ -31,38 +31,38 @@ export function BillingAddressForm({
     resolver: zodResolver(billingAddressSchema),
     defaultValues: defaultValues || {},
     mode: 'onChange',
-  });
+  })
 
-  const watchedValues = watch();
+  const watchedValues = watch()
 
   const onSubmit = (data: BillingAddress) => {
-    onAddressChange(data);
-  };
+    onAddressChange(data)
+  }
 
   // 실제 주소 검색 API 연동이 필요한 부분
   const handleAddressSearch = () => {
     // 다음(카카오) 주소 검색 API 또는 기타 주소 검색 서비스 연동
     // 여기서는 placeholder로 작성
-    console.log('주소 검색 API 호출');
-  };
+    console.log('주소 검색 API 호출')
+  }
 
   const formatPhoneNumber = (value: string) => {
-    const numbers = value.replace(/[^\d]/g, '');
+    const numbers = value.replace(/[^\d]/g, '')
     if (numbers.length <= 3) {
-      return numbers;
+      return numbers
     } else if (numbers.length <= 7) {
-      return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+      return `${numbers.slice(0, 3)}-${numbers.slice(3)}`
     } else {
-      return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+      return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`
     }
-  };
+  }
 
   // 폼이 변경될 때마다 상위 컴포넌트에 데이터 전달 (유효한 경우에만)
   const handleFormChange = () => {
     if (isValid) {
-      handleSubmit(onSubmit)();
+      handleSubmit(onSubmit)()
     }
-  };
+  }
 
   return (
     <div className={cn('space-y-6', className)}>
@@ -84,8 +84,8 @@ export function BillingAddressForm({
                   placeholder="홍길동"
                   {...register('name')}
                   onChange={(e) => {
-                    register('name').onChange(e);
-                    setTimeout(handleFormChange, 100);
+                    register('name').onChange(e)
+                    setTimeout(handleFormChange, 100)
                   }}
                 />
                 {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
@@ -98,9 +98,9 @@ export function BillingAddressForm({
                   placeholder="010-1234-5678"
                   {...register('phone')}
                   onChange={(e) => {
-                    const formatted = formatPhoneNumber(e.target.value);
-                    setValue('phone', formatted);
-                    setTimeout(handleFormChange, 100);
+                    const formatted = formatPhoneNumber(e.target.value)
+                    setValue('phone', formatted)
+                    setTimeout(handleFormChange, 100)
                   }}
                 />
                 {errors.phone && (
@@ -119,8 +119,8 @@ export function BillingAddressForm({
                   maxLength={5}
                   {...register('zipCode')}
                   onChange={(e) => {
-                    register('zipCode').onChange(e);
-                    setTimeout(handleFormChange, 100);
+                    register('zipCode').onChange(e)
+                    setTimeout(handleFormChange, 100)
                   }}
                 />
                 {errors.zipCode && (
@@ -164,8 +164,8 @@ export function BillingAddressForm({
                 placeholder="동, 호수 등 상세 주소를 입력해주세요"
                 {...register('detailAddress')}
                 onChange={(e) => {
-                  register('detailAddress').onChange(e);
-                  setTimeout(handleFormChange, 100);
+                  register('detailAddress').onChange(e)
+                  setTimeout(handleFormChange, 100)
                 }}
               />
               {errors.detailAddress && (
@@ -196,5 +196,5 @@ export function BillingAddressForm({
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

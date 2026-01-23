@@ -1,79 +1,79 @@
-'use client';
+'use client'
 
-import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { usePayment } from '@/hooks/usePayment';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { PaymentMethodSelector } from '@/components/payment/payment-method-selector';
-import { PaymentSummary } from '@/components/payment/payment-summary';
-import { BillingAddressForm } from '@/components/payment/billing-address-form';
+import { useState, useEffect, use } from 'react'
+import { useRouter } from 'next/navigation'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { usePayment } from '@/hooks/usePayment'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { PaymentMethodSelector } from '@/components/payment/payment-method-selector'
+import { PaymentSummary } from '@/components/payment/payment-summary'
+import { BillingAddressForm } from '@/components/payment/billing-address-form'
 import {
   ShieldCheckIcon,
   CreditCardIcon,
   AlertTriangleIcon,
   CheckCircleIcon,
   ArrowLeftIcon,
-} from 'lucide-react';
+} from 'lucide-react'
 import {
   paymentSchema,
   type PaymentMethod,
   type BillingAddress,
   type CouponInput,
-} from '@/lib/validations/payment';
+} from '@/lib/validations/payment'
 
 interface Service {
-  id: string;
-  name: string;
-  price: number;
-  duration: number;
-  category: string;
+  id: string
+  name: string
+  price: number
+  duration: number
+  category: string
 }
 
 interface BookingDetails {
-  id: string;
-  services: Service[];
+  id: string
+  services: Service[]
   pet: {
-    id: string;
-    name: string;
-    species: string;
-  };
+    id: string
+    name: string
+    species: string
+  }
   groomer: {
-    id: string;
-    name: string;
-    salon: string;
-  };
-  scheduledDate: string;
-  scheduledTime: string;
+    id: string
+    name: string
+    salon: string
+  }
+  scheduledDate: string
+  scheduledTime: string
 }
 
 interface CouponDiscount {
-  code: string;
-  discountAmount: number;
-  discountType: 'AMOUNT' | 'PERCENTAGE';
+  code: string
+  discountAmount: number
+  discountType: 'AMOUNT' | 'PERCENTAGE'
 }
 
 export default function PaymentPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
-  const router = useRouter();
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
-  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
-  const [couponDiscount, setCouponDiscount] = useState<CouponDiscount | null>(null);
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [agreeToPrivacy, setAgreeToPrivacy] = useState(false);
+  const resolvedParams = use(params)
+  const router = useRouter()
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
+  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null)
+  const [couponDiscount, setCouponDiscount] = useState<CouponDiscount | null>(null)
+  const [agreeToTerms, setAgreeToTerms] = useState(false)
+  const [agreeToPrivacy, setAgreeToPrivacy] = useState(false)
 
   const {
     requestPayment,
     isLoading: isPaymentLoading,
     error: paymentError,
     clearError,
-  } = usePayment();
+  } = usePayment()
 
   const {
     handleSubmit,
@@ -81,7 +81,7 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
   } = useForm({
     resolver: zodResolver(paymentSchema),
     mode: 'onChange',
-  });
+  })
 
   // Fetch booking using React Query
   const {
@@ -91,21 +91,21 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
   } = useQuery<BookingDetails>({
     queryKey: ['customer', 'bookings', resolvedParams.id],
     queryFn: async () => {
-      const response = await fetch(`/api/customer/bookings/${resolvedParams.id}`);
+      const response = await fetch(`/api/customer/bookings/${resolvedParams.id}`)
       if (!response.ok) {
-        throw new Error('예약 정보를 불러올 수 없습니다');
+        throw new Error('예약 정보를 불러올 수 없습니다')
       }
-      return response.json();
+      return response.json()
     },
     enabled: !!resolvedParams.id,
-  });
+  })
 
   // Redirect to bookings if booking fetch fails
   useEffect(() => {
     if (isError) {
-      router.push('/customer/bookings');
+      router.push('/customer/bookings')
     }
-  }, [isError, router]);
+  }, [isError, router])
 
   // 쿠폰 적용
   const handleCouponApply = async (coupon: CouponInput): Promise<boolean> => {
@@ -116,38 +116,38 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(coupon),
-      });
+      })
 
       if (!response.ok) {
-        return false;
+        return false
       }
 
-      const data = await response.json();
-      setCouponDiscount(data);
-      return true;
+      const data = await response.json()
+      setCouponDiscount(data)
+      return true
     } catch (error) {
-      console.error('Error applying coupon:', error);
-      return false;
+      console.error('Error applying coupon:', error)
+      return false
     }
-  };
+  }
 
   // 쿠폰 제거
   const handleCouponRemove = () => {
-    setCouponDiscount(null);
-  };
+    setCouponDiscount(null)
+  }
 
   // 결제 처리
   const onSubmit = async () => {
     if (!booking || !paymentMethod || !billingAddress) {
-      return;
+      return
     }
 
-    setIsProcessing(true);
+    setIsProcessing(true)
 
     try {
-      const subtotal = booking.services.reduce((sum, service) => sum + service.price, 0);
-      const discountAmount = couponDiscount?.discountAmount || 0;
-      const finalAmount = subtotal - discountAmount;
+      const subtotal = booking.services.reduce((sum, service) => sum + service.price, 0)
+      const discountAmount = couponDiscount?.discountAmount || 0
+      const finalAmount = subtotal - discountAmount
 
       // 1. 먼저 서버에서 결제 초기화 (고유 paymentId 생성)
       const initResponse = await fetch('/api/payments/initialize', {
@@ -160,13 +160,13 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
           amount: finalAmount,
           orderName: `${booking.pet.name} 미용 서비스`,
         }),
-      });
+      })
 
       if (!initResponse.ok) {
-        throw new Error('결제 초기화에 실패했습니다');
+        throw new Error('결제 초기화에 실패했습니다')
       }
 
-      const initData = await initResponse.json();
+      const initData = await initResponse.json()
 
       // 2. 포트원 SDK로 결제 요청
       const paymentRequest = {
@@ -195,81 +195,81 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
           discountAmount,
           finalAmount,
         },
-      };
+      }
 
-      console.log('[Payment] Requesting payment via usePayment hook:', paymentRequest);
+      console.log('[Payment] Requesting payment via usePayment hook:', paymentRequest)
 
-      const paymentResult = await requestPayment(paymentRequest);
+      const paymentResult = await requestPayment(paymentRequest)
 
       if (paymentResult.success) {
         // 3. 서버에서 결제 검증 (Polling 방식)
         // 웹훅이 도착할 때까지 최대 30초 동안 1초마다 확인
-        const maxAttempts = 30;
-        let attempts = 0;
-        let verificationSuccess = false;
-        let verificationError: string | null = null;
+        const maxAttempts = 30
+        let attempts = 0
+        let verificationSuccess = false
+        let verificationError: string | null = null
 
-        console.log('[Payment] Starting payment verification polling...');
+        console.log('[Payment] Starting payment verification polling...')
 
         while (attempts < maxAttempts && !verificationSuccess) {
           try {
             const verifyResponse = await fetch(`/api/payments/verify/${initData.paymentId}`, {
               method: 'GET',
-            });
+            })
 
             if (!verifyResponse.ok) {
               // 404는 아직 웹훅이 도착하지 않은 것일 수 있음
               if (verifyResponse.status === 404) {
                 console.log(
                   `[Payment] Attempt ${attempts + 1}/${maxAttempts}: Payment not found, waiting for webhook...`
-                );
+                )
               } else {
-                throw new Error('서버 결제 검증 실패');
+                throw new Error('서버 결제 검증 실패')
               }
             } else {
-              const verifyResult = await verifyResponse.json();
+              const verifyResult = await verifyResponse.json()
               console.log(
                 `[Payment] Attempt ${attempts + 1}/${maxAttempts}: Status = ${verifyResult.status}`
-              );
+              )
 
               if (verifyResult.success) {
                 // 결제 성공
-                verificationSuccess = true;
-                console.log('[Payment] Payment verified successfully!');
+                verificationSuccess = true
+                console.log('[Payment] Payment verified successfully!')
                 router.push(
                   `/customer/booking/${booking.id}/payment/success?payment=${initData.paymentId}`
-                );
-                break;
+                )
+                break
               } else if (verifyResult.status === 'FAILED' || verifyResult.status === 'CANCELLED') {
                 // 결제 실패 또는 취소
                 verificationError =
                   verifyResult.error ||
-                  `결제가 ${verifyResult.status === 'FAILED' ? '실패' : '취소'}되었습니다`;
-                break;
+                  `결제가 ${verifyResult.status === 'FAILED' ? '실패' : '취소'}되었습니다`
+                break
               } else if (verifyResult.status === 'PENDING') {
                 // 아직 처리 중 - 계속 polling
-                console.log('[Payment] Payment still pending, continuing to poll...');
+                console.log('[Payment] Payment still pending, continuing to poll...')
               }
             }
 
             // 다음 시도 전 1초 대기
             if (attempts < maxAttempts - 1 && !verificationSuccess) {
-              await new Promise((resolve) => setTimeout(resolve, 1000));
+              await new Promise((resolve) => setTimeout(resolve, 1000))
             }
 
-            attempts++;
+            attempts++
           } catch (error) {
-            console.error(`[Payment] Verification attempt ${attempts + 1} failed:`, error);
+            console.error(`[Payment] Verification attempt ${attempts + 1} failed:`, error)
 
             // 마지막 시도가 아니면 계속 시도
             if (attempts < maxAttempts - 1) {
-              await new Promise((resolve) => setTimeout(resolve, 1000));
-              attempts++;
+              await new Promise((resolve) => setTimeout(resolve, 1000))
+              attempts++
             } else {
               // 모든 시도 실패
               verificationError =
-                error instanceof Error ? error.message : '결제 확인 중 오류가 발생했습니다';
-              break;
+                error instanceof Error ? error.message : '결제 확인 중 오류가 발생했습니다'
+              break
             }
           }
         }
@@ -277,34 +277,33 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
         // Polling 결과 처리
         if (!verificationSuccess) {
           if (attempts >= maxAttempts) {
-            throw new Error('결제 확인 시간이 초과되었습니다. 고객센터에 문의해주세요.');
+            throw new Error('결제 확인 시간이 초과되었습니다. 고객센터에 문의해주세요.')
           } else if (verificationError) {
-            throw new Error(verificationError);
+            throw new Error(verificationError)
           }
         }
       } else {
         // 결제 실패 처리
         if (paymentResult.cancelled) {
-          console.log('[Payment] Payment was cancelled by user');
+          console.log('[Payment] Payment was cancelled by user')
           // 취소된 경우는 에러를 표시하지 않음
         } else {
-          throw new Error(paymentResult.error || '결제에 실패했습니다');
+          throw new Error(paymentResult.error || '결제에 실패했습니다')
         }
       }
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error('Payment error:', error)
       // 에러 처리 - 구체적인 에러 메시지 표시
-      const errorMessage =
-        error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다';
-      alert(`결제 처리 중 오류가 발생했습니다: ${errorMessage}`);
+      const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다'
+      alert(`결제 처리 중 오류가 발생했습니다: ${errorMessage}`)
     } finally {
-      setIsProcessing(false);
+      setIsProcessing(false)
     }
-  };
+  }
 
   const canProceedToPayment = () => {
-    return paymentMethod && billingAddress && agreeToTerms && agreeToPrivacy;
-  };
+    return paymentMethod && billingAddress && agreeToTerms && agreeToPrivacy
+  }
 
   if (isLoading) {
     return (
@@ -318,7 +317,7 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   if (!booking) {
@@ -339,7 +338,7 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   return (
@@ -522,5 +521,5 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
         </div>
       </div>
     </div>
-  );
+  )
 }

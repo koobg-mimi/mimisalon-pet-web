@@ -1,18 +1,18 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSession } from '@/lib/auth-client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { ChatInterface } from '@/components/messaging/chat-interface';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import Image from 'next/image'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useSession } from '@/lib/auth-client'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { ChatInterface } from '@/components/messaging/chat-interface'
 import {
   MessageCircleIcon,
   SearchIcon,
@@ -20,73 +20,73 @@ import {
   UserIcon,
   CalendarIcon,
   ArrowLeftIcon,
-} from 'lucide-react';
-import { type CreateMessageInput } from '@/lib/validations/message';
-import { cn } from '@/lib/utils';
+} from 'lucide-react'
+import { type CreateMessageInput } from '@/lib/validations/message'
+import { cn } from '@/lib/utils'
 
 interface Conversation {
-  id: string;
-  type: 'CUSTOMER_GROOMER' | 'CUSTOMER_ADMIN' | 'GROOMER_ADMIN' | 'GROUP';
-  title?: string;
+  id: string
+  type: 'CUSTOMER_GROOMER' | 'CUSTOMER_ADMIN' | 'GROOMER_ADMIN' | 'GROUP'
+  title?: string
   participants: Array<{
-    id: string;
-    name: string;
-    avatar?: string;
-    role: string;
-    isOnline: boolean;
-    lastSeen?: string;
-  }>;
-  bookingId?: string;
+    id: string
+    name: string
+    avatar?: string
+    role: string
+    isOnline: boolean
+    lastSeen?: string
+  }>
+  bookingId?: string
   lastMessage?: {
-    id: string;
-    content: string;
-    type: 'TEXT' | 'IMAGE' | 'FILE' | 'BOOKING_INFO' | 'SYSTEM';
-    status: 'SENT' | 'DELIVERED' | 'READ' | 'FAILED';
-    senderId: string;
-    senderName: string;
-    createdAt: string;
-  };
-  unreadCount: number;
-  createdAt: string;
-  updatedAt: string;
+    id: string
+    content: string
+    type: 'TEXT' | 'IMAGE' | 'FILE' | 'BOOKING_INFO' | 'SYSTEM'
+    status: 'SENT' | 'DELIVERED' | 'READ' | 'FAILED'
+    senderId: string
+    senderName: string
+    createdAt: string
+  }
+  unreadCount: number
+  createdAt: string
+  updatedAt: string
 }
 
 export default function MessagesPage() {
-  const router = useRouter();
-  const { data: session, isPending } = useSession();
-  const queryClient = useQueryClient();
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isMobileView, setIsMobileView] = useState(false);
+  const router = useRouter()
+  const { data: session, isPending } = useSession()
+  const queryClient = useQueryClient()
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [isMobileView, setIsMobileView] = useState(false)
 
-  const currentUserId = session?.user?.id || 'current-user-id';
+  const currentUserId = session?.user?.id || 'current-user-id'
 
   // Fetch conversations using React Query
   const { data: conversationsData, isLoading } = useQuery({
     queryKey: ['customer', 'conversations'],
     queryFn: async () => {
-      const response = await fetch('/api/conversations');
+      const response = await fetch('/api/conversations')
       if (!response.ok) {
-        throw new Error('Failed to fetch conversations');
+        throw new Error('Failed to fetch conversations')
       }
-      const data = await response.json();
-      return data.conversations as Conversation[];
+      const data = await response.json()
+      return data.conversations as Conversation[]
     },
     enabled: !!session?.user && session.user.role === 'CUSTOMER',
-  });
+  })
 
-  const conversations = conversationsData || [];
+  const conversations = conversationsData || []
 
   // 반응형 처리
   useEffect(() => {
     const handleResize = () => {
-      setIsMobileView(window.innerWidth < 768);
-    };
+      setIsMobileView(window.innerWidth < 768)
+    }
 
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   // Send message mutation
   const sendMessageMutation = useMutation({
@@ -97,19 +97,19 @@ export default function MessagesPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(message),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error('Failed to send message');
+        throw new Error('Failed to send message')
       }
 
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
       // Invalidate conversations to refresh unread counts
-      queryClient.invalidateQueries({ queryKey: ['customer', 'conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['customer', 'conversations'] })
     },
-  });
+  })
 
   // Mark as read mutation
   const markAsReadMutation = useMutation({
@@ -120,82 +120,82 @@ export default function MessagesPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ messageIds }),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error('Failed to mark messages as read');
+        throw new Error('Failed to mark messages as read')
       }
 
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['customer', 'conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['customer', 'conversations'] })
     },
-  });
+  })
 
   // Delete message mutation
   const deleteMessageMutation = useMutation({
     mutationFn: async (messageId: string) => {
       const response = await fetch(`/api/messages/${messageId}`, {
         method: 'DELETE',
-      });
+      })
 
       if (!response.ok) {
-        throw new Error('Failed to delete message');
+        throw new Error('Failed to delete message')
       }
 
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['customer', 'conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['customer', 'conversations'] })
     },
-  });
+  })
 
   // Handler functions
   const handleSendMessage = async (message: CreateMessageInput) => {
-    await sendMessageMutation.mutateAsync(message);
-  };
+    await sendMessageMutation.mutateAsync(message)
+  }
 
   const handleMarkAsRead = async (messageIds: string[]) => {
-    await markAsReadMutation.mutateAsync(messageIds);
-  };
+    await markAsReadMutation.mutateAsync(messageIds)
+  }
 
   const handleDeleteMessage = async (messageId: string) => {
-    await deleteMessageMutation.mutateAsync(messageId);
-  };
+    await deleteMessageMutation.mutateAsync(messageId)
+  }
 
   // 새 대화 시작
   const handleNewConversation = () => {
     // 새 대화 생성 모달 또는 페이지로 이동
-    router.push('/customer/messages/new');
-  };
+    router.push('/customer/messages/new')
+  }
 
   // 필터링된 대화 목록
   const filteredConversations = conversations.filter((conversation) => {
-    const otherParticipant = conversation.participants.find((p) => p.id !== currentUserId);
-    const title = conversation.title || otherParticipant?.name || '';
+    const otherParticipant = conversation.participants.find((p) => p.id !== currentUserId)
+    const title = conversation.title || otherParticipant?.name || ''
     return (
       title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       conversation.lastMessage?.content.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  });
+    )
+  })
 
   const formatLastMessageTime = (dateString: string): string => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
 
-    if (diffInMinutes < 1) return '방금 전';
-    if (diffInMinutes < 60) return `${diffInMinutes}분 전`;
+    if (diffInMinutes < 1) return '방금 전'
+    if (diffInMinutes < 60) return `${diffInMinutes}분 전`
 
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours}시간 전`;
+    const diffInHours = Math.floor(diffInMinutes / 60)
+    if (diffInHours < 24) return `${diffInHours}시간 전`
 
-    const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 7) return `${diffInDays}일 전`;
+    const diffInDays = Math.floor(diffInHours / 24)
+    if (diffInDays < 7) return `${diffInDays}일 전`
 
-    return format(date, 'yyyy-MM-dd', { locale: ko });
-  };
+    return format(date, 'yyyy-MM-dd', { locale: ko })
+  }
 
   const ConversationList = (
     <div className="flex h-full flex-col">
@@ -244,10 +244,8 @@ export default function MessagesPage() {
         ) : (
           <div className="divide-y">
             {filteredConversations.map((conversation) => {
-              const otherParticipant = conversation.participants.find(
-                (p) => p.id !== currentUserId
-              );
-              const isSelected = selectedConversation?.id === conversation.id;
+              const otherParticipant = conversation.participants.find((p) => p.id !== currentUserId)
+              const isSelected = selectedConversation?.id === conversation.id
 
               return (
                 <div
@@ -315,13 +313,13 @@ export default function MessagesPage() {
                     </div>
                   </div>
                 </div>
-              );
+              )
             })}
           </div>
         )}
       </div>
     </div>
-  );
+  )
 
   if (isMobileView && selectedConversation) {
     // 모바일에서 대화 선택 시 전체 화면으로 표시
@@ -352,7 +350,7 @@ export default function MessagesPage() {
           />
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -387,5 +385,5 @@ export default function MessagesPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

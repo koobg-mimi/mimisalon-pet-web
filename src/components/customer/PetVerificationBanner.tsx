@@ -1,39 +1,39 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { DogIcon, XIcon, PlusIcon } from 'lucide-react';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { DogIcon, XIcon, PlusIcon } from 'lucide-react'
 
 interface PetVerificationBannerProps {
-  hasPets: boolean;
-  className?: string;
+  hasPets: boolean
+  className?: string
 }
 
 export function PetVerificationBanner({ hasPets, className = '' }: PetVerificationBannerProps) {
   const [isDismissed, setIsDismissed] = useState(() => {
-    return sessionStorage.getItem('pet-verification-banner-dismissed') === 'true';
-  });
-  const router = useRouter();
+    return sessionStorage.getItem('pet-verification-banner-dismissed') === 'true'
+  })
+  const router = useRouter()
 
   const handleAddPet = () => {
-    router.push('/customer/pets');
-  };
+    router.push('/customer/pets')
+  }
 
   const handleDismiss = () => {
-    setIsDismissed(true);
-    sessionStorage.setItem('pet-verification-banner-dismissed', 'true');
-  };
+    setIsDismissed(true)
+    sessionStorage.setItem('pet-verification-banner-dismissed', 'true')
+  }
 
   const handleLater = () => {
-    setIsDismissed(true);
+    setIsDismissed(true)
     // Don't save to session storage so it shows again next visit
-  };
+  }
 
   // Don't show if user has pets or dismissed
   if (hasPets || isDismissed) {
-    return null;
+    return null
   }
 
   return (
@@ -83,7 +83,7 @@ export function PetVerificationBanner({ hasPets, className = '' }: PetVerificati
         </div>
       </Alert>
     </div>
-  );
+  )
 }
 
 export function PetVerificationCompactBanner({
@@ -91,21 +91,21 @@ export function PetVerificationCompactBanner({
   className = '',
 }: PetVerificationBannerProps) {
   const [isDismissed, setIsDismissed] = useState(() => {
-    return sessionStorage.getItem('pet-verification-compact-banner-dismissed') === 'true';
-  });
-  const router = useRouter();
+    return sessionStorage.getItem('pet-verification-compact-banner-dismissed') === 'true'
+  })
+  const router = useRouter()
 
   const handleAddPet = () => {
-    router.push('/customer/pets');
-  };
+    router.push('/customer/pets')
+  }
 
   const handleDismiss = () => {
-    setIsDismissed(true);
-    sessionStorage.setItem('pet-verification-compact-banner-dismissed', 'true');
-  };
+    setIsDismissed(true)
+    sessionStorage.setItem('pet-verification-compact-banner-dismissed', 'true')
+  }
 
   if (hasPets || isDismissed) {
-    return null;
+    return null
   }
 
   return (
@@ -138,5 +138,5 @@ export function PetVerificationCompactBanner({
         </div>
       </div>
     </div>
-  );
+  )
 }

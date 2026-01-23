@@ -1,21 +1,21 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
-import { CUSTOMER_SERVICE } from '@/lib/constants/customer-service';
+import { useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { RefreshCw } from 'lucide-react'
+import { CUSTOMER_SERVICE } from '@/lib/constants/customer-service'
 
 export default function GlobalError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+  error: Error & { digest?: string }
+  reset: () => void
 }) {
   useEffect(() => {
     // Log the error to an error reporting service
-    console.error('Global application error:', error);
-  }, [error]);
+    console.error('Global application error:', error)
+  }, [error])
 
   return (
     <html>
@@ -82,5 +82,5 @@ export default function GlobalError({
         </div>
       </body>
     </html>
-  );
+  )
 }

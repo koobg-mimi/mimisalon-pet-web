@@ -1,22 +1,22 @@
-'use client';
+'use client'
 
-import { ReactNode, forwardRef, useState } from 'react';
-import { Input, InputProps } from '@/components/ui/input';
-import { Textarea, TextareaProps } from '@/components/ui/textarea';
-import { Button, ButtonProps } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
-import { CheckIcon, ChevronDownIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ReactNode, forwardRef, useState } from 'react'
+import { Input, InputProps } from '@/components/ui/input'
+import { Textarea, TextareaProps } from '@/components/ui/textarea'
+import { Button, ButtonProps } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent } from '@/components/ui/card'
+import { CheckIcon, ChevronDownIcon } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 // Mobile-optimized Input with larger touch targets
 interface MobileInputProps extends Omit<InputProps, 'size'> {
-  label?: string;
-  error?: string;
-  required?: boolean;
-  leftIcon?: ReactNode;
-  rightIcon?: ReactNode;
-  helpText?: string;
+  label?: string
+  error?: string
+  required?: boolean
+  leftIcon?: ReactNode
+  rightIcon?: ReactNode
+  helpText?: string
 }
 
 export const MobileInput = forwardRef<HTMLInputElement, MobileInputProps>(
@@ -60,18 +60,18 @@ export const MobileInput = forwardRef<HTMLInputElement, MobileInputProps>(
 
         {error && <p className="text-sm text-red-600">{error}</p>}
       </div>
-    );
+    )
   }
-);
+)
 
-MobileInput.displayName = 'MobileInput';
+MobileInput.displayName = 'MobileInput'
 
 // Mobile-optimized Textarea
 interface MobileTextareaProps extends TextareaProps {
-  label?: string;
-  error?: string;
-  required?: boolean;
-  helpText?: string;
+  label?: string
+  error?: string
+  required?: boolean
+  helpText?: string
 }
 
 export const MobileTextarea = forwardRef<HTMLTextAreaElement, MobileTextareaProps>(
@@ -99,16 +99,16 @@ export const MobileTextarea = forwardRef<HTMLTextAreaElement, MobileTextareaProp
 
         {error && <p className="text-sm text-red-600">{error}</p>}
       </div>
-    );
+    )
   }
-);
+)
 
-MobileTextarea.displayName = 'MobileTextarea';
+MobileTextarea.displayName = 'MobileTextarea'
 
 // Mobile-optimized Button with larger touch targets
 interface MobileButtonProps extends ButtonProps {
-  fullWidth?: boolean;
-  loading?: boolean;
+  fullWidth?: boolean
+  loading?: boolean
 }
 
 export const MobileButton = forwardRef<HTMLButtonElement, MobileButtonProps>(
@@ -133,27 +133,27 @@ export const MobileButton = forwardRef<HTMLButtonElement, MobileButtonProps>(
           children
         )}
       </Button>
-    );
+    )
   }
-);
+)
 
-MobileButton.displayName = 'MobileButton';
+MobileButton.displayName = 'MobileButton'
 
 // Mobile-friendly select/dropdown
 interface MobileSelectProps {
-  label?: string;
-  value?: string;
-  onValueChange: (value: string) => void;
+  label?: string
+  value?: string
+  onValueChange: (value: string) => void
   options: Array<{
-    value: string;
-    label: string;
-    description?: string;
-  }>;
-  placeholder?: string;
-  error?: string;
-  required?: boolean;
-  disabled?: boolean;
-  className?: string;
+    value: string
+    label: string
+    description?: string
+  }>
+  placeholder?: string
+  error?: string
+  required?: boolean
+  disabled?: boolean
+  className?: string
 }
 
 export function MobileSelect({
@@ -202,23 +202,23 @@ export function MobileSelect({
 
       {error && <p className="text-sm text-red-600">{error}</p>}
     </div>
-  );
+  )
 }
 
 // Mobile-friendly checkbox group
 interface MobileCheckboxGroupProps {
-  label?: string;
-  value: string[];
-  onValueChange: (value: string[]) => void;
+  label?: string
+  value: string[]
+  onValueChange: (value: string[]) => void
   options: Array<{
-    value: string;
-    label: string;
-    description?: string;
-  }>;
-  error?: string;
-  required?: boolean;
-  disabled?: boolean;
-  className?: string;
+    value: string
+    label: string
+    description?: string
+  }>
+  error?: string
+  required?: boolean
+  disabled?: boolean
+  className?: string
 }
 
 export function MobileCheckboxGroup({
@@ -232,14 +232,14 @@ export function MobileCheckboxGroup({
   className,
 }: MobileCheckboxGroupProps) {
   const handleToggle = (optionValue: string) => {
-    if (disabled) return;
+    if (disabled) return
 
     const newValue = value.includes(optionValue)
       ? value.filter((v) => v !== optionValue)
-      : [...value, optionValue];
+      : [...value, optionValue]
 
-    onValueChange(newValue);
-  };
+    onValueChange(newValue)
+  }
 
   return (
     <div className={cn('space-y-2', className)}>
@@ -284,17 +284,17 @@ export function MobileCheckboxGroup({
 
       {error && <p className="text-sm text-red-600">{error}</p>}
     </div>
-  );
+  )
 }
 
 // Mobile form section wrapper
 interface MobileFormSectionProps {
-  title: string;
-  subtitle?: string;
-  children: ReactNode;
-  collapsible?: boolean;
-  defaultExpanded?: boolean;
-  className?: string;
+  title: string
+  subtitle?: string
+  children: ReactNode
+  collapsible?: boolean
+  defaultExpanded?: boolean
+  className?: string
 }
 
 export function MobileFormSection({
@@ -305,7 +305,7 @@ export function MobileFormSection({
   defaultExpanded = true,
   className,
 }: MobileFormSectionProps) {
-  const [expanded, setExpanded] = useState(defaultExpanded);
+  const [expanded, setExpanded] = useState(defaultExpanded)
 
   return (
     <Card className={cn('overflow-hidden', className)}>
@@ -332,5 +332,5 @@ export function MobileFormSection({
 
       {expanded && <CardContent className="space-y-6 p-4">{children}</CardContent>}
     </Card>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 // Common weak passwords to avoid
 const COMMON_PASSWORDS = [
@@ -49,7 +49,7 @@ const COMMON_PASSWORDS = [
   'iloveyou',
   'password12',
   'welcome123',
-];
+]
 
 // Korean common passwords
 const KOREAN_COMMON_PASSWORDS = [
@@ -69,14 +69,14 @@ const KOREAN_COMMON_PASSWORDS = [
   'zxcvbnm',
   'qwaszx',
   'zxcvqwer',
-];
+]
 
 // Sequential patterns to avoid
 const SEQUENTIAL_PATTERNS = [
   /(.)\1{2,}/, // Repeated characters (aaa, 111)
   /123456|654321|abcdef|qwerty|asdfgh|zxcvbn/, // Sequential patterns
   /01234|56789|09876|87654/, // Number sequences
-];
+]
 
 /**
  * Enhanced password validation schema with comprehensive security checks
@@ -107,51 +107,51 @@ export const enhancedPasswordSchema = z
   .refine(
     (password) => !/(.{2,})\1+/.test(password.toLowerCase()),
     '반복되는 패턴은 사용할 수 없습니다'
-  );
+  )
 
 /**
  * Password strength calculation
  */
 export function calculatePasswordStrength(password: string): {
-  score: number;
-  level: 'weak' | 'medium' | 'strong' | 'very-strong';
-  feedback: string[];
+  score: number
+  level: 'weak' | 'medium' | 'strong' | 'very-strong'
+  feedback: string[]
 } {
-  let score = 0;
-  const feedback: string[] = [];
+  let score = 0
+  const feedback: string[] = []
 
   // Length check
-  if (password.length >= 8) score += 1;
-  if (password.length >= 12) score += 1;
-  if (password.length >= 16) score += 1;
+  if (password.length >= 8) score += 1
+  if (password.length >= 12) score += 1
+  if (password.length >= 16) score += 1
 
   // Character variety
-  if (/[a-z]/.test(password)) score += 1;
-  if (/[A-Z]/.test(password)) score += 1;
-  if (/\d/.test(password)) score += 1;
-  if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password)) score += 1;
+  if (/[a-z]/.test(password)) score += 1
+  if (/[A-Z]/.test(password)) score += 1
+  if (/\d/.test(password)) score += 1
+  if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password)) score += 1
 
   // Avoid common patterns
-  if (!COMMON_PASSWORDS.includes(password.toLowerCase())) score += 1;
-  if (!KOREAN_COMMON_PASSWORDS.includes(password.toLowerCase())) score += 1;
-  if (!SEQUENTIAL_PATTERNS.some((pattern) => pattern.test(password.toLowerCase()))) score += 1;
+  if (!COMMON_PASSWORDS.includes(password.toLowerCase())) score += 1
+  if (!KOREAN_COMMON_PASSWORDS.includes(password.toLowerCase())) score += 1
+  if (!SEQUENTIAL_PATTERNS.some((pattern) => pattern.test(password.toLowerCase()))) score += 1
 
   // Determine level and feedback
   if (score <= 3) {
-    feedback.push('더 강력한 비밀번호를 설정하세요');
-    feedback.push('최소 8자 이상 사용하세요');
-    feedback.push('대문자, 소문자, 숫자, 특수문자를 모두 포함하세요');
-    return { score, level: 'weak', feedback };
+    feedback.push('더 강력한 비밀번호를 설정하세요')
+    feedback.push('최소 8자 이상 사용하세요')
+    feedback.push('대문자, 소문자, 숫자, 특수문자를 모두 포함하세요')
+    return { score, level: 'weak', feedback }
   } else if (score <= 5) {
-    feedback.push('비밀번호가 보통 수준입니다');
-    feedback.push('12자 이상 사용하면 더 안전합니다');
-    return { score, level: 'medium', feedback };
+    feedback.push('비밀번호가 보통 수준입니다')
+    feedback.push('12자 이상 사용하면 더 안전합니다')
+    return { score, level: 'medium', feedback }
   } else if (score <= 7) {
-    feedback.push('강력한 비밀번호입니다');
-    return { score, level: 'strong', feedback };
+    feedback.push('강력한 비밀번호입니다')
+    return { score, level: 'strong', feedback }
   } else {
-    feedback.push('매우 강력한 비밀번호입니다');
-    return { score, level: 'very-strong', feedback };
+    feedback.push('매우 강력한 비밀번호입니다')
+    return { score, level: 'very-strong', feedback }
   }
 }
 
@@ -161,33 +161,33 @@ export function calculatePasswordStrength(password: string): {
 export function checkPersonalInfo(
   password: string,
   userInfo: {
-    name?: string;
-    email?: string;
-    phone?: string;
+    name?: string
+    email?: string
+    phone?: string
   }
 ): string[] {
-  const warnings: string[] = [];
-  const lowerPassword = password.toLowerCase();
+  const warnings: string[] = []
+  const lowerPassword = password.toLowerCase()
 
   if (userInfo.name && lowerPassword.includes(userInfo.name.toLowerCase())) {
-    warnings.push('비밀번호에 이름을 포함하지 마세요');
+    warnings.push('비밀번호에 이름을 포함하지 마세요')
   }
 
   if (userInfo.email) {
-    const emailParts = userInfo.email.toLowerCase().split('@')[0];
+    const emailParts = userInfo.email.toLowerCase().split('@')[0]
     if (lowerPassword.includes(emailParts)) {
-      warnings.push('비밀번호에 이메일 주소를 포함하지 마세요');
+      warnings.push('비밀번호에 이메일 주소를 포함하지 마세요')
     }
   }
 
   if (userInfo.phone) {
-    const phoneNumbers = userInfo.phone.replace(/\D/g, '');
+    const phoneNumbers = userInfo.phone.replace(/\D/g, '')
     if (phoneNumbers.length >= 4 && lowerPassword.includes(phoneNumbers.slice(-4))) {
-      warnings.push('비밀번호에 전화번호를 포함하지 마세요');
+      warnings.push('비밀번호에 전화번호를 포함하지 마세요')
     }
   }
 
-  return warnings;
+  return warnings
 }
 
 /**
@@ -201,8 +201,8 @@ export const passwordResetValidationSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: '비밀번호가 일치하지 않습니다',
     path: ['confirmPassword'],
-  });
+  })
 
 // Export types
-export type PasswordStrength = ReturnType<typeof calculatePasswordStrength>;
-export type PasswordResetValidation = z.infer<typeof passwordResetValidationSchema>;
+export type PasswordStrength = ReturnType<typeof calculatePasswordStrength>
+export type PasswordResetValidation = z.infer<typeof passwordResetValidationSchema>

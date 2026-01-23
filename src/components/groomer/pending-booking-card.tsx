@@ -1,18 +1,18 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { PendingBooking } from '@/types/groomer';
-import { Calendar, Check, Clock, MapPin, Phone, Scissors, User, X } from 'lucide-react';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { PendingBooking } from '@/types/groomer'
+import { Calendar, Check, Clock, MapPin, Phone, Scissors, User, X } from 'lucide-react'
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
 interface PendingBookingCardProps {
-  booking: PendingBooking;
-  onConfirm: (bookingId: string) => Promise<void>;
-  onReject: (bookingId: string, reason?: string) => Promise<void>;
-  isLoading?: boolean;
+  booking: PendingBooking
+  onConfirm: (bookingId: string) => Promise<void>
+  onReject: (bookingId: string, reason?: string) => Promise<void>
+  isLoading?: boolean
 }
 
 export function PendingBookingCard({
@@ -21,54 +21,54 @@ export function PendingBookingCard({
   onReject,
   isLoading = false,
 }: PendingBookingCardProps) {
-  const [isConfirming, setIsConfirming] = useState(false);
-  const [isRejecting, setIsRejecting] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false)
+  const [isRejecting, setIsRejecting] = useState(false)
 
   const handleConfirm = async () => {
-    if (isLoading || isConfirming || isRejecting) return;
+    if (isLoading || isConfirming || isRejecting) return
 
-    setIsConfirming(true);
+    setIsConfirming(true)
     try {
-      await onConfirm(booking.id);
+      await onConfirm(booking.id)
     } finally {
-      setIsConfirming(false);
+      setIsConfirming(false)
     }
-  };
+  }
 
   const handleReject = async () => {
-    if (isLoading || isConfirming || isRejecting) return;
+    if (isLoading || isConfirming || isRejecting) return
 
-    setIsRejecting(true);
+    setIsRejecting(true)
     try {
-      await onReject(booking.id, '미용사가 예약을 거절했습니다');
+      await onReject(booking.id, '미용사가 예약을 거절했습니다')
     } finally {
-      setIsRejecting(false);
+      setIsRejecting(false)
     }
-  };
+  }
 
   const formatDate = (dateString: string) => {
     try {
-      const date = new Date(dateString + 'T00:00:00');
-      return format(date, 'M월 d일 (E)', { locale: ko });
+      const date = new Date(dateString + 'T00:00:00')
+      return format(date, 'M월 d일 (E)', { locale: ko })
     } catch {
-      return dateString;
+      return dateString
     }
-  };
+  }
 
   const calculateEndTime = (startTime: string, durationMinutes: number) => {
     try {
-      const [hours, minutes] = startTime.split(':').map(Number);
-      const startDate = new Date();
-      startDate.setHours(hours, minutes, 0, 0);
+      const [hours, minutes] = startTime.split(':').map(Number)
+      const startDate = new Date()
+      startDate.setHours(hours, minutes, 0, 0)
 
-      const endDate = new Date(startDate.getTime() + durationMinutes * 60000);
-      return format(endDate, 'HH:mm', { locale: ko });
+      const endDate = new Date(startDate.getTime() + durationMinutes * 60000)
+      return format(endDate, 'HH:mm', { locale: ko })
     } catch {
-      return '';
+      return ''
     }
-  };
+  }
 
-  const totalServices = booking.pets.reduce((total, pet) => total + pet.services.length, 0);
+  const totalServices = booking.pets.reduce((total, pet) => total + pet.services.length, 0)
 
   return (
     <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-6 shadow-sm transition-shadow hover:shadow-md">
@@ -216,5 +216,5 @@ export function PendingBookingCard({
         </Button>
       </div>
     </div>
-  );
+  )
 }

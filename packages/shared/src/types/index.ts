@@ -5,7 +5,7 @@
  */
 
 // Re-export Prisma types
-export * from '@prisma/client';
+export * from '@prisma/client'
 
 // Worker API types (shared between Next.js and Worker service)
-export * from './worker-api';
+export * from './worker-api'

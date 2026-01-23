@@ -1,4 +1,4 @@
-import type { Config } from 'tailwindcss';
+import type { Config } from 'tailwindcss'
 
 const config: Config = {
   content: [
@@ -259,11 +259,11 @@ const config: Config = {
         '.min-h-screen-dynamic': {
           minHeight: '100dvh',
         },
-      };
+      }
 
-      addUtilities(newUtilities, ['responsive', 'hover']);
+      addUtilities(newUtilities, ['responsive', 'hover'])
     },
   ],
-};
+}
 
-export default config;
+export default config

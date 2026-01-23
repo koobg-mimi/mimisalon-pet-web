@@ -1,21 +1,21 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import { cn } from '@/lib/utils';
-import { Card, CardContent } from '@/components/ui/card';
+import * as React from 'react'
+import { cn } from '@/lib/utils'
+import { Card, CardContent } from '@/components/ui/card'
 
 interface ResponsiveTableProps<T extends Record<string, any>> {
-  data: T[];
+  data: T[]
   columns: {
-    key: keyof T;
-    label: string;
-    className?: string;
-    render?: (value: any, item: T) => React.ReactNode;
-    priority?: 'high' | 'medium' | 'low'; // For mobile display priority
-  }[];
-  className?: string;
-  mobileCardClassName?: string;
-  onRowClick?: (item: T) => void;
+    key: keyof T
+    label: string
+    className?: string
+    render?: (value: any, item: T) => React.ReactNode
+    priority?: 'high' | 'medium' | 'low' // For mobile display priority
+  }[]
+  className?: string
+  mobileCardClassName?: string
+  onRowClick?: (item: T) => void
 }
 
 /**
@@ -29,9 +29,9 @@ export function ResponsiveTable<T extends Record<string, any>>({
   mobileCardClassName,
   onRowClick,
 }: ResponsiveTableProps<T>) {
-  const highPriorityColumns = columns.filter((col) => col.priority === 'high');
-  const mediumPriorityColumns = columns.filter((col) => col.priority === 'medium' || !col.priority);
-  const lowPriorityColumns = columns.filter((col) => col.priority === 'low');
+  const highPriorityColumns = columns.filter((col) => col.priority === 'high')
+  const mediumPriorityColumns = columns.filter((col) => col.priority === 'medium' || !col.priority)
+  const lowPriorityColumns = columns.filter((col) => col.priority === 'low')
 
   return (
     <>
@@ -139,7 +139,7 @@ export function ResponsiveTable<T extends Record<string, any>>({
         ))}
       </div>
     </>
-  );
+  )
 }
 
 /**
@@ -150,8 +150,8 @@ export function ResponsiveTableWrapper({
   children,
   className,
 }: {
-  children: React.ReactNode;
-  className?: string;
+  children: React.ReactNode
+  className?: string
 }) {
   return (
     <div
@@ -166,5 +166,5 @@ export function ResponsiveTableWrapper({
       {/* Scroll indicator for mobile */}
       <div className="from-background pointer-events-none absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l sm:hidden" />
     </div>
-  );
+  )
 }

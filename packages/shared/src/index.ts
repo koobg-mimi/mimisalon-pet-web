@@ -6,7 +6,7 @@
  */
 
 // Export Prisma client
-export { prisma } from './prisma/client';
+export { prisma } from './prisma/client'
 
 // Export shared types (to be added as needed)
-export * from './types';
+export * from './types'

@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { Calendar, CheckCircle, Clock, DollarSign, PawPrint, Star } from 'lucide-react';
-import { useDashboardStats } from '@/hooks/useDashboardStats';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Calendar, CheckCircle, Clock, DollarSign, PawPrint, Star } from 'lucide-react'
+import { useDashboardStats } from '@/hooks/useDashboardStats'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export function StatisticsCards() {
-  const { data: stats, isLoading } = useDashboardStats();
+  const { data: stats, isLoading } = useDashboardStats()
 
   if (isLoading) {
     return (
@@ -25,7 +25,7 @@ export function StatisticsCards() {
           </div>
         ))}
       </div>
-    );
+    )
   }
 
   const cards = [
@@ -61,7 +61,7 @@ export function StatisticsCards() {
       bgColor: 'bg-purple-100',
       iconColor: 'text-purple-600',
     },
-  ];
+  ]
 
   return (
     <div className="space-y-6">
@@ -137,5 +137,5 @@ export function StatisticsCards() {
         )}
       </div>
     </div>
-  );
+  )
 }

@@ -1,19 +1,19 @@
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 interface TimelineEvent {
-  id: string;
-  title: string;
-  description: string;
-  timestamp: string;
-  type: 'created' | 'confirmed' | 'reminded' | 'completed' | 'cancelled' | 'updated';
+  id: string
+  title: string
+  description: string
+  timestamp: string
+  type: 'created' | 'confirmed' | 'reminded' | 'completed' | 'cancelled' | 'updated'
   actor?: {
-    name: string;
-    role: 'CUSTOMER' | 'GROOMER' | 'ADMIN' | 'SYSTEM';
-  };
+    name: string
+    role: 'CUSTOMER' | 'GROOMER' | 'ADMIN' | 'SYSTEM'
+  }
 }
 
 interface BookingTimelineProps {
-  events: TimelineEvent[];
+  events: TimelineEvent[]
 }
 
 export function BookingTimeline({ events }: BookingTimelineProps) {
@@ -31,7 +31,7 @@ export function BookingTimeline({ events }: BookingTimelineProps) {
               />
             </svg>
           </div>
-        );
+        )
       case 'confirmed':
         return (
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-600">
@@ -44,7 +44,7 @@ export function BookingTimeline({ events }: BookingTimelineProps) {
               />
             </svg>
           </div>
-        );
+        )
       case 'reminded':
         return (
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100 text-yellow-600">
@@ -57,7 +57,7 @@ export function BookingTimeline({ events }: BookingTimelineProps) {
               />
             </svg>
           </div>
-        );
+        )
       case 'completed':
         return (
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 text-purple-600">
@@ -70,7 +70,7 @@ export function BookingTimeline({ events }: BookingTimelineProps) {
               />
             </svg>
           </div>
-        );
+        )
       case 'cancelled':
         return (
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-100 text-red-600">
@@ -83,7 +83,7 @@ export function BookingTimeline({ events }: BookingTimelineProps) {
               />
             </svg>
           </div>
-        );
+        )
       case 'updated':
         return (
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-600">
@@ -96,7 +96,7 @@ export function BookingTimeline({ events }: BookingTimelineProps) {
               />
             </svg>
           </div>
-        );
+        )
       default:
         return (
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-600">
@@ -109,30 +109,30 @@ export function BookingTimeline({ events }: BookingTimelineProps) {
               />
             </svg>
           </div>
-        );
+        )
     }
-  };
+  }
 
   const getActorName = (actor: TimelineEvent['actor']) => {
-    if (!actor) return '시스템';
+    if (!actor) return '시스템'
 
     switch (actor.role) {
       case 'CUSTOMER':
-        return `${actor.name} (고객)`;
+        return `${actor.name} (고객)`
       case 'GROOMER':
-        return `${actor.name} (미용사)`;
+        return `${actor.name} (미용사)`
       case 'ADMIN':
-        return `${actor.name} (관리자)`;
+        return `${actor.name} (관리자)`
       case 'SYSTEM':
-        return '시스템';
+        return '시스템'
       default:
-        return actor.name;
+        return actor.name
     }
-  };
+  }
 
   const formatDate = (dateString: string) => {
-    return format(new Date(dateString), 'yyyy-MM-dd HH:mm:ss', { locale: ko });
-  };
+    return format(new Date(dateString), 'yyyy-MM-dd HH:mm:ss', { locale: ko })
+  }
 
   return (
     <div className="flow-root">
@@ -169,5 +169,5 @@ export function BookingTimeline({ events }: BookingTimelineProps) {
         ))}
       </ul>
     </div>
-  );
+  )
 }

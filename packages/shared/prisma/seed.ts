@@ -1,13 +1,13 @@
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 async function main() {
-  console.log('Starting database seed...');
+  console.log('Starting database seed...')
 
   // Hash the default password
-  const defaultPassword = await bcrypt.hash('defaultpass123', 10);
+  const defaultPassword = await bcrypt.hash('defaultpass123', 10)
 
   // Create test users
   const users = [
@@ -32,7 +32,7 @@ async function main() {
       role: 'ADMIN' as const,
       phone: '010-3456-7890',
     },
-  ];
+  ]
 
   for (const userData of users) {
     try {
@@ -40,17 +40,17 @@ async function main() {
         where: { email: userData.email },
         update: {},
         create: userData,
-      });
-      console.log(`Created/Updated user: ${user.email} with role: ${user.role}`);
+      })
+      console.log(`Created/Updated user: ${user.email} with role: ${user.role}`)
     } catch (error) {
-      console.error(`Error creating user ${userData.email}:`, error);
+      console.error(`Error creating user ${userData.email}:`, error)
     }
   }
 
   // Create some test pets for the customer
   const customer = await prisma.user.findUnique({
     where: { email: 'customer@petmanagement.com' },
-  });
+  })
 
   if (customer) {
     const pets = [
@@ -71,16 +71,16 @@ async function main() {
         hairType: 'LONG_HAIR' as const,
         customerId: customer.id,
       },
-    ];
+    ]
 
     for (const petData of pets) {
       try {
         const pet = await prisma.pet.create({
           data: petData,
-        });
-        console.log(`Created pet: ${pet.name} for customer`);
+        })
+        console.log(`Created pet: ${pet.name} for customer`)
       } catch (error) {
-        console.error(`Error creating pet ${petData.name}:`, error);
+        console.error(`Error creating pet ${petData.name}:`, error)
       }
     }
   }
@@ -114,29 +114,29 @@ async function main() {
       availableSizes: ['SMALL', 'MEDIUM', 'LARGE', 'EXTRA_LARGE'],
       isActive: true,
     },
-  ];
+  ]
 
   for (const serviceData of services) {
     try {
       // Check if service exists first
       const existingService = await prisma.service.findFirst({
         where: { name: serviceData.name },
-      });
+      })
 
-      let service;
+      let service
       if (existingService) {
         service = await prisma.service.update({
           where: { id: existingService.id },
           data: serviceData,
-        });
+        })
       } else {
         service = await prisma.service.create({
           data: serviceData,
-        });
+        })
       }
-      console.log(`Created/Updated service: ${service.name}`);
+      console.log(`Created/Updated service: ${service.name}`)
     } catch (error) {
-      console.error(`Error creating service ${serviceData.name}:`, error);
+      console.error(`Error creating service ${serviceData.name}:`, error)
     }
   }
 
@@ -170,38 +170,38 @@ async function main() {
       displayOrder: 4,
       isActive: true,
     },
-  ];
+  ]
 
   for (const gradeData of commissionGrades) {
     try {
       // Check if grade with same name already exists
       const existingGrade = await prisma.groomerCommissionGrade.findFirst({
         where: { name: gradeData.name },
-      });
+      })
 
       if (existingGrade) {
-        console.log(`Commission grade already exists: ${gradeData.name}`);
-        continue;
+        console.log(`Commission grade already exists: ${gradeData.name}`)
+        continue
       }
 
       const grade = await prisma.groomerCommissionGrade.create({
         data: gradeData,
-      });
-      console.log(`Created/Updated commission grade: ${grade.name} (${grade.commissionRate}%)`);
+      })
+      console.log(`Created/Updated commission grade: ${grade.name} (${grade.commissionRate}%)`)
     } catch (error) {
-      console.error(`Error creating commission grade ${gradeData.name}:`, error);
+      console.error(`Error creating commission grade ${gradeData.name}:`, error)
     }
   }
 
-  console.log('Database seed completed!');
+  console.log('Database seed completed!')
 }
 
 main()
   .then(async () => {
-    await prisma.$disconnect();
+    await prisma.$disconnect()
   })
   .catch(async (e) => {
-    console.error('Error in seed script:', e);
-    await prisma.$disconnect();
-    process.exit(1);
-  });
+    console.error('Error in seed script:', e)
+    await prisma.$disconnect()
+    process.exit(1)
+  })

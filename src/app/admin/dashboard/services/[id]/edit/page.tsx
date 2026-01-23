@@ -1,18 +1,18 @@
-'use client';
+'use client'
 
-import { useState, useEffect, use } from 'react';
-import { useSession } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { ArrowLeft, Save, PlusIcon, MinusIcon } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useState, useEffect, use } from 'react'
+import { useSession } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { ArrowLeft, Save, PlusIcon, MinusIcon } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import {
   Form,
   FormControl,
@@ -21,38 +21,38 @@ import {
   FormLabel,
   FormMessage,
   FormDescription,
-} from '@/components/ui/form';
+} from '@/components/ui/form'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { BreedSelector } from '@/components/admin/BreedSelector';
+} from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
+import { BreedSelector } from '@/components/admin/BreedSelector'
 
 interface Service {
-  id: string;
-  name: string;
-  description: string;
-  duration: number;
-  basePrice: number;
-  isActive: boolean;
-  petTypes: ('DOG' | 'CAT')[];
-  breedCategories?: string[];
-  priceRanges?: ServicePriceRange[];
-  requirements?: string;
-  afterCareInstructions?: string;
+  id: string
+  name: string
+  description: string
+  duration: number
+  basePrice: number
+  isActive: boolean
+  petTypes: ('DOG' | 'CAT')[]
+  breedCategories?: string[]
+  priceRanges?: ServicePriceRange[]
+  requirements?: string
+  afterCareInstructions?: string
 }
 
 interface ServicePriceRange {
-  id: string;
-  petType: 'DOG' | 'CAT';
-  minWeight?: number;
-  maxWeight?: number | null;
-  price: number;
-  selectedBreedIds?: string[];
+  id: string
+  petType: 'DOG' | 'CAT'
+  minWeight?: number
+  maxWeight?: number | null
+  price: number
+  selectedBreedIds?: string[]
 }
 
 // 서비스 수정 스키마
@@ -69,8 +69,8 @@ const serviceSchema = z.object({
     .string()
     .min(1, '소요시간을 입력해주세요')
     .refine((val) => {
-      const num = parseInt(val);
-      return !isNaN(num) && num >= 30 && num <= 480;
+      const num = parseInt(val)
+      return !isNaN(num) && num >= 30 && num <= 480
     }, '30분 ~ 480분 사이의 값을 입력해주세요'),
   priceRanges: z
     .array(
@@ -89,16 +89,16 @@ const serviceSchema = z.object({
     .max(500, '애프터케어 안내는 최대 500자까지 입력 가능합니다')
     .optional(),
   isActive: z.boolean().optional().default(true),
-});
+})
 
-type ServiceFormData = z.infer<typeof serviceSchema>;
+type ServiceFormData = z.infer<typeof serviceSchema>
 
 export default function EditServicePage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const [priceRanges, setPriceRanges] = useState<ServicePriceRange[]>([]);
+  const resolvedParams = use(params)
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const [priceRanges, setPriceRanges] = useState<ServicePriceRange[]>([])
 
   const form = useForm({
     resolver: zodResolver(serviceSchema),
@@ -111,13 +111,13 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
       afterCareInstructions: '',
       isActive: true,
     },
-  });
+  })
 
   // Helper function to sync state and form
   const updatePriceRanges = (newRanges: ServicePriceRange[]) => {
-    setPriceRanges(newRanges);
-    form.setValue('priceRanges', newRanges);
-  };
+    setPriceRanges(newRanges)
+    form.setValue('priceRanges', newRanges)
+  }
 
   // 서비스 데이터 조회
   const {
@@ -127,23 +127,23 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
   } = useQuery<Service>({
     queryKey: ['admin', 'services', resolvedParams.id],
     queryFn: async () => {
-      const response = await fetch(`/api/admin/services/${resolvedParams.id}`);
+      const response = await fetch(`/api/admin/services/${resolvedParams.id}`)
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || '서비스를 찾을 수 없습니다');
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || '서비스를 찾을 수 없습니다')
       }
-      return response.json();
+      return response.json()
     },
     enabled: !!session?.user && session.user.role === 'ADMIN',
     staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  })
 
   // 서비스 데이터가 로드되면 폼 초기화
   useEffect(() => {
     if (service) {
       // 가격 범위 설정
-      const ranges = service.priceRanges || [];
+      const ranges = service.priceRanges || []
 
       // 폼에 데이터 채우기 (priceRanges 포함)
       form.reset({
@@ -154,12 +154,12 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
         requirements: service.requirements || '',
         afterCareInstructions: service.afterCareInstructions || '',
         isActive: service.isActive,
-      });
+      })
 
       // state도 동기화
-      setPriceRanges(ranges);
+      setPriceRanges(ranges)
     }
-  }, [service, form]);
+  }, [service, form])
 
   // 서비스 수정 mutation
   const updateServiceMutation = useMutation({
@@ -171,13 +171,13 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
         maxWeight: range.maxWeight ?? null,
         price: range.price,
         selectedBreedIds: range.selectedBreedIds || [],
-      }));
+      }))
 
       const payload = {
         ...data,
         duration: parseInt(data.duration),
         priceRanges: formattedPriceRanges,
-      };
+      }
 
       const response = await fetch(`/api/admin/services/${resolvedParams.id}`, {
         method: 'PUT',
@@ -185,40 +185,40 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
-      });
+      })
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const errorMessage = errorData.error || `서비스 수정에 실패했습니다 (${response.status})`;
-        throw new Error(errorMessage);
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage = errorData.error || `서비스 수정에 실패했습니다 (${response.status})`
+        throw new Error(errorMessage)
       }
 
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
       // 쿼리 무효화하여 서비스 목록 새로고침
-      queryClient.invalidateQueries({ queryKey: ['admin', 'services'] });
-      queryClient.invalidateQueries({ queryKey: ['admin', 'services', resolvedParams.id] });
-      alert('서비스가 성공적으로 수정되었습니다!');
-      router.push('/admin/dashboard/services');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'services'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'services', resolvedParams.id] })
+      alert('서비스가 성공적으로 수정되었습니다!')
+      router.push('/admin/dashboard/services')
     },
     onError: (error) => {
-      console.error('Error updating service:', error);
-      alert(error instanceof Error ? error.message : '오류가 발생했습니다');
+      console.error('Error updating service:', error)
+      alert(error instanceof Error ? error.message : '오류가 발생했습니다')
     },
-  });
+  })
 
   const handleSubmit = (data: ServiceFormData) => {
-    updateServiceMutation.mutate(data);
-  };
+    updateServiceMutation.mutate(data)
+  }
 
   // 에러 처리
   useEffect(() => {
     if (error) {
-      alert(error instanceof Error ? error.message : '서비스를 불러오는데 실패했습니다');
-      router.push('/admin/dashboard/services');
+      alert(error instanceof Error ? error.message : '서비스를 불러오는데 실패했습니다')
+      router.push('/admin/dashboard/services')
     }
-  }, [error, router]);
+  }, [error, router])
 
   // 권한 체크
   if (isPending || isLoading) {
@@ -226,17 +226,17 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   if (!session) {
-    router.push('/auth/signin');
-    return null;
+    router.push('/auth/signin')
+    return null
   }
 
   if (!session || session.user?.role !== 'ADMIN') {
-    router.push('/admin/dashboard/overview');
-    return null;
+    router.push('/admin/dashboard/overview')
+    return null
   }
 
   return (
@@ -338,8 +338,8 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                           maxWeight: null,
                           price: 50000,
                           selectedBreedIds: [],
-                        };
-                        updatePriceRanges([...priceRanges, newRange]);
+                        }
+                        updatePriceRanges([...priceRanges, newRange])
                       }}
                     >
                       <PlusIcon className="mr-2 h-4 w-4" />
@@ -367,8 +367,8 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                             maxWeight: null,
                             price: 50000,
                             selectedBreedIds: [],
-                          };
-                          updatePriceRanges([newRange]);
+                          }
+                          updatePriceRanges([newRange])
                         }}
                       >
                         <PlusIcon className="mr-2 h-4 w-4" />
@@ -387,11 +387,11 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                             <Select
                               value={range.petType}
                               onValueChange={(value: 'DOG' | 'CAT') => {
-                                const newRanges = [...priceRanges];
-                                newRanges[index].petType = value;
+                                const newRanges = [...priceRanges]
+                                newRanges[index].petType = value
                                 // Clear selected breeds when changing pet type
-                                newRanges[index].selectedBreedIds = [];
-                                updatePriceRanges(newRanges);
+                                newRanges[index].selectedBreedIds = []
+                                updatePriceRanges(newRanges)
                               }}
                             >
                               <SelectTrigger>
@@ -412,9 +412,9 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                               step="0.1"
                               value={range.minWeight ?? 0}
                               onChange={(e) => {
-                                const newRanges = [...priceRanges];
-                                newRanges[index].minWeight = parseFloat(e.target.value) || 0;
-                                updatePriceRanges(newRanges);
+                                const newRanges = [...priceRanges]
+                                newRanges[index].minWeight = parseFloat(e.target.value) || 0
+                                updatePriceRanges(newRanges)
                               }}
                             />
                           </div>
@@ -428,11 +428,11 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                               value={range.maxWeight ?? ''}
                               placeholder="무제한"
                               onChange={(e) => {
-                                const newRanges = [...priceRanges];
+                                const newRanges = [...priceRanges]
                                 newRanges[index].maxWeight = e.target.value
                                   ? parseFloat(e.target.value)
-                                  : null;
-                                updatePriceRanges(newRanges);
+                                  : null
+                                updatePriceRanges(newRanges)
                               }}
                             />
                           </div>
@@ -444,9 +444,9 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                               min="5000"
                               value={range.price}
                               onChange={(e) => {
-                                const newRanges = [...priceRanges];
-                                newRanges[index].price = parseInt(e.target.value) || 0;
-                                updatePriceRanges(newRanges);
+                                const newRanges = [...priceRanges]
+                                newRanges[index].price = parseInt(e.target.value) || 0
+                                updatePriceRanges(newRanges)
                               }}
                             />
                           </div>
@@ -457,8 +457,8 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                               variant="destructive"
                               size="sm"
                               onClick={() => {
-                                const newRanges = priceRanges.filter((_, i) => i !== index);
-                                updatePriceRanges(newRanges);
+                                const newRanges = priceRanges.filter((_, i) => i !== index)
+                                updatePriceRanges(newRanges)
                               }}
                             >
                               <MinusIcon className="h-4 w-4" />
@@ -471,9 +471,9 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                           <BreedSelector
                             selectedBreedIds={range.selectedBreedIds || []}
                             onChange={(breedIds) => {
-                              const newRanges = [...priceRanges];
-                              newRanges[index].selectedBreedIds = breedIds;
-                              updatePriceRanges(newRanges);
+                              const newRanges = [...priceRanges]
+                              newRanges[index].selectedBreedIds = breedIds
+                              updatePriceRanges(newRanges)
                             }}
                             petType={range.petType}
                           />
@@ -573,5 +573,5 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

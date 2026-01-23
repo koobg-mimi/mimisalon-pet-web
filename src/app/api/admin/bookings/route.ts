@@ -1,9 +1,9 @@
-import { ko } from 'date-fns/locale';
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import auth from '@/lib/auth';
-import { BookingStatus, prisma, Prisma } from '@mimisalon/shared';
-import { format } from 'date-fns';
+import { ko } from 'date-fns/locale'
+import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import auth from '@/lib/auth'
+import { BookingStatus, prisma, Prisma } from '@mimisalon/shared'
+import { format } from 'date-fns'
 
 // Prisma query result type
 type BookingFromDB = Prisma.BookingGetPayload<{
@@ -177,51 +177,53 @@ interface ErrorResponse {
   error: string
 }
 
-export async function GET(request: NextRequest): Promise<NextResponse<AdminBookingsGetResponse | ErrorResponse>> {
+export async function GET(
+  request: NextRequest
+): Promise<NextResponse<AdminBookingsGetResponse | ErrorResponse>> {
   try {
-    const session = await auth.api.getSession({headers: await headers()});
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session || session.user?.role !== 'ADMIN') {
-      return NextResponse.json({error: 'Unauthorized'}, {status: 401});
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const {searchParams} = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || '20', 10);
-    const search = searchParams.get('search') || '';
-    const status = searchParams.get('status') || 'ALL';
-    const date = searchParams.get('date') || '';
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1', 10)
+    const limit = parseInt(searchParams.get('limit') || '20', 10)
+    const search = searchParams.get('search') || ''
+    const status = searchParams.get('status') || 'ALL'
+    const date = searchParams.get('date') || ''
 
-    const skip = (page - 1) * limit;
+    const skip = (page - 1) * limit
 
     // Build where clause
-    const where: Prisma.BookingWhereInput = {};
+    const where: Prisma.BookingWhereInput = {}
 
     // Search filter
     if (search) {
       where.OR = [
-        {bookingNumber: {contains: search, mode: 'insensitive'}},
-        {customer: {name: {contains: search, mode: 'insensitive'}}},
-        {customer: {email: {contains: search, mode: 'insensitive'}}},
-        {customer: {phoneNumber: {contains: search, mode: 'insensitive'}}},
-      ];
+        { bookingNumber: { contains: search, mode: 'insensitive' } },
+        { customer: { name: { contains: search, mode: 'insensitive' } } },
+        { customer: { email: { contains: search, mode: 'insensitive' } } },
+        { customer: { phoneNumber: { contains: search, mode: 'insensitive' } } },
+      ]
     }
 
     // Status filter
     if (status && status !== 'ALL') {
-      where.status = status as BookingStatus;
+      where.status = status as BookingStatus
     }
 
     // Date filter
     if (date) {
-      const selectedDate = new Date(date);
-      const nextDate = new Date(selectedDate);
-      nextDate.setDate(nextDate.getDate() + 1);
+      const selectedDate = new Date(date)
+      const nextDate = new Date(selectedDate)
+      nextDate.setDate(nextDate.getDate() + 1)
 
       where.serviceDate = {
         gte: selectedDate,
         lt: nextDate,
-      };
+      }
     }
 
     // Get bookings with pagination
@@ -325,17 +327,17 @@ export async function GET(request: NextRequest): Promise<NextResponse<AdminBooki
           },
         },
       }),
-      prisma.booking.count({where}),
-    ]);
+      prisma.booking.count({ where }),
+    ])
 
-    const totalPages = Math.ceil(totalCount / limit);
+    const totalPages = Math.ceil(totalCount / limit)
 
     // Transform bookings to ensure proper serialization
     const transformedBookings = bookings.map((booking) => {
       // Calculate paid amount from completed payments
       const paidAmount = booking.payments
         .filter((p) => p.status === 'PAID' || p.status === 'COMPLETED')
-        .reduce((sum, p) => sum + p.amount, 0);
+        .reduce((sum, p) => sum + p.amount, 0)
 
       return {
         id: booking.id,
@@ -343,18 +345,18 @@ export async function GET(request: NextRequest): Promise<NextResponse<AdminBooki
         customerId: booking.customerId,
         groomerId: booking.groomerId,
         status: booking.status,
-        serviceDate: format(booking.serviceDate, 'yyyy-MM-dd', {locale: ko}),
+        serviceDate: format(booking.serviceDate, 'yyyy-MM-dd', { locale: ko }),
         startTime: booking.serviceTime, // serviceTime을 startTime으로 매핑
         endTime: booking.actualEndTime
-          ? format(booking.actualEndTime, 'HH:mm', {locale: ko})
+          ? format(booking.actualEndTime, 'HH:mm', { locale: ko })
           : null,
         totalAmount: booking.basePrice + booking.additionalCharges - booking.discountAmount,
         paidAmount,
         additionalAmount: booking.additionalCharges,
         paymentStatus: booking.paymentStatus,
         notes: booking.notes,
-        createdAt: format(booking.createdAt, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", {locale: ko}),
-        updatedAt: format(booking.updatedAt, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", {locale: ko}),
+        createdAt: format(booking.createdAt, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", { locale: ko }),
+        updatedAt: format(booking.updatedAt, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", { locale: ko }),
         customer: booking.customer,
         groomer: booking.groomer,
         bookingPets: booking.bookingPets.map((bp) => ({
@@ -367,10 +369,10 @@ export async function GET(request: NextRequest): Promise<NextResponse<AdminBooki
         customerAddress: booking.customerAddress,
         payments: booking.payments.map((p) => ({
           ...p,
-          createdAt: format(p.createdAt, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", {locale: ko}),
+          createdAt: format(p.createdAt, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", { locale: ko }),
         })),
-      };
-    });
+      }
+    })
 
     return NextResponse.json({
       bookings: transformedBookings,
@@ -382,9 +384,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<AdminBooki
         hasNext: page < totalPages,
         hasPrev: page > 1,
       },
-    });
+    })
   } catch (error) {
-    console.error('Error fetching bookings:', error);
-    return NextResponse.json({error: 'Internal server error'}, {status: 500});
+    console.error('Error fetching bookings:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

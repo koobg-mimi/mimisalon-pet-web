@@ -1,8 +1,8 @@
-import { memo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { memo } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
 import {
   ClockIcon,
   DollarSignIcon,
@@ -10,41 +10,41 @@ import {
   ToggleLeftIcon,
   ToggleRightIcon,
   TrashIcon,
-} from 'lucide-react';
-import { ServicePriceRange } from '@mimisalon/shared';
-import { getPriceDisplay } from '@/lib/service-utils';
+} from 'lucide-react'
+import { ServicePriceRange } from '@mimisalon/shared'
+import { getPriceDisplay } from '@/lib/service-utils'
 
 export interface Service {
-  id: string;
-  name: string;
-  description: string;
-  duration: number;
-  isActive: boolean;
-  petTypes: ('DOG' | 'CAT')[];
-  priceRanges: ServicePriceRange[];
-  requirements?: string;
-  afterCareInstructions?: string;
-  imageUrl?: string;
-  createdAt: string;
-  updatedAt: string;
-  bookingCount: number;
-  averageRating: number;
+  id: string
+  name: string
+  description: string
+  duration: number
+  isActive: boolean
+  petTypes: ('DOG' | 'CAT')[]
+  priceRanges: ServicePriceRange[]
+  requirements?: string
+  afterCareInstructions?: string
+  imageUrl?: string
+  createdAt: string
+  updatedAt: string
+  bookingCount: number
+  averageRating: number
 }
 
 export const PET_TYPES = {
   DOG: '강아지',
   CAT: '고양이',
-} as const;
+} as const
 
 interface ServiceCardProps {
-  service: Service;
-  onEdit: (service: Service) => void;
-  onToggleStatus: (serviceId: string, isActive: boolean) => void;
-  onDelete: (serviceId: string) => void;
+  service: Service
+  onEdit: (service: Service) => void
+  onToggleStatus: (serviceId: string, isActive: boolean) => void
+  onDelete: (serviceId: string) => void
 }
 
 const ServiceCardComponent = ({ service, onEdit, onToggleStatus, onDelete }: ServiceCardProps) => {
-  const priceInfo = getPriceDisplay(service);
+  const priceInfo = getPriceDisplay(service)
 
   return (
     <Card key={service.id} className={service.isActive ? '' : 'opacity-60'}>
@@ -119,7 +119,7 @@ const ServiceCardComponent = ({ service, onEdit, onToggleStatus, onDelete }: Ser
         </div>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export const ServiceCard = memo(ServiceCardComponent);
+export const ServiceCard = memo(ServiceCardComponent)

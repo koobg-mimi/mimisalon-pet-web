@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -10,18 +10,18 @@ import {
   ShieldCheckIcon,
   CreditCardIcon,
   BellIcon,
-} from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { cn } from '@/lib/utils';
+} from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { cn } from '@/lib/utils'
 
 interface TermsNavigationProps {
-  serviceTerms: React.ReactNode;
-  privacyPolicy: React.ReactNode;
-  paymentTerms: React.ReactNode;
-  marketingTerms: React.ReactNode;
+  serviceTerms: React.ReactNode
+  privacyPolicy: React.ReactNode
+  paymentTerms: React.ReactNode
+  marketingTerms: React.ReactNode
 }
 
-type TabType = 'service' | 'privacy' | 'payment' | 'marketing';
+type TabType = 'service' | 'privacy' | 'payment' | 'marketing'
 
 const sections = [
   {
@@ -44,7 +44,7 @@ const sections = [
     title: '마케팅 정보 수신',
     icon: BellIcon,
   },
-];
+]
 
 export default function TermsNavigation({
   serviceTerms,
@@ -52,30 +52,30 @@ export default function TermsNavigation({
   paymentTerms,
   marketingTerms,
 }: TermsNavigationProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [activeSection, setActiveSection] = useState<TabType>(() => {
-    const tab = searchParams.get('tab');
+    const tab = searchParams.get('tab')
     if (tab && ['service', 'privacy', 'payment', 'marketing'].includes(tab)) {
-      return tab as TabType;
+      return tab as TabType
     }
-    return 'service';
-  });
+    return 'service'
+  })
 
   const contentMap = {
     service: serviceTerms,
     privacy: privacyPolicy,
     payment: paymentTerms,
     marketing: marketingTerms,
-  };
+  }
 
   // Update section when URL query parameter changes
   useEffect(() => {
-    const tab = searchParams.get('tab');
+    const tab = searchParams.get('tab')
     if (tab && ['service', 'privacy', 'payment', 'marketing'].includes(tab)) {
-      setActiveSection(tab as TabType);
+      setActiveSection(tab as TabType)
     }
-  }, [searchParams]);
+  }, [searchParams])
 
   return (
     <>
@@ -93,8 +93,8 @@ export default function TermsNavigation({
         </Button>
         <div className="space-y-2">
           {sections.map((section) => {
-            const Icon = section.icon;
-            const isActive = activeSection === section.id;
+            const Icon = section.icon
+            const isActive = activeSection === section.id
             return (
               <button
                 key={section.id}
@@ -112,7 +112,7 @@ export default function TermsNavigation({
                   className={cn('h-5 w-5', isActive ? 'text-white' : 'text-gray-400')}
                 />
               </button>
-            );
+            )
           })}
         </div>
         {activeSection && (
@@ -141,7 +141,7 @@ export default function TermsNavigation({
           <div className="sticky top-4">
             <nav className="space-y-1">
               {sections.map((section) => {
-                const Icon = section.icon;
+                const Icon = section.icon
                 return (
                   <button
                     key={section.id}
@@ -156,7 +156,7 @@ export default function TermsNavigation({
                     <Icon className="h-5 w-5 flex-shrink-0" />
                     <span className="font-medium">{section.title}</span>
                   </button>
-                );
+                )
               })}
             </nav>
           </div>
@@ -174,7 +174,7 @@ export default function TermsNavigation({
       <div className="hidden sm:block lg:hidden">
         <div className="mb-4 space-y-2">
           {sections.map((section) => {
-            const Icon = section.icon;
+            const Icon = section.icon
             return (
               <button
                 key={section.id}
@@ -189,7 +189,7 @@ export default function TermsNavigation({
                 <Icon className="h-5 w-5 flex-shrink-0" />
                 <span className="font-medium">{section.title}</span>
               </button>
-            );
+            )
           })}
         </div>
         <ScrollArea className="h-[65vh] rounded-lg border bg-white p-5">
@@ -197,5 +197,5 @@ export default function TermsNavigation({
         </ScrollArea>
       </div>
     </>
-  );
+  )
 }

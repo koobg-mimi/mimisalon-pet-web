@@ -1,50 +1,50 @@
-'use client';
+'use client'
 
-import React, { useEffect, useState } from 'react';
-import { Dog, Cat, Image as ImageIcon, ChevronDown, ChevronUp } from 'lucide-react';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import React, { useEffect, useState } from 'react'
+import { Dog, Cat, Image as ImageIcon, ChevronDown, ChevronUp } from 'lucide-react'
+import Image from 'next/image'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { PetFormData, Breed } from '@/hooks/usePets';
-import { usePetImages } from '@/hooks/usePetImages';
-import { ImageUploadArea } from './ImageUploadArea';
-import { toast } from 'sonner';
-import { Pet } from '@mimisalon/shared';
+} from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { PetFormData, Breed } from '@/hooks/usePets'
+import { usePetImages } from '@/hooks/usePetImages'
+import { ImageUploadArea } from './ImageUploadArea'
+import { toast } from 'sonner'
+import { Pet } from '@mimisalon/shared'
 
 interface PetModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (pet: PetFormData) => Promise<void>;
-  pet?: Pet;
-  mode: 'create' | 'edit';
-  onImagesUpdated?: () => void;
+  isOpen: boolean
+  onClose: () => void
+  onSave: (pet: PetFormData) => Promise<void>
+  pet?: Pet
+  mode: 'create' | 'edit'
+  onImagesUpdated?: () => void
 }
 
 export function PetModal({ isOpen, onClose, onSave, pet, mode, onImagesUpdated }: PetModalProps) {
-  const [isSaving, setIsSaving] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [tempImages, setTempImages] = useState<File[]>([]); // Temporary images for creation mode
-  const [breeds, setBreeds] = useState<Breed[]>([]);
-  const [breedsLoading, setBreedsLoading] = useState(false);
-  const [showTerms, setShowTerms] = useState(false);
+  const [isSaving, setIsSaving] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [tempImages, setTempImages] = useState<File[]>([]) // Temporary images for creation mode
+  const [breeds, setBreeds] = useState<Breed[]>([])
+  const [breedsLoading, setBreedsLoading] = useState(false)
+  const [showTerms, setShowTerms] = useState(false)
   const [formData, setFormData] = useState<PetFormData>({
     name: '',
     type: 'DOG',
@@ -58,7 +58,7 @@ export function PetModal({ isOpen, onClose, onSave, pet, mode, onImagesUpdated }
     vaccinationStatus: 'UNKNOWN',
     vaccinationDate: undefined,
     termsAcception: false,
-  });
+  })
 
   // Image management
   const {
@@ -69,54 +69,54 @@ export function PetModal({ isOpen, onClose, onSave, pet, mode, onImagesUpdated }
     uploadImages: uploadImagesHook,
     deleteImage,
     setPrimaryImage,
-  } = usePetImages(pet?.id || '');
+  } = usePetImages(pet?.id || '')
 
   // Fetch breeds
   const fetchBreeds = async () => {
-    setBreedsLoading(true);
+    setBreedsLoading(true)
     try {
-      const response = await fetch('/api/breeds');
+      const response = await fetch('/api/breeds')
       if (!response.ok) {
-        throw new Error('Failed to fetch breeds');
+        throw new Error('Failed to fetch breeds')
       }
-      const data = await response.json();
-      setBreeds(data);
+      const data = await response.json()
+      setBreeds(data)
     } catch (error) {
-      console.error('Error fetching breeds:', error);
-      toast.error('품종 목록을 불러오는데 실패했습니다');
+      console.error('Error fetching breeds:', error)
+      toast.error('품종 목록을 불러오는데 실패했습니다')
     } finally {
-      setBreedsLoading(false);
+      setBreedsLoading(false)
     }
-  };
+  }
 
   const uploadImages = async (files: File[]): Promise<void> => {
-    await uploadImagesHook(files);
+    await uploadImagesHook(files)
     // Notify parent that images have been updated
     if (onImagesUpdated) {
-      onImagesUpdated();
+      onImagesUpdated()
     }
-  };
+  }
 
   const handleDeleteImage = async (imageId: string): Promise<void> => {
-    await deleteImage(imageId);
+    await deleteImage(imageId)
     // Notify parent that images have been updated
     if (onImagesUpdated) {
-      onImagesUpdated();
+      onImagesUpdated()
     }
-  };
+  }
 
   const handleSetPrimaryImage = async (imageId: string): Promise<void> => {
-    await setPrimaryImage(imageId);
+    await setPrimaryImage(imageId)
     // Notify parent that images have been updated
     if (onImagesUpdated) {
-      onImagesUpdated();
+      onImagesUpdated()
     }
-  };
+  }
 
   useEffect(() => {
     if (isOpen) {
       // Fetch breeds when modal opens
-      fetchBreeds();
+      fetchBreeds()
     }
 
     if (pet && mode === 'edit') {
@@ -128,11 +128,11 @@ export function PetModal({ isOpen, onClose, onSave, pet, mode, onImagesUpdated }
         age: pet.age || undefined,
         birthDate: pet.birthDate
           ? (() => {
-              const date = new Date(pet.birthDate);
-              const year = date.getFullYear();
-              const month = String(date.getMonth() + 1).padStart(2, '0');
-              const day = String(date.getDate()).padStart(2, '0');
-              return `${year}-${month}-${day}`;
+              const date = new Date(pet.birthDate)
+              const year = date.getFullYear()
+              const month = String(date.getMonth() + 1).padStart(2, '0')
+              const day = String(date.getDate()).padStart(2, '0')
+              return `${year}-${month}-${day}`
             })()
           : undefined,
         gender: pet.gender || undefined,
@@ -141,19 +141,19 @@ export function PetModal({ isOpen, onClose, onSave, pet, mode, onImagesUpdated }
         vaccinationStatus: pet.vaccinationStatus || 'UNKNOWN',
         vaccinationDate: pet.vaccinationDate
           ? (() => {
-              const date = new Date(pet.vaccinationDate);
-              const year = date.getFullYear();
-              const month = String(date.getMonth() + 1).padStart(2, '0');
-              const day = String(date.getDate()).padStart(2, '0');
-              return `${year}-${month}-${day}`;
+              const date = new Date(pet.vaccinationDate)
+              const year = date.getFullYear()
+              const month = String(date.getMonth() + 1).padStart(2, '0')
+              const day = String(date.getDate()).padStart(2, '0')
+              return `${year}-${month}-${day}`
             })()
           : undefined,
         termsAcception: pet.termsAcception || false,
-      });
+      })
 
       // Fetch images if editing
       if (pet.id) {
-        fetchImages();
+        fetchImages()
       }
     } else {
       setFormData({
@@ -169,31 +169,31 @@ export function PetModal({ isOpen, onClose, onSave, pet, mode, onImagesUpdated }
         vaccinationStatus: 'UNKNOWN',
         vaccinationDate: undefined,
         termsAcception: false,
-      });
+      })
       // Clear temp images when opening in create mode
-      setTempImages([]);
+      setTempImages([])
     }
-    setErrors({});
-  }, [pet, mode, isOpen, fetchImages]);
+    setErrors({})
+  }, [pet, mode, isOpen, fetchImages])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     if (name === 'weight' || name === 'age') {
       setFormData((prev) => ({
         ...prev,
         [name]: value ? parseFloat(value) : undefined,
-      }));
+      }))
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({ ...prev, [name]: value }))
     }
     // Clear error for this field
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: '' }))
     }
-  };
+  }
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }))
 
     // Clear breedId and hairType when changing pet type
     if (name === 'type') {
@@ -201,26 +201,26 @@ export function PetModal({ isOpen, onClose, onSave, pet, mode, onImagesUpdated }
         ...prev,
         breedId: '', // Clear breed selection when changing pet type
         hairType: value === 'DOG' ? undefined : prev.hairType,
-      }));
+      }))
     }
-  };
+  }
 
   const validate = () => {
-    const newErrors: Record<string, string> = {};
+    const newErrors: Record<string, string> = {}
 
-    if (!formData.name) newErrors.name = '이름은 필수입니다';
-    if (!formData.type) newErrors.type = '종류는 필수입니다';
+    if (!formData.name) newErrors.name = '이름은 필수입니다'
+    if (!formData.type) newErrors.type = '종류는 필수입니다'
     if (!formData.termsAcception)
-      newErrors.termsAcception = '지병·노령견 미용 동의서에 동의해주셔야 합니다';
+      newErrors.termsAcception = '지병·노령견 미용 동의서에 동의해주셔야 합니다'
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleSave = async () => {
-    if (!validate()) return;
+    if (!validate()) return
 
-    setIsSaving(true);
+    setIsSaving(true)
     try {
       // Format dates for API
       const formattedData = {
@@ -229,56 +229,56 @@ export function PetModal({ isOpen, onClose, onSave, pet, mode, onImagesUpdated }
         vaccinationDate: formData.vaccinationDate
           ? new Date(formData.vaccinationDate).toISOString()
           : undefined,
-      };
+      }
 
       // For create mode, pass images along with pet data
       if (mode === 'create' && tempImages.length > 0) {
         // We'll pass images to the parent handler
         await onSave({ ...formattedData, images: tempImages } as PetFormData & {
-          images: File[];
-        });
+          images: File[]
+        })
       } else {
-        await onSave(formattedData);
+        await onSave(formattedData)
       }
 
-      onClose();
+      onClose()
     } catch (error) {
-      console.error('Failed to save pet:', error);
-      toast.error('반려동물 저장에 실패했습니다');
+      console.error('Failed to save pet:', error)
+      toast.error('반려동물 저장에 실패했습니다')
     } finally {
-      setIsSaving(false);
+      setIsSaving(false)
     }
-  };
+  }
 
   // Handle image selection for creation mode
   const handleImageSelect = (files: File[]) => {
-    const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+    const maxSize = 10 * 1024 * 1024 // 10MB
 
     const validFiles = files.filter((file) => {
       if (!validImageTypes.includes(file.type)) {
-        toast.error(`${file.name}: 지원하지 않는 파일 형식입니다`);
-        return false;
+        toast.error(`${file.name}: 지원하지 않는 파일 형식입니다`)
+        return false
       }
       if (file.size > maxSize) {
-        toast.error(`${file.name}: 파일 크기가 10MB를 초과합니다`);
-        return false;
+        toast.error(`${file.name}: 파일 크기가 10MB를 초과합니다`)
+        return false
       }
-      return true;
-    });
+      return true
+    })
 
     if (tempImages.length + validFiles.length > 10) {
-      toast.error('최대 10개의 이미지만 업로드할 수 있습니다');
-      return;
+      toast.error('최대 10개의 이미지만 업로드할 수 있습니다')
+      return
     }
 
-    setTempImages((prev) => [...prev, ...validFiles]);
-  };
+    setTempImages((prev) => [...prev, ...validFiles])
+  }
 
   // Remove temp image for creation mode
   const handleRemoveTempImage = (index: number) => {
-    setTempImages((prev) => prev.filter((_, i) => i !== index));
-  };
+    setTempImages((prev) => prev.filter((_, i) => i !== index))
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -329,7 +329,7 @@ export function PetModal({ isOpen, onClose, onSave, pet, mode, onImagesUpdated }
                     multiple
                     onChange={(e) => {
                       if (e.target.files) {
-                        handleImageSelect(Array.from(e.target.files));
+                        handleImageSelect(Array.from(e.target.files))
                       }
                     }}
                     className="hidden"
@@ -677,5 +677,5 @@ export function PetModal({ isOpen, onClose, onSave, pet, mode, onImagesUpdated }
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

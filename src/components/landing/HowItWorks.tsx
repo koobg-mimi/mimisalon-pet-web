@@ -1,5 +1,5 @@
-import { CheckCircle, LogIn, MapPin, Users } from 'lucide-react';
-import { Card, CardContent } from '../ui/card';
+import { CheckCircle, LogIn, MapPin, Users } from 'lucide-react'
+import { Card, CardContent } from '../ui/card'
 
 export function HowItWorks() {
   const steps = [
@@ -23,7 +23,7 @@ export function HowItWorks() {
       title: '4. 예약 완료',
       description: '결제 후 예약이 확정됩니다',
     },
-  ];
+  ]
 
   return (
     <section data-cy="how-it-works" className="container mx-auto px-4 py-16">
@@ -48,5 +48,5 @@ export function HowItWorks() {
         </CardContent>
       </Card>
     </section>
-  );
+  )
 }

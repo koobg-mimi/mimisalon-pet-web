@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { useSession } from '@/lib/auth-client';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { useSession } from '@/lib/auth-client'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp'
 import {
   Form,
   FormControl,
@@ -17,24 +17,24 @@ import {
   FormLabel,
   FormMessage,
   FormDescription,
-} from '@/components/ui/form';
+} from '@/components/ui/form'
 import {
   phoneVerificationConfirmSchema,
   type PhoneVerificationConfirmInput,
-} from '@/lib/validations/auth';
-import { CheckCircleIcon, AlertCircleIcon, PhoneIcon, ClockIcon } from 'lucide-react';
+} from '@/lib/validations/auth'
+import { CheckCircleIcon, AlertCircleIcon, PhoneIcon, ClockIcon } from 'lucide-react'
 
 export default function VerifyPhonePage() {
-  const [verificationError, setVerificationError] = useState('');
-  const [resendCooldown, setResendCooldown] = useState(0);
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const { data: session } = useSession();
+  const [verificationError, setVerificationError] = useState('')
+  const [resendCooldown, setResendCooldown] = useState(0)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const { data: session } = useSession()
 
   // Get phone number from URL params (passed from signup)
-  const phoneFromParams = searchParams.get('phone') || '';
-  const userId = searchParams.get('userId') || '';
-  const returnTo = searchParams.get('returnTo') || '/dashboard';
+  const phoneFromParams = searchParams.get('phone') || ''
+  const userId = searchParams.get('userId') || ''
+  const returnTo = searchParams.get('returnTo') || '/dashboard'
 
   const form = useForm<PhoneVerificationConfirmInput>({
     resolver: zodResolver(phoneVerificationConfirmSchema),
@@ -42,23 +42,23 @@ export default function VerifyPhonePage() {
       phone: phoneFromParams,
       code: '',
     },
-  });
+  })
 
   // Countdown timer for resend button
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: NodeJS.Timeout
     if (resendCooldown > 0) {
       interval = setInterval(() => {
-        setResendCooldown((prev) => prev - 1);
-      }, 1000);
+        setResendCooldown((prev) => prev - 1)
+      }, 1000)
     }
-    return () => clearInterval(interval);
-  }, [resendCooldown]);
+    return () => clearInterval(interval)
+  }, [resendCooldown])
 
   const formatPhoneForDisplay = (phone: string) => {
     // Display E.164 format as-is for consistency
-    return phone;
-  };
+    return phone
+  }
 
   const verifyCodeMutation = useMutation({
     mutationFn: async (data: PhoneVerificationConfirmInput) => {
@@ -72,15 +72,15 @@ export default function VerifyPhonePage() {
           code: data.code,
           userId: userId || undefined,
         }),
-      });
+      })
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (!response.ok) {
-        throw result;
+        throw result
       }
 
-      return result;
+      return result
     },
     onSuccess: async () => {
       // Phone verification successful - session will be updated on next page load
@@ -89,27 +89,27 @@ export default function VerifyPhonePage() {
       setTimeout(() => {
         if (userId) {
           // For existing users updating phone
-          router.push('/settings/profile?verified=true');
+          router.push('/settings/profile?verified=true')
         } else {
           // For new signups, continue to dashboard or complete signup
-          router.push(returnTo);
+          router.push(returnTo)
         }
-      }, 1500);
+      }, 1500)
     },
     onError: (error: any) => {
       if (error.code === 'INVALID_CODE') {
-        setVerificationError('인증 코드가 올바르지 않습니다. 다시 확인해주세요.');
+        setVerificationError('인증 코드가 올바르지 않습니다. 다시 확인해주세요.')
         form.setError('code', {
           type: 'manual',
           message: '올바르지 않은 인증 코드입니다.',
-        });
+        })
       } else if (error.code === 'TOO_MANY_ATTEMPTS') {
-        setVerificationError('인증 시도 횟수를 초과했습니다. 새로운 인증 코드를 요청해주세요.');
+        setVerificationError('인증 시도 횟수를 초과했습니다. 새로운 인증 코드를 요청해주세요.')
       } else {
-        setVerificationError(error.message || '인증 코드 확인에 실패했습니다.');
+        setVerificationError(error.message || '인증 코드 확인에 실패했습니다.')
       }
     },
-  });
+  })
 
   const resendCodeMutation = useMutation({
     mutationFn: async () => {
@@ -121,41 +121,41 @@ export default function VerifyPhonePage() {
         body: JSON.stringify({
           phone: phoneFromParams,
         }),
-      });
+      })
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (!response.ok) {
-        throw result;
+        throw result
       }
 
-      return result;
+      return result
     },
     onSuccess: () => {
-      setResendCooldown(60); // 1 minute cooldown
+      setResendCooldown(60) // 1 minute cooldown
       // Clear the form
-      form.setValue('code', '');
-      setVerificationError('');
+      form.setValue('code', '')
+      setVerificationError('')
     },
     onError: (error: any) => {
       if (error.code === 'TOO_SOON') {
-        setVerificationError(`${error.waitTime}초 후에 다시 요청할 수 있습니다.`);
-        setResendCooldown(error.waitTime);
+        setVerificationError(`${error.waitTime}초 후에 다시 요청할 수 있습니다.`)
+        setResendCooldown(error.waitTime)
       } else {
-        setVerificationError(error.message || '인증 코드 재전송에 실패했습니다.');
+        setVerificationError(error.message || '인증 코드 재전송에 실패했습니다.')
       }
     },
-  });
+  })
 
   const onSubmit = (data: PhoneVerificationConfirmInput) => {
-    setVerificationError('');
-    verifyCodeMutation.mutate(data);
-  };
+    setVerificationError('')
+    verifyCodeMutation.mutate(data)
+  }
 
   const handleResendCode = () => {
-    setVerificationError('');
-    resendCodeMutation.mutate();
-  };
+    setVerificationError('')
+    resendCodeMutation.mutate()
+  }
 
   if (verifyCodeMutation.isSuccess) {
     return (
@@ -170,7 +170,7 @@ export default function VerifyPhonePage() {
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -276,5 +276,5 @@ export default function VerifyPhonePage() {
         </Form>
       </div>
     </div>
-  );
+  )
 }

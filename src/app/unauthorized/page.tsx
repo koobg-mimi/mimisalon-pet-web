@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Home, Shield } from 'lucide-react';
-import { CUSTOMER_SERVICE } from '@/lib/constants/customer-service';
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { ArrowLeft, Home, Shield } from 'lucide-react'
+import { CUSTOMER_SERVICE } from '@/lib/constants/customer-service'
 
 export default function UnauthorizedPage() {
   return (
@@ -66,5 +66,5 @@ export default function UnauthorizedPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

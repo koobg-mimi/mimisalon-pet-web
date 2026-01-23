@@ -1,33 +1,33 @@
-'use client';
+'use client'
 
-import React, { useState } from 'react';
-import { ImageInput } from '@/components/ui/image-input';
+import React, { useState } from 'react'
+import { ImageInput } from '@/components/ui/image-input'
 
 export default function ImageUploadTestPage() {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null)
 
   const handleImageSelect = (file: File | string) => {
-    console.log('Image selected:', file);
+    console.log('Image selected:', file)
     if (typeof file === 'string') {
       // Base64 이미지 데이터인 경우
-      setSelectedImage(file);
+      setSelectedImage(file)
     } else {
       // File 객체인 경우
-      const reader = new FileReader();
+      const reader = new FileReader()
       reader.onload = (e) => {
         if (e.target?.result) {
-          setSelectedImage(e.target.result as string);
+          setSelectedImage(e.target.result as string)
         }
-      };
-      reader.readAsDataURL(file);
+      }
+      reader.readAsDataURL(file)
     }
-  };
+  }
 
   const handleImageUpload = (url: string) => {
-    console.log('Image uploaded:', url);
-    setUploadedImageUrl(url);
-  };
+    console.log('Image uploaded:', url)
+    setUploadedImageUrl(url)
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -94,5 +94,5 @@ export default function ImageUploadTestPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,17 +1,17 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession } from '@/lib/auth-client';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { PhoneIcon, XIcon, AlertTriangleIcon } from 'lucide-react';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useSession } from '@/lib/auth-client'
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { PhoneIcon, XIcon, AlertTriangleIcon } from 'lucide-react'
 
 interface PhoneVerificationBannerProps {
-  userRole: 'CUSTOMER' | 'GROOMER';
-  phone?: string | null;
-  phoneVerified?: boolean;
-  className?: string;
+  userRole: 'CUSTOMER' | 'GROOMER'
+  phone?: string | null
+  phoneVerified?: boolean
+  className?: string
 }
 
 export function PhoneVerificationBanner({
@@ -21,51 +21,51 @@ export function PhoneVerificationBanner({
   className = '',
 }: PhoneVerificationBannerProps) {
   const [isDismissed, setIsDismissed] = useState(() => {
-    return sessionStorage.getItem('phone-verification-banner-dismissed') === 'true';
-  });
-  const router = useRouter();
-  const { data: session } = useSession();
+    return sessionStorage.getItem('phone-verification-banner-dismissed') === 'true'
+  })
+  const router = useRouter()
+  const { data: session } = useSession()
 
   // Periodically check phone verification status when banner is shown
   useEffect(() => {
-    if (!phone || phoneVerified || isDismissed) return;
+    if (!phone || phoneVerified || isDismissed) return
 
     const checkVerificationStatus = async () => {
       try {
         // Reload page to refresh session
-        window.location.reload();
+        window.location.reload()
       } catch (error) {
-        console.error('Failed to refresh session:', error);
+        console.error('Failed to refresh session:', error)
       }
-    };
+    }
 
     // Check every 20 seconds when banner is visible
-    const interval = setInterval(checkVerificationStatus, 20000);
+    const interval = setInterval(checkVerificationStatus, 20000)
 
-    return () => clearInterval(interval);
-  }, [phone, phoneVerified, isDismissed]);
+    return () => clearInterval(interval)
+  }, [phone, phoneVerified, isDismissed])
 
   // Check if banner should be shown
-  const shouldShow = phone && !phoneVerified && !isDismissed;
+  const shouldShow = phone && !phoneVerified && !isDismissed
 
   const handleVerifyNow = () => {
     const profilePath =
-      userRole === 'CUSTOMER' ? '/customer/dashboard/profile' : '/groomer/dashboard/profile';
-    router.push(`${profilePath}?verify=phone`);
-  };
+      userRole === 'CUSTOMER' ? '/customer/dashboard/profile' : '/groomer/dashboard/profile'
+    router.push(`${profilePath}?verify=phone`)
+  }
 
   const handleDismiss = () => {
-    setIsDismissed(true);
-    sessionStorage.setItem('phone-verification-banner-dismissed', 'true');
-  };
+    setIsDismissed(true)
+    sessionStorage.setItem('phone-verification-banner-dismissed', 'true')
+  }
 
   const handleLater = () => {
-    setIsDismissed(true);
+    setIsDismissed(true)
     // Don't save to session storage so it shows again next time
-  };
+  }
 
   if (!shouldShow) {
-    return null;
+    return null
   }
 
   return (
@@ -115,7 +115,7 @@ export function PhoneVerificationBanner({
         </div>
       </Alert>
     </div>
-  );
+  )
 }
 
 export function PhoneVerificationCompactBanner({
@@ -125,45 +125,44 @@ export function PhoneVerificationCompactBanner({
   className = '',
 }: PhoneVerificationBannerProps) {
   const [isDismissed, setIsDismissed] = useState(() => {
-    return sessionStorage.getItem('phone-verification-compact-banner-dismissed') === 'true';
-  });
-  const router = useRouter();
-  const { data: session } = useSession();
+    return sessionStorage.getItem('phone-verification-compact-banner-dismissed') === 'true'
+  })
+  const router = useRouter()
+  const { data: session } = useSession()
 
   // Periodically check phone verification status when banner is shown
   useEffect(() => {
-    if (!phone || phoneVerified || isDismissed) return;
+    if (!phone || phoneVerified || isDismissed) return
 
     const checkVerificationStatus = async () => {
       try {
         // Reload page to refresh session
-        window.location.reload();
+        window.location.reload()
       } catch (error) {
-        console.error('Failed to refresh session:', error);
+        console.error('Failed to refresh session:', error)
       }
-    };
+    }
 
     // Check every 25 seconds when compact banner is visible
-    const interval = setInterval(checkVerificationStatus, 25000);
+    const interval = setInterval(checkVerificationStatus, 25000)
 
-    return () => clearInterval(interval);
-  }, [phone, phoneVerified, isDismissed]);
+    return () => clearInterval(interval)
+  }, [phone, phoneVerified, isDismissed])
 
-  const shouldShow = phone && !phoneVerified && !isDismissed;
+  const shouldShow = phone && !phoneVerified && !isDismissed
 
   const handleVerifyNow = () => {
-    const profilePath =
-      userRole === 'CUSTOMER' ? '/customer/profile' : '/groomer/dashboard/profile';
-    router.push(`${profilePath}?verify=phone`);
-  };
+    const profilePath = userRole === 'CUSTOMER' ? '/customer/profile' : '/groomer/dashboard/profile'
+    router.push(`${profilePath}?verify=phone`)
+  }
 
   const handleDismiss = () => {
-    setIsDismissed(true);
-    sessionStorage.setItem('phone-verification-compact-banner-dismissed', 'true');
-  };
+    setIsDismissed(true)
+    sessionStorage.setItem('phone-verification-compact-banner-dismissed', 'true')
+  }
 
   if (!shouldShow) {
-    return null;
+    return null
   }
 
   return (
@@ -195,5 +194,5 @@ export function PhoneVerificationCompactBanner({
         </div>
       </div>
     </div>
-  );
+  )
 }

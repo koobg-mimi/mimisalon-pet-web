@@ -1,141 +1,143 @@
-import { ko } from 'date-fns/locale';
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import auth from '@/lib/auth';
-import { prisma } from '@mimisalon/shared';
-import { Prisma } from '@mimisalon/shared';
-import { format } from 'date-fns';
+import { ko } from 'date-fns/locale'
+import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import auth from '@/lib/auth'
+import { prisma } from '@mimisalon/shared'
+import { Prisma } from '@mimisalon/shared'
+import { format } from 'date-fns'
 
 // Response types
 interface CustomerInfo {
-  id: string;
-  name: string;
-  email: string;
-  image: string | null;
+  id: string
+  name: string
+  email: string
+  image: string | null
 }
 
 interface ServiceInfo {
-  id: string;
-  name: string;
-  category?: string;
+  id: string
+  name: string
+  category?: string
 }
 
 interface PetInfo {
-  id: string;
-  name: string;
+  id: string
+  name: string
   breed: {
-    id: string;
-    name: string;
-  } | null;
+    id: string
+    name: string
+  } | null
 }
 
 interface GroomerInfo {
-  id: string | null;
-  name: string;
-  email: string;
-  image: string | null;
+  id: string | null
+  name: string
+  email: string
+  image: string | null
 }
 
 interface LocationInfo {
-  id: string | null;
-  name: string;
+  id: string | null
+  name: string
 }
 
 interface BookingInfo {
-  id: string;
-  date: string;
-  service: ServiceInfo;
-  services: ServiceInfo[];
-  pets: PetInfo[];
-  groomer: GroomerInfo;
-  location: LocationInfo;
+  id: string
+  date: string
+  service: ServiceInfo
+  services: ServiceInfo[]
+  pets: PetInfo[]
+  groomer: GroomerInfo
+  location: LocationInfo
 }
 
 interface ReviewImageInfo {
-  id: string;
-  url: string;
-  order: number;
+  id: string
+  url: string
+  order: number
 }
 
 interface ReviewResponseInfo {
-  id: string;
-  content: string;
-  createdAt: string;
+  id: string
+  content: string
+  createdAt: string
   groomer: {
-    id: string | null;
-    name: string;
-  };
+    id: string | null
+    name: string
+  }
 }
 
 export interface AdminReviewInfo {
-  id: string;
-  rating: number;
-  comment: string | null;
-  isPublic: boolean;
-  isFlagged: boolean;
-  flagReason: null;
-  createdAt: string;
-  updatedAt: string;
-  customer: CustomerInfo;
-  booking: BookingInfo;
-  images: ReviewImageInfo[];
-  response: ReviewResponseInfo | null;
-  reports: unknown[];
+  id: string
+  rating: number
+  comment: string | null
+  isPublic: boolean
+  isFlagged: boolean
+  flagReason: null
+  createdAt: string
+  updatedAt: string
+  customer: CustomerInfo
+  booking: BookingInfo
+  images: ReviewImageInfo[]
+  response: ReviewResponseInfo | null
+  reports: unknown[]
 }
 
 interface RatingDistribution {
-  1: number;
-  2: number;
-  3: number;
-  4: number;
-  5: number;
+  1: number
+  2: number
+  3: number
+  4: number
+  5: number
 }
 
 interface ReviewStats {
-  totalReviews: number;
-  averageRating: number;
-  flaggedReviews: number;
-  publicReviews: number;
-  ratingDistribution: RatingDistribution;
-  responseRate: number;
+  totalReviews: number
+  averageRating: number
+  flaggedReviews: number
+  publicReviews: number
+  ratingDistribution: RatingDistribution
+  responseRate: number
 }
 
 export interface AdminReviewsGetResponse {
-  reviews: AdminReviewInfo[];
-  totalCount: number;
-  totalPages: number;
-  currentPage: number;
-  stats: ReviewStats;
+  reviews: AdminReviewInfo[]
+  totalCount: number
+  totalPages: number
+  currentPage: number
+  stats: ReviewStats
 }
 
 interface ErrorResponse {
-  error: string;
+  error: string
 }
 
-export async function GET(request: NextRequest): Promise<NextResponse<AdminReviewsGetResponse | ErrorResponse>> {
+export async function GET(
+  request: NextRequest
+): Promise<NextResponse<AdminReviewsGetResponse | ErrorResponse>> {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session || session.user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = new URL(request.url)
 
     // Query parameters
-    const page = parseInt(searchParams.get('page') ?? '1');
-    const limit = parseInt(searchParams.get('limit') ?? '20');
-    const search = searchParams.get('search') ?? '';
-    const rating = searchParams.get('rating') ?? 'ALL';
-    const status = searchParams.get('status') ?? 'ALL';
-    const serviceFilter = searchParams.get('service') ?? 'ALL';
-    const sortBy = searchParams.get('sortBy') ?? 'createdAt';
-    const sortOrder = searchParams.get('sortOrder') ?? 'desc';
+    const page = parseInt(searchParams.get('page') ?? '1')
+    const limit = parseInt(searchParams.get('limit') ?? '20')
+    const search = searchParams.get('search') ?? ''
+    const rating = searchParams.get('rating') ?? 'ALL'
+    const status = searchParams.get('status') ?? 'ALL'
+    const serviceFilter = searchParams.get('service') ?? 'ALL'
+    const sortBy = searchParams.get('sortBy') ?? 'createdAt'
+    const sortOrder = searchParams.get('sortOrder') ?? 'desc'
 
-    const skip = (page - 1) * limit;
+    const skip = (page - 1) * limit
 
     // Build where clause
-    const where: Prisma.ReviewWhereInput = {};
+    const where: Prisma.ReviewWhereInput = {}
 
     // Search filter
     if (search) {
@@ -172,21 +174,21 @@ export async function GET(request: NextRequest): Promise<NextResponse<AdminRevie
             },
           },
         },
-      ];
+      ]
     }
 
     // Rating filter
     if (rating !== 'ALL') {
-      where.rating = parseInt(rating);
+      where.rating = parseInt(rating)
     }
 
     // Status filter - We'll filter by response status instead
     if (status === 'WITH_RESPONSE') {
       where.response = {
         isNot: null,
-      };
+      }
     } else if (status === 'NO_RESPONSE') {
-      where.response = null;
+      where.response = null
     }
 
     // Service filter
@@ -201,17 +203,17 @@ export async function GET(request: NextRequest): Promise<NextResponse<AdminRevie
             },
           },
         },
-      };
+      }
     }
 
     // Build orderBy
-    const orderBy: Prisma.ReviewOrderByWithRelationInput = {};
+    const orderBy: Prisma.ReviewOrderByWithRelationInput = {}
     if (sortBy === 'rating') {
-      orderBy.rating = sortOrder as Prisma.SortOrder;
+      orderBy.rating = sortOrder as Prisma.SortOrder
     } else if (sortBy === 'customerName') {
-      orderBy.customer = { name: sortOrder as Prisma.SortOrder };
+      orderBy.customer = { name: sortOrder as Prisma.SortOrder }
     } else {
-      orderBy.createdAt = sortOrder as Prisma.SortOrder;
+      orderBy.createdAt = sortOrder as Prisma.SortOrder
     }
 
     // Fetch reviews with related data
@@ -281,7 +283,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<AdminRevie
         take: limit,
       }),
       prisma.review.count({ where }),
-    ]);
+    ])
 
     // Calculate statistics
     const allReviews = await prisma.review.findMany({
@@ -289,7 +291,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<AdminRevie
         rating: true,
         response: true,
       },
-    });
+    })
 
     const ratingDistribution = {
       1: 0,
@@ -297,16 +299,16 @@ export async function GET(request: NextRequest): Promise<NextResponse<AdminRevie
       3: 0,
       4: 0,
       5: 0,
-    };
+    }
 
-    let totalRating = 0;
-    let reviewsWithResponse = 0;
+    let totalRating = 0
+    let reviewsWithResponse = 0
 
     allReviews.forEach((review) => {
-      ratingDistribution[review.rating as keyof typeof ratingDistribution]++;
-      totalRating += review.rating;
-      if (review.response) reviewsWithResponse++;
-    });
+      ratingDistribution[review.rating as keyof typeof ratingDistribution]++
+      totalRating += review.rating
+      if (review.response) reviewsWithResponse++
+    })
 
     const stats = {
       totalReviews: allReviews.length,
@@ -315,14 +317,12 @@ export async function GET(request: NextRequest): Promise<NextResponse<AdminRevie
       publicReviews: allReviews.length, // All reviews are public by default
       ratingDistribution,
       responseRate: allReviews.length > 0 ? (reviewsWithResponse / allReviews.length) * 100 : 0,
-    };
+    }
 
     // Transform the data
     const transformedReviews = reviews.map((review) => {
-      const services = review.booking.bookingPets.flatMap((bp) =>
-        bp.services.map((s) => s.service)
-      );
-      const pets = review.booking.bookingPets.map((bp) => bp.pet);
+      const services = review.booking.bookingPets.flatMap((bp) => bp.services.map((s) => s.service))
+      const pets = review.booking.bookingPets.map((bp) => bp.pet)
 
       return {
         id: review.id,
@@ -371,8 +371,8 @@ export async function GET(request: NextRequest): Promise<NextResponse<AdminRevie
             }
           : null,
         reports: [], // No report system in current schema
-      };
-    });
+      }
+    })
 
     return NextResponse.json({
       reviews: transformedReviews,
@@ -380,9 +380,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<AdminRevie
       totalPages: Math.ceil(totalCount / limit),
       currentPage: page,
       stats,
-    });
+    })
   } catch (error) {
-    console.error('Failed to fetch admin reviews:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Failed to fetch admin reviews:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

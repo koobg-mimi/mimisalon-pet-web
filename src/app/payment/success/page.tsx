@@ -1,76 +1,76 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { useSession } from '@/lib/auth-client';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import Link from 'next/link';
+import { useSession } from '@/lib/auth-client'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import Link from 'next/link'
 import type {
   PaymentVerificationResponse,
   PaymentVerificationData,
-} from '@/app/api/payments/verify/[paymentId]/route';
+} from '@/app/api/payments/verify/[paymentId]/route'
 
 export default function PaymentSuccessPage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const paymentId = searchParams.get('paymentId');
-  const errorCode = searchParams.get('code');
-  const errorMessage = searchParams.get('message');
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const paymentId = searchParams.get('paymentId')
+  const errorCode = searchParams.get('code')
+  const errorMessage = searchParams.get('message')
 
   useEffect(() => {
     // Check if this is actually a failed/cancelled payment
     if (errorCode || errorMessage) {
-      const reason = errorMessage || '결제가 취소되었습니다';
-      const bookingId = searchParams.get('bookingId') || '';
+      const reason = errorMessage || '결제가 취소되었습니다'
+      const bookingId = searchParams.get('bookingId') || ''
 
       // Redirect to fail page with error details
-      router.push(`/payment/fail?reason=${encodeURIComponent(reason)}&bookingId=${bookingId}`);
-      return;
+      router.push(`/payment/fail?reason=${encodeURIComponent(reason)}&bookingId=${bookingId}`)
+      return
     }
 
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
     if (session?.user?.role && session.user.role !== 'CUSTOMER') {
-      router.push('/dashboard');
+      router.push('/dashboard')
     }
-  }, [session, router, errorCode, errorMessage, searchParams]);
+  }, [session, router, errorCode, errorMessage, searchParams])
 
   // Fetch payment with retry logic using React Query
   const { data: payment, isLoading } = useQuery<PaymentVerificationData>({
     queryKey: ['payment', paymentId],
     queryFn: async ({ signal }) => {
-      console.log(`Verifying payment:`, paymentId);
+      console.log(`Verifying payment:`, paymentId)
 
-      const response = await fetch(`/api/payments/verify/${paymentId}`, { signal });
+      const response = await fetch(`/api/payments/verify/${paymentId}`, { signal })
 
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error('NOT_FOUND');
+          throw new Error('NOT_FOUND')
         }
-        throw new Error('Failed to verify payment');
+        throw new Error('Failed to verify payment')
       }
 
-      const data: PaymentVerificationResponse = await response.json();
+      const data: PaymentVerificationResponse = await response.json()
 
       if (data.success && data.payment) {
-        console.log('Payment verification successful:', data);
-        return data.payment;
+        console.log('Payment verification successful:', data)
+        return data.payment
       } else if (data.status === 'PENDING' || data.status === 'NOT_FOUND') {
         // Throw error to trigger retry
-        throw new Error(data.status);
+        throw new Error(data.status)
       } else {
         // Payment failed or cancelled
-        const errorMsg = data.error || data.message || '결제 확인 실패';
-        console.error('Payment verification failed:', errorMsg, data);
-        router.push(`/payment/fail?reason=${encodeURIComponent(errorMsg)}&paymentId=${paymentId}`);
-        throw new Error(errorMsg);
+        const errorMsg = data.error || data.message || '결제 확인 실패'
+        console.error('Payment verification failed:', errorMsg, data)
+        router.push(`/payment/fail?reason=${encodeURIComponent(errorMsg)}&paymentId=${paymentId}`)
+        throw new Error(errorMsg)
       }
     },
     enabled:
@@ -82,46 +82,46 @@ export default function PaymentSuccessPage() {
     retry: (failureCount, error) => {
       // Retry up to 20 times for PENDING or NOT_FOUND status
       if ((error.message === 'PENDING' || error.message === 'NOT_FOUND') && failureCount < 20) {
-        return true;
+        return true
       }
-      return false;
+      return false
     },
     retryDelay: 3000, // Wait 3 seconds between retries
-  });
+  })
 
   useEffect(() => {
     if (!paymentId && !errorCode && !errorMessage) {
-      router.push('/customer/bookings');
+      router.push('/customer/bookings')
     }
-  }, [paymentId, errorCode, errorMessage, router]);
+  }, [paymentId, errorCode, errorMessage, router])
 
   // Download receipt using React Query mutation
   const downloadReceiptMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`/api/payments/${paymentId}/receipt`);
+      const response = await fetch(`/api/payments/${paymentId}/receipt`)
       if (!response.ok) {
-        throw new Error('Failed to download receipt');
+        throw new Error('Failed to download receipt')
       }
-      return response.blob();
+      return response.blob()
     },
     onSuccess: (blob) => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `receipt-${paymentId}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `receipt-${paymentId}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
     },
     onError: (error) => {
-      console.error('Failed to download receipt:', error);
+      console.error('Failed to download receipt:', error)
     },
-  });
+  })
 
   const handleDownloadReceipt = () => {
-    downloadReceiptMutation.mutate();
-  };
+    downloadReceiptMutation.mutate()
+  }
 
   // Show loading spinner while checking for errors or loading payment
   if (isPending || isLoading || errorCode || errorMessage) {
@@ -139,11 +139,11 @@ export default function PaymentSuccessPage() {
           )}
         </div>
       </div>
-    );
+    )
   }
 
   if (!session || session.user?.role !== 'CUSTOMER' || !payment) {
-    return null;
+    return null
   }
 
   return (
@@ -307,5 +307,5 @@ export default function PaymentSuccessPage() {
         </div>
       </main>
     </div>
-  );
+  )
 }

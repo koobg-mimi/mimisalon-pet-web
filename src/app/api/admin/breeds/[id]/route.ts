@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import auth from '@/lib/auth';
-import { Breed, prisma } from '@mimisalon/shared';
+import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import auth from '@/lib/auth'
+import { Breed, prisma } from '@mimisalon/shared'
 
 // DELETE endpoint types
 export interface AdminBreedsDeleteSuccessResponse {
@@ -33,13 +33,13 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<AdminBreedsDeleteSuccessResponse | AdminBreedsDeleteErrorResponse>> {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { id } = await params;
+    const { id } = await params
 
     // 연관된 펫이 있는지 확인
     const breed = await prisma.breed.findUnique({
@@ -51,10 +51,10 @@ export async function DELETE(
           },
         },
       },
-    });
+    })
 
     if (!breed) {
-      return NextResponse.json({ error: '품종을 찾을 수 없습니다' }, { status: 404 });
+      return NextResponse.json({ error: '품종을 찾을 수 없습니다' }, { status: 404 })
     }
 
     if (breed._count.pets > 0) {
@@ -65,58 +65,58 @@ export async function DELETE(
           suggestion: '대신 비활성화를 권장합니다',
         },
         { status: 400 }
-      );
+      )
     }
 
     // 품종 삭제
     await prisma.breed.delete({
       where: { id },
-    });
+    })
 
-    return NextResponse.json({ message: '품종이 삭제되었습니다' });
+    return NextResponse.json({ message: '품종이 삭제되었습니다' })
   } catch (error) {
-    console.error('Error deleting breed:', error);
+    console.error('Error deleting breed:', error)
     return NextResponse.json(
       {
         error: 'Failed to delete breed',
         message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
 // PATCH /api/admin/breeds/[id] - 품종 활성화/비활성화 토글
 export async function PATCH(
   request: NextRequest,
-  {params}: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<AdminBreedsPatchSuccessResponse | AdminBreedsPatchErrorResponse>> {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { id } = await params;
-    const body: AdminBreedsPatchRequest = await request.json();
-    const { isActive } = body;
+    const { id } = await params
+    const body: AdminBreedsPatchRequest = await request.json()
+    const { isActive } = body
 
     // 품종 업데이트
     const updatedBreed = await prisma.breed.update({
       where: { id },
       data: { isActive },
-    });
+    })
 
-    return NextResponse.json(updatedBreed);
+    return NextResponse.json(updatedBreed)
   } catch (error) {
-    console.error('Error updating breed:', error);
+    console.error('Error updating breed:', error)
     return NextResponse.json(
       {
         error: 'Failed to update breed',
         message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
-    );
+    )
   }
 }

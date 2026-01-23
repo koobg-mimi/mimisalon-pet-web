@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 /**
  *
@@ -6,48 +6,48 @@
  * this page is deprecated remove it
  */
 
-import { useSession } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { PageHeader } from '@/components/layout/PageHeader';
-import Link from 'next/link';
-import { PhoneVerificationStatusBanner } from '@/components/auth/phone-verification-status-banner';
+import { useSession } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { PageHeader } from '@/components/layout/PageHeader'
+import Link from 'next/link'
+import { PhoneVerificationStatusBanner } from '@/components/auth/phone-verification-status-banner'
 
 interface GroomerStats {
-  todayBookings: number;
-  weeklyBookings: number;
-  monthlyRevenue: number;
-  averageRating: number;
-  totalReviews: number;
+  todayBookings: number
+  weeklyBookings: number
+  monthlyRevenue: number
+  averageRating: number
+  totalReviews: number
 }
 
 export default function GroomerDashboardPage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
 
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
     if (session?.user?.role && session.user.role !== 'GROOMER') {
-      router.push('/dashboard');
+      router.push('/dashboard')
     }
-  }, [session, router]);
+  }, [session, router])
 
   const { data: stats, isLoading } = useQuery<GroomerStats>({
     queryKey: ['groomer', 'stats'],
     queryFn: async () => {
-      const response = await fetch('/api/groomer/stats');
+      const response = await fetch('/api/groomer/stats')
       if (!response.ok) {
-        throw new Error('Failed to fetch stats');
+        throw new Error('Failed to fetch stats')
       }
-      return response.json();
+      return response.json()
     },
     enabled: !!session?.user && session.user.role === 'GROOMER',
-  });
+  })
 
   const renderStars = (rating: number) => {
     return (
@@ -63,19 +63,19 @@ export default function GroomerDashboardPage() {
           </svg>
         ))}
       </div>
-    );
-  };
+    )
+  }
 
   if (isPending || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   if (!session || session.user?.role !== 'GROOMER') {
-    return null;
+    return null
   }
 
   return (
@@ -308,5 +308,5 @@ export default function GroomerDashboardPage() {
         </div>
       </main>
     </div>
-  );
+  )
 }

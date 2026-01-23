@@ -1,17 +1,17 @@
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useSession } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import { AlertTriangleIcon, CheckCircleIcon, XCircleIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { useSession } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
+import { cn } from '@/lib/utils'
+import { AlertTriangleIcon, CheckCircleIcon, XCircleIcon } from 'lucide-react'
 
 export interface PhoneVerificationStatusBannerProps {
   /** User role to determine profile link */
-  userRole: 'CUSTOMER' | 'GROOMER' | 'ADMIN';
+  userRole: 'CUSTOMER' | 'GROOMER' | 'ADMIN'
   /** Additional CSS classes */
-  className?: string;
+  className?: string
 }
 
 /**
@@ -35,34 +35,34 @@ export function PhoneVerificationStatusBanner({
   userRole,
   className,
 }: PhoneVerificationStatusBannerProps) {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
 
-  const user = session?.user;
-  const phoneNumber = user?.phoneNumber;
-  const phoneNumberVerified = user?.phoneNumberVerified || false;
+  const user = session?.user
+  const phoneNumber = user?.phoneNumber
+  const phoneNumberVerified = user?.phoneNumberVerified || false
 
   const formatPhoneForDisplay = (phoneNumber: string | null | undefined) => {
     // Display E.164 format as-is for consistency
-    return phoneNumber || '';
-  };
+    return phoneNumber || ''
+  }
 
   const getProfilePath = () => {
     switch (userRole) {
       case 'CUSTOMER':
-        return '/customer/profile';
+        return '/customer/profile'
       case 'GROOMER':
-        return '/groomer/dashboard/profile';
+        return '/groomer/dashboard/profile'
       case 'ADMIN':
-        return '/admin/dashboard/profile';
+        return '/admin/dashboard/profile'
       default:
-        return '/profile';
+        return '/profile'
     }
-  };
+  }
 
   const handleGoToProfile = () => {
-    router.push(getProfilePath());
-  };
+    router.push(getProfilePath())
+  }
 
   // Loading state
   if (isPending) {
@@ -78,7 +78,7 @@ export function PhoneVerificationStatusBanner({
           <div className="bg-muted h-4 w-48 animate-pulse rounded" />
         </div>
       </div>
-    );
+    )
   }
 
   // No phone number registered
@@ -101,7 +101,7 @@ export function PhoneVerificationStatusBanner({
           프로필로 이동
         </Button>
       </div>
-    );
+    )
   }
 
   // Phone verified
@@ -126,7 +126,7 @@ export function PhoneVerificationStatusBanner({
           <p className="text-xs text-green-600">전화번호가 성공적으로 인증되었습니다</p>
         </div>
       </div>
-    );
+    )
   }
 
   // Phone not verified
@@ -150,5 +150,5 @@ export function PhoneVerificationStatusBanner({
         </Button>
       </div>
     </div>
-  );
+  )
 }

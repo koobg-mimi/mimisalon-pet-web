@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import { CTA } from './CTA';
-import { Footer } from './Footer';
-import { Header } from './Header';
-import { Card, CardContent } from '../ui/card';
+import { CTA } from './CTA'
+import { Footer } from './Footer'
+import { Header } from './Header'
+import { Card, CardContent } from '../ui/card'
 
 export function LandingPage() {
   return (
@@ -55,5 +55,5 @@ export function LandingPage() {
       <CTA />
       <Footer />
     </div>
-  );
+  )
 }

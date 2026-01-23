@@ -1,95 +1,95 @@
-'use client';
+'use client'
 
-import {useSession} from '@/lib/auth-client';
-import {useRouter} from 'next/navigation';
-import {useEffect} from 'react';
-import {Button} from '@/components/ui/button';
-import {LoadingSpinner} from '@/components/ui/loading-spinner';
-import Link from 'next/link';
-import {useDashboardStats} from '@/hooks/useDashboardStats';
-import {PhoneVerificationStatusBanner} from '@/components/auth/phone-verification-status-banner';
-import {AddressVerificationBanner} from '@/components/customer/AddressVerificationBanner';
-import {PetVerificationBanner} from '@/components/customer/PetVerificationBanner';
-import {FavoriteGroomer} from '@/components/customer/FavoriteGroomer';
-import {useAddresses} from '@/hooks/useAddresses';
-import {usePets} from '@/hooks/usePets';
-import {BookingStatus} from '@mimisalon/shared';
+import { useSession } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import Link from 'next/link'
+import { useDashboardStats } from '@/hooks/useDashboardStats'
+import { PhoneVerificationStatusBanner } from '@/components/auth/phone-verification-status-banner'
+import { AddressVerificationBanner } from '@/components/customer/AddressVerificationBanner'
+import { PetVerificationBanner } from '@/components/customer/PetVerificationBanner'
+import { FavoriteGroomer } from '@/components/customer/FavoriteGroomer'
+import { useAddresses } from '@/hooks/useAddresses'
+import { usePets } from '@/hooks/usePets'
+import { BookingStatus } from '@mimisalon/shared'
 
 function getStatusColor(status: BookingStatus) {
   switch (status) {
     case BookingStatus.FIRST_PAYMENT_PENDING:
     case BookingStatus.GROOMER_CONFIRM_PENDING:
     case BookingStatus.FIRST_PAYMENT_COMPLETE:
-      return 'text-yellow-600 bg-yellow-50';
+      return 'text-yellow-600 bg-yellow-50'
     case BookingStatus.GROOMER_CONFIRM:
     case BookingStatus.ADDITIONAL_PAYMENT_PENDING:
     case BookingStatus.ADDITIONAL_PAYMENT_COMPLETE:
-      return 'text-blue-600 bg-blue-50';
+      return 'text-blue-600 bg-blue-50'
     case BookingStatus.WORK_IN_PROGRESS:
-      return 'text-purple-600 bg-purple-50';
+      return 'text-purple-600 bg-purple-50'
     case BookingStatus.SERVICE_COMPLETED:
-      return 'text-green-600 bg-green-50';
+      return 'text-green-600 bg-green-50'
     case BookingStatus.SERVICE_CANCELLED:
     case BookingStatus.BOOKING_FAILED:
-      return 'text-red-600 bg-red-50';
+      return 'text-red-600 bg-red-50'
     default:
-      throw new Error('Error on Types');
+      throw new Error('Error on Types')
   }
 }
 
 function getStatusText(status: BookingStatus) {
   switch (status) {
     case BookingStatus.FIRST_PAYMENT_PENDING:
-      return '1차 결제 대기';
+      return '1차 결제 대기'
     case BookingStatus.FIRST_PAYMENT_COMPLETE:
-      return '1차 결제 완료';
+      return '1차 결제 완료'
     case BookingStatus.GROOMER_CONFIRM_PENDING:
-      return '미용사 확인 대기';
+      return '미용사 확인 대기'
     case BookingStatus.GROOMER_CONFIRM:
-      return '미용사 확정';
+      return '미용사 확정'
     case BookingStatus.ADDITIONAL_PAYMENT_PENDING:
-      return '추가 결제 대기';
+      return '추가 결제 대기'
     case BookingStatus.ADDITIONAL_PAYMENT_COMPLETE:
-      return '추가 결제 완료';
+      return '추가 결제 완료'
     case BookingStatus.WORK_IN_PROGRESS:
-      return '진행중';
+      return '진행중'
     case BookingStatus.SERVICE_COMPLETED:
-      return '완료';
+      return '완료'
     case BookingStatus.SERVICE_CANCELLED:
-      return '취소됨';
+      return '취소됨'
     case BookingStatus.BOOKING_FAILED:
-      return '예약 실패';
+      return '예약 실패'
     default:
-      throw new Error('Error on Types');
+      throw new Error('Error on Types')
   }
 }
 
 export default function CustomerDashboardOverviewPage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-  const { data: stats, isLoading } = useDashboardStats();
-  const { addresses, isLoading: addressesLoading } = useAddresses();
-  const { pets, isLoading: petsLoading } = usePets();
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const { data: stats, isLoading } = useDashboardStats()
+  const { addresses, isLoading: addressesLoading } = useAddresses()
+  const { pets, isLoading: petsLoading } = usePets()
 
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
     if (session?.user?.role && session.user.role !== 'CUSTOMER') {
-      router.push('/dashboard');
+      router.push('/dashboard')
     }
-  }, [session, router]);
+  }, [session, router])
 
   if (isPending || isLoading || addressesLoading || petsLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   if (!session || session.user?.role !== 'CUSTOMER') {
-    return null;
+    return null
   }
 
   return (
@@ -198,5 +198,5 @@ export default function CustomerDashboardOverviewPage() {
         )}
       </main>
     </div>
-  );
+  )
 }

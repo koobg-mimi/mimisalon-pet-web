@@ -1,18 +1,18 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useState } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu'
 import {
   CalendarIcon,
   CreditCardIcon,
@@ -25,26 +25,26 @@ import {
   ArchiveIcon,
   TrashIcon,
   ExternalLinkIcon,
-} from 'lucide-react';
+} from 'lucide-react'
 import {
   type NotificationType,
   type NotificationPriority,
   type NotificationStatus,
-} from '@/lib/validations/notification';
-import { cn } from '@/lib/utils';
-import type { NotificationItem } from '@/app/api/notifications/route';
+} from '@/lib/validations/notification'
+import { cn } from '@/lib/utils'
+import type { NotificationItem } from '@/app/api/notifications/route'
 
 // Use the API type
-type Notification = NotificationItem;
+type Notification = NotificationItem
 
 interface NotificationCardProps {
-  notification: Notification;
-  onMarkAsRead: (id: string) => void;
-  onMarkAsUnread: (id: string) => void;
-  onArchive: (id: string) => void;
-  onDelete: (id: string) => void;
-  onNavigate?: (notification: Notification) => void;
-  className?: string;
+  notification: Notification
+  onMarkAsRead: (id: string) => void
+  onMarkAsUnread: (id: string) => void
+  onArchive: (id: string) => void
+  onDelete: (id: string) => void
+  onNavigate?: (notification: Notification) => void
+  className?: string
 }
 
 const NOTIFICATION_ICONS = {
@@ -59,7 +59,7 @@ const NOTIFICATION_ICONS = {
   REVIEW_REQUEST: ScissorsIcon,
   PROMOTION: GiftIcon,
   SYSTEM_NOTICE: InfoIcon,
-} as const;
+} as const
 
 const NOTIFICATION_COLORS = {
   BOOKING_CONFIRMED: 'text-green-600 bg-green-100',
@@ -73,14 +73,14 @@ const NOTIFICATION_COLORS = {
   REVIEW_REQUEST: 'text-yellow-600 bg-yellow-100',
   PROMOTION: 'text-pink-600 bg-pink-100',
   SYSTEM_NOTICE: 'text-gray-600 bg-gray-100',
-} as const;
+} as const
 
 const PRIORITY_STYLES = {
   LOW: 'border-l-gray-300',
   NORMAL: 'border-l-blue-400',
   HIGH: 'border-l-orange-400',
   URGENT: 'border-l-red-500',
-} as const;
+} as const
 
 export function NotificationCard({
   notification,
@@ -91,23 +91,24 @@ export function NotificationCard({
   onNavigate,
   className,
 }: NotificationCardProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  const Icon = NOTIFICATION_ICONS[notification.type as NotificationType] || AlertCircleIcon;
-  const iconColor = NOTIFICATION_COLORS[notification.type as NotificationType] || 'text-gray-600 bg-gray-100';
-  const priorityStyle = PRIORITY_STYLES[notification.priority as NotificationPriority];
+  const Icon = NOTIFICATION_ICONS[notification.type as NotificationType] || AlertCircleIcon
+  const iconColor =
+    NOTIFICATION_COLORS[notification.type as NotificationType] || 'text-gray-600 bg-gray-100'
+  const priorityStyle = PRIORITY_STYLES[notification.priority as NotificationPriority]
 
-  const isUnread = notification.status === 'UNREAD';
-  const isArchived = notification.status === 'ARCHIVED';
+  const isUnread = notification.status === 'UNREAD'
+  const isArchived = notification.status === 'ARCHIVED'
 
   const handleCardClick = () => {
     if (isUnread) {
-      onMarkAsRead(notification.id);
+      onMarkAsRead(notification.id)
     }
     if (onNavigate) {
-      onNavigate(notification);
+      onNavigate(notification)
     }
-  };
+  }
 
   const getTypeLabel = (type: NotificationType): string => {
     const labels = {
@@ -122,45 +123,45 @@ export function NotificationCard({
       REVIEW_REQUEST: '리뷰 요청',
       PROMOTION: '프로모션',
       SYSTEM_NOTICE: '시스템 공지',
-    };
-    return labels[type] || type;
-  };
+    }
+    return labels[type] || type
+  }
 
   const getPriorityBadge = (priority: NotificationPriority) => {
-    if (priority === 'LOW') return null;
+    if (priority === 'LOW') return null
 
     const variants = {
       NORMAL: { variant: 'secondary' as const, label: '일반' },
       HIGH: { variant: 'outline' as const, label: '중요' },
       URGENT: { variant: 'destructive' as const, label: '긴급' },
-    };
+    }
 
-    const config = variants[priority];
-    if (!config) return null;
+    const config = variants[priority]
+    if (!config) return null
 
     return (
       <Badge variant={config.variant} className="text-xs">
         {config.label}
       </Badge>
-    );
-  };
+    )
+  }
 
   const formatRelativeTime = (dateString: string): string => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
 
-    if (diffInMinutes < 1) return '방금 전';
-    if (diffInMinutes < 60) return `${diffInMinutes}분 전`;
+    if (diffInMinutes < 1) return '방금 전'
+    if (diffInMinutes < 60) return `${diffInMinutes}분 전`
 
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours}시간 전`;
+    const diffInHours = Math.floor(diffInMinutes / 60)
+    if (diffInHours < 24) return `${diffInHours}시간 전`
 
-    const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 7) return `${diffInDays}일 전`;
+    const diffInDays = Math.floor(diffInHours / 24)
+    if (diffInDays < 7) return `${diffInDays}일 전`
 
-    return format(date, 'yyyy-MM-dd', { locale: ko });
-  };
+    return format(date, 'yyyy-MM-dd', { locale: ko })
+  }
 
   return (
     <Card
@@ -224,8 +225,8 @@ export function NotificationCard({
                       size="sm"
                       className="h-6 w-6 p-0 hover:bg-gray-100"
                       onClick={(e) => {
-                        e.stopPropagation();
-                        setIsMenuOpen(!isMenuOpen);
+                        e.stopPropagation()
+                        setIsMenuOpen(!isMenuOpen)
                       }}
                     >
                       <MoreVerticalIcon className="h-4 w-4" />
@@ -235,9 +236,9 @@ export function NotificationCard({
                     {isUnread ? (
                       <DropdownMenuItem
                         onClick={(e) => {
-                          e.stopPropagation();
-                          onMarkAsRead(notification.id);
-                          setIsMenuOpen(false);
+                          e.stopPropagation()
+                          onMarkAsRead(notification.id)
+                          setIsMenuOpen(false)
                         }}
                       >
                         <CheckIcon className="mr-2 h-4 w-4" />
@@ -246,9 +247,9 @@ export function NotificationCard({
                     ) : (
                       <DropdownMenuItem
                         onClick={(e) => {
-                          e.stopPropagation();
-                          onMarkAsUnread(notification.id);
-                          setIsMenuOpen(false);
+                          e.stopPropagation()
+                          onMarkAsUnread(notification.id)
+                          setIsMenuOpen(false)
                         }}
                       >
                         <AlertCircleIcon className="mr-2 h-4 w-4" />
@@ -259,9 +260,9 @@ export function NotificationCard({
                     {!isArchived && (
                       <DropdownMenuItem
                         onClick={(e) => {
-                          e.stopPropagation();
-                          onArchive(notification.id);
-                          setIsMenuOpen(false);
+                          e.stopPropagation()
+                          onArchive(notification.id)
+                          setIsMenuOpen(false)
                         }}
                       >
                         <ArchiveIcon className="mr-2 h-4 w-4" />
@@ -272,9 +273,9 @@ export function NotificationCard({
                     {notification.relatedId && onNavigate && (
                       <DropdownMenuItem
                         onClick={(e) => {
-                          e.stopPropagation();
-                          onNavigate(notification);
-                          setIsMenuOpen(false);
+                          e.stopPropagation()
+                          onNavigate(notification)
+                          setIsMenuOpen(false)
                         }}
                       >
                         <ExternalLinkIcon className="mr-2 h-4 w-4" />
@@ -284,9 +285,9 @@ export function NotificationCard({
 
                     <DropdownMenuItem
                       onClick={(e) => {
-                        e.stopPropagation();
-                        onDelete(notification.id);
-                        setIsMenuOpen(false);
+                        e.stopPropagation()
+                        onDelete(notification.id)
+                        setIsMenuOpen(false)
                       }}
                       className="text-red-600 focus:text-red-600"
                     >
@@ -301,5 +302,5 @@ export function NotificationCard({
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

@@ -1,21 +1,21 @@
-'use client';
+'use client'
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { useWebViewBridge } from '@/hooks/use-webview-bridge';
-import { isMobileDevice, isValidBase64Image, uploadImageToServer } from '@/lib/image-utils';
-import { Camera, Upload } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React, { useCallback, useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { useWebViewBridge } from '@/hooks/use-webview-bridge'
+import { isMobileDevice, isValidBase64Image, uploadImageToServer } from '@/lib/image-utils'
+import { Camera, Upload } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface ImageInputProps {
-  onImageSelect?: (file: File | string) => void;
-  onImageUpload?: (url: string) => void;
-  uploadUrl?: string;
-  className?: string;
-  accept?: string;
-  multiple?: boolean;
-  disabled?: boolean;
-  placeholder?: string;
+  onImageSelect?: (file: File | string) => void
+  onImageUpload?: (url: string) => void
+  uploadUrl?: string
+  className?: string
+  accept?: string
+  multiple?: boolean
+  disabled?: boolean
+  placeholder?: string
 }
 
 export function ImageInput({
@@ -28,66 +28,66 @@ export function ImageInput({
   disabled = false,
   placeholder = '이미지를 선택하세요',
 }: ImageInputProps) {
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
-  const { isWebView, requestImageUpload, requestCamera } = useWebViewBridge();
-  const isMobile = isMobileDevice();
-  const showMobileButtons = isMobile && isWebView;
+  const { isWebView, requestImageUpload, requestCamera } = useWebViewBridge()
+  const isMobile = isMobileDevice()
+  const showMobileButtons = isMobile && isWebView
 
   const handleWebViewImageResponse = useCallback(
     async (event: MessageEvent) => {
       if (event.data?.type === 'IMAGE_UPLOAD_RESPONSE') {
-        const { imageData } = event.data;
+        const { imageData } = event.data
 
         if (!imageData || !isValidBase64Image(imageData)) {
-          setUploadError('유효하지 않은 이미지 데이터입니다.');
-          return;
+          setUploadError('유효하지 않은 이미지 데이터입니다.')
+          return
         }
 
-        setUploadError(null);
+        setUploadError(null)
 
         if (uploadUrl) {
-          setIsUploading(true);
+          setIsUploading(true)
           try {
-            const result = await uploadImageToServer(imageData, uploadUrl);
+            const result = await uploadImageToServer(imageData, uploadUrl)
             if (result.success && result.url) {
-              onImageUpload?.(result.url);
+              onImageUpload?.(result.url)
             } else {
-              setUploadError(result.error || '업로드에 실패했습니다.');
+              setUploadError(result.error || '업로드에 실패했습니다.')
             }
           } catch {
-            setUploadError('업로드 중 오류가 발생했습니다.');
+            setUploadError('업로드 중 오류가 발생했습니다.')
           } finally {
-            setIsUploading(false);
+            setIsUploading(false)
           }
         } else {
-          onImageSelect?.(imageData);
+          onImageSelect?.(imageData)
         }
       }
     },
     [uploadUrl, onImageSelect, onImageUpload]
-  );
+  )
 
   useEffect(() => {
     if (showMobileButtons) {
-      window.addEventListener('message', handleWebViewImageResponse);
+      window.addEventListener('message', handleWebViewImageResponse)
       return () => {
-        window.removeEventListener('message', handleWebViewImageResponse);
-      };
+        window.removeEventListener('message', handleWebViewImageResponse)
+      }
     }
-  }, [showMobileButtons, handleWebViewImageResponse]);
+  }, [showMobileButtons, handleWebViewImageResponse])
 
   const handleFileSelect = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const files = event.target.files;
-      if (!files || files.length === 0) return;
+      const files = event.target.files
+      if (!files || files.length === 0) return
 
-      const file = files[0];
+      const file = files[0]
       if (uploadUrl) {
-        setIsUploading(true);
-        const formData = new FormData();
-        formData.append('file', file);
+        setIsUploading(true)
+        const formData = new FormData()
+        formData.append('file', file)
 
         fetch(uploadUrl, {
           method: 'POST',
@@ -96,25 +96,25 @@ export function ImageInput({
           .then((response) => response.json())
           .then((result) => {
             if (result.url) {
-              onImageUpload?.(result.url);
+              onImageUpload?.(result.url)
             } else {
-              throw new Error('업로드 응답에 URL이 없습니다.');
+              throw new Error('업로드 응답에 URL이 없습니다.')
             }
           })
           .catch((error) => {
-            setUploadError('업로드에 실패했습니다: ' + error.message);
+            setUploadError('업로드에 실패했습니다: ' + error.message)
           })
           .finally(() => {
-            setIsUploading(false);
-          });
+            setIsUploading(false)
+          })
       } else {
-        onImageSelect?.(file);
+        onImageSelect?.(file)
       }
 
-      event.target.value = '';
+      event.target.value = ''
     },
     [uploadUrl, onImageSelect, onImageUpload]
-  );
+  )
 
   if (showMobileButtons) {
     return (
@@ -142,7 +142,7 @@ export function ImageInput({
         {isUploading && <div className="text-muted-foreground text-sm">업로드 중...</div>}
         {uploadError && <div className="text-sm text-red-500">{uploadError}</div>}
       </div>
-    );
+    )
   }
 
   return (
@@ -175,5 +175,5 @@ export function ImageInput({
       {isUploading && <div className="text-muted-foreground mt-2 text-sm">업로드 중...</div>}
       {uploadError && <div className="mt-2 text-sm text-red-500">{uploadError}</div>}
     </div>
-  );
+  )
 }

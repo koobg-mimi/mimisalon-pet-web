@@ -1,9 +1,9 @@
-import { BookingStatus } from '@mimisalon/shared';
-import { getStatusColor, getStatusText } from '../_utils/booking-status.utils';
+import { BookingStatus } from '@mimisalon/shared'
+import { getStatusColor, getStatusText } from '../_utils/booking-status.utils'
 
 interface BookingStatusBadgeProps {
-  status: BookingStatus;
-  className?: string;
+  status: BookingStatus
+  className?: string
 }
 
 /**
@@ -17,5 +17,5 @@ export function BookingStatusBadge({ status, className = '' }: BookingStatusBadg
     >
       {getStatusText(status)}
     </span>
-  );
+  )
 }

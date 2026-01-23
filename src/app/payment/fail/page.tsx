@@ -1,27 +1,27 @@
-'use client';
+'use client'
 
-import { useSession } from '@/lib/auth-client';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { CUSTOMER_SERVICE } from '@/lib/constants/customer-service';
+import { useSession } from '@/lib/auth-client'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
+import { CUSTOMER_SERVICE } from '@/lib/constants/customer-service'
 
 export default function PaymentFailPage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const reason = searchParams.get('reason') || '알 수 없는 오류가 발생했습니다';
-  const bookingId = searchParams.get('bookingId');
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const reason = searchParams.get('reason') || '알 수 없는 오류가 발생했습니다'
+  const bookingId = searchParams.get('bookingId')
 
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
     if (session?.user?.role && session.user.role !== 'CUSTOMER') {
-      router.push('/dashboard');
+      router.push('/dashboard')
     }
-  }, [session, router]);
+  }, [session, router])
 
   const commonReasons = [
     {
@@ -70,7 +70,7 @@ export default function PaymentFailPage() {
         '다른 브라우저나 기기에서 시도해보세요',
       ],
     },
-  ];
+  ]
 
   const getReasonInfo = (reason: string) => {
     // Check for cancellation keywords in Korean or English
@@ -80,10 +80,10 @@ export default function PaymentFailPage() {
       reason.includes('CANCELED') ||
       reason.includes('PAY_PROCESS_CANCELED')
     ) {
-      return commonReasons.find((r) => r.key === 'cancel')!;
+      return commonReasons.find((r) => r.key === 'cancel')!
     }
 
-    const found = commonReasons.find((r) => reason.toLowerCase().includes(r.key));
+    const found = commonReasons.find((r) => reason.toLowerCase().includes(r.key))
     return (
       found || {
         title: '결제 실패',
@@ -94,21 +94,21 @@ export default function PaymentFailPage() {
           '문제가 지속되면 고객센터로 문의해주세요',
         ],
       }
-    );
-  };
+    )
+  }
 
-  const reasonInfo = getReasonInfo(reason);
+  const reasonInfo = getReasonInfo(reason)
 
   if (isPending) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="border-primary h-32 w-32 animate-spin rounded-full border-b-2"></div>
       </div>
-    );
+    )
   }
 
   if (!session || session.user?.role !== 'CUSTOMER') {
-    return null;
+    return null
   }
 
   return (
@@ -293,5 +293,5 @@ export default function PaymentFailPage() {
         </div>
       </main>
     </div>
-  );
+  )
 }

@@ -1,18 +1,18 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { toast } from 'sonner';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import * as React from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { toast } from 'sonner'
+import { Eye, EyeOff, Loader2 } from 'lucide-react'
 
-import { authClient } from '@/lib/auth-client';
-import { enhancedPasswordSchema } from '@/lib/validations/password';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator';
+import { authClient } from '@/lib/auth-client'
+import { enhancedPasswordSchema } from '@/lib/validations/password'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator'
 
 /**
  * Form validation schema for password change
@@ -30,13 +30,13 @@ const changePasswordSchema = z
   .refine((data) => data.currentPassword !== data.newPassword, {
     message: '새 비밀번호는 현재 비밀번호와 달라야 합니다',
     path: ['newPassword'],
-  });
+  })
 
-type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
+type ChangePasswordFormData = z.infer<typeof changePasswordSchema>
 
 export interface ChangePasswordFormProps {
-  onSuccess?: () => void;
-  onCancel?: () => void;
+  onSuccess?: () => void
+  onCancel?: () => void
 }
 
 /**
@@ -55,9 +55,9 @@ export interface ChangePasswordFormProps {
  * ```
  */
 export function ChangePasswordForm({ onSuccess, onCancel }: ChangePasswordFormProps) {
-  const [showCurrentPassword, setShowCurrentPassword] = React.useState(false);
-  const [showNewPassword, setShowNewPassword] = React.useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = React.useState(false)
+  const [showNewPassword, setShowNewPassword] = React.useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false)
 
   const {
     register,
@@ -68,10 +68,10 @@ export function ChangePasswordForm({ onSuccess, onCancel }: ChangePasswordFormPr
   } = useForm<ChangePasswordFormData>({
     resolver: zodResolver(changePasswordSchema),
     mode: 'onChange',
-  });
+  })
 
   // Watch new password for strength indicator
-  const newPassword = watch('newPassword', '');
+  const newPassword = watch('newPassword', '')
 
   const onSubmit = async (data: ChangePasswordFormData) => {
     try {
@@ -80,35 +80,35 @@ export function ChangePasswordForm({ onSuccess, onCancel }: ChangePasswordFormPr
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
         revokeOtherSessions: true, // Security: logout all other devices
-      });
+      })
 
       if (error) {
         // Handle better-auth errors
         if (error.message?.includes('current password')) {
-          toast.error('현재 비밀번호가 올바르지 않습니다');
+          toast.error('현재 비밀번호가 올바르지 않습니다')
         } else if (error.message?.includes('same')) {
-          toast.error('새 비밀번호는 현재 비밀번호와 달라야 합니다');
+          toast.error('새 비밀번호는 현재 비밀번호와 달라야 합니다')
         } else {
-          toast.error(error.message || '비밀번호 변경에 실패했습니다');
+          toast.error(error.message || '비밀번호 변경에 실패했습니다')
         }
-        return;
+        return
       }
 
       // Success!
       toast.success('비밀번호가 성공적으로 변경되었습니다', {
         description: '보안을 위해 다른 기기에서 자동 로그아웃되었습니다',
-      });
+      })
 
       // Reset form
-      reset();
+      reset()
 
       // Call success callback
-      onSuccess?.();
+      onSuccess?.()
     } catch (error) {
-      console.error('Password change error:', error);
-      toast.error('비밀번호 변경 중 오류가 발생했습니다');
+      console.error('Password change error:', error)
+      toast.error('비밀번호 변경 중 오류가 발생했습니다')
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -215,5 +215,5 @@ export function ChangePasswordForm({ onSuccess, onCancel }: ChangePasswordFormPr
         </Button>
       </div>
     </form>
-  );
+  )
 }

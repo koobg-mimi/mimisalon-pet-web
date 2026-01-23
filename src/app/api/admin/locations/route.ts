@@ -1,14 +1,14 @@
-import { NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import auth from '@/lib/auth';
-import { prisma } from '@mimisalon/shared';
+import { NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import auth from '@/lib/auth'
+import { prisma } from '@mimisalon/shared'
 
 export async function GET() {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session || session.user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get unique work areas for location filtering
@@ -25,7 +25,7 @@ export async function GET() {
       orderBy: {
         name: 'asc',
       },
-    });
+    })
 
     // Group by name to avoid duplicates and provide better descriptions
     const uniqueLocations = workAreas.reduce(
@@ -35,16 +35,16 @@ export async function GET() {
             id: area.id,
             name: area.name,
             address: area.description || area.address || '',
-          });
+          })
         }
-        return acc;
+        return acc
       },
       [] as Array<{ id: string; name: string; address: string }>
-    );
+    )
 
-    return NextResponse.json(uniqueLocations);
+    return NextResponse.json(uniqueLocations)
   } catch (error) {
-    console.error('Error fetching locations:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error fetching locations:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

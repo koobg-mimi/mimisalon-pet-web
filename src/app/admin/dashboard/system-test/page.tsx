@@ -1,25 +1,25 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { useSession } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { useSession } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 import {
   TestTube,
   Bell,
@@ -30,75 +30,75 @@ import {
   Smartphone,
   Activity,
   RefreshCw,
-} from 'lucide-react';
-import { toast } from 'sonner';
+} from 'lucide-react'
+import { toast } from 'sonner'
 
 interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'CUSTOMER' | 'GROOMER' | 'ADMIN';
-  fcmToken?: string;
+  id: string
+  name: string
+  email: string
+  role: 'CUSTOMER' | 'GROOMER' | 'ADMIN'
+  fcmToken?: string
 }
 
 interface QueueStatus {
-  waiting: number;
-  active: number;
-  completed: number;
-  failed: number;
-  delayed: number;
+  waiting: number
+  active: number
+  completed: number
+  failed: number
+  delayed: number
 }
 
 interface QueueJob {
-  id: string;
-  name: string;
+  id: string
+  name: string
   data: {
-    title?: string;
-    body?: string;
-    userId?: string;
-    type?: string;
-    [key: string]: unknown;
-  };
-  state: string;
-  timestamp: number;
-  delay?: number;
-  attempts: number;
-  maxAttempts: number;
+    title?: string
+    body?: string
+    userId?: string
+    type?: string
+    [key: string]: unknown
+  }
+  state: string
+  timestamp: number
+  delay?: number
+  attempts: number
+  maxAttempts: number
 }
 
 export default function SystemTestPage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-  const queryClient = useQueryClient();
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const queryClient = useQueryClient()
 
   // FCM 알림 폼 상태
-  const [selectedUserId, setSelectedUserId] = useState<string>('');
-  const [notificationTitle, setNotificationTitle] = useState('');
-  const [notificationBody, setNotificationBody] = useState('');
+  const [selectedUserId, setSelectedUserId] = useState<string>('')
+  const [notificationTitle, setNotificationTitle] = useState('')
+  const [notificationBody, setNotificationBody] = useState('')
 
   // 예약 알림 테스트 폼 상태
-  const [delayMinutes, setDelayMinutes] = useState<number>(1);
-  const [testNotificationTitle, setTestNotificationTitle] = useState('미미살롱 예약 알림');
-  const [testNotificationBody, setTestNotificationBody] = useState('곧 예약 시간입니다!');
+  const [delayMinutes, setDelayMinutes] = useState<number>(1)
+  const [testNotificationTitle, setTestNotificationTitle] = useState('미미살롱 예약 알림')
+  const [testNotificationBody, setTestNotificationBody] = useState('곧 예약 시간입니다!')
 
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
     if (session?.user?.role && session.user.role !== 'ADMIN') {
-      router.push('/admin/dashboard/overview');
+      router.push('/admin/dashboard/overview')
     }
-  }, [session, router]);
+  }, [session, router])
 
   const { data: usersData, isLoading } = useQuery({
     queryKey: ['admin', 'users'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/users');
-      if (!response.ok) throw new Error('Failed to fetch users');
-      return response.json();
+      const response = await fetch('/api/admin/users')
+      if (!response.ok) throw new Error('Failed to fetch users')
+      return response.json()
     },
     enabled: !!session?.user && session.user.role === 'ADMIN',
-  });
+  })
 
   const {
     data: queueData,
@@ -107,12 +107,12 @@ export default function SystemTestPage() {
   } = useQuery({
     queryKey: ['admin', 'queue-status'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/notifications/queue-status');
-      if (!response.ok) throw new Error('Failed to fetch queue status');
-      return response.json();
+      const response = await fetch('/api/admin/notifications/queue-status')
+      if (!response.ok) throw new Error('Failed to fetch queue status')
+      return response.json()
     },
     enabled: !!session?.user && session.user.role === 'ADMIN',
-  });
+  })
 
   const sendFCMMutation = useMutation({
     mutationFn: async (data: { userId: string; title: string; body: string }) => {
@@ -122,30 +122,30 @@ export default function SystemTestPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-      });
+      })
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'FCM 알림 전송에 실패했습니다.');
+        const error = await response.json()
+        throw new Error(error.message || 'FCM 알림 전송에 실패했습니다.')
       }
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      toast.success('FCM 알림이 성공적으로 전송되었습니다!');
-      setNotificationTitle('');
-      setNotificationBody('');
+      toast.success('FCM 알림이 성공적으로 전송되었습니다!')
+      setNotificationTitle('')
+      setNotificationBody('')
     },
     onError: (error) => {
-      console.error('FCM send error:', error);
-      toast.error(error instanceof Error ? error.message : 'FCM 알림 전송 중 오류가 발생했습니다.');
+      console.error('FCM send error:', error)
+      toast.error(error instanceof Error ? error.message : 'FCM 알림 전송 중 오류가 발생했습니다.')
     },
-  });
+  })
 
   const scheduleTestMutation = useMutation({
     mutationFn: async (data: {
-      userId: string;
-      delayMinutes: number;
-      title: string;
-      body: string;
+      userId: string
+      delayMinutes: number
+      title: string
+      body: string
     }) => {
       const response = await fetch('/api/admin/notifications/schedule-test', {
         method: 'POST',
@@ -153,67 +153,65 @@ export default function SystemTestPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-      });
+      })
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || '알림 예약에 실패했습니다.');
+        const error = await response.json()
+        throw new Error(error.message || '알림 예약에 실패했습니다.')
       }
-      return response.json();
+      return response.json()
     },
     onSuccess: (data, variables) => {
-      toast.success(
-        `${variables.delayMinutes}분 후 알림이 예약되었습니다! (Job ID: ${data.jobId})`
-      );
-      queryClient.invalidateQueries({ queryKey: ['admin', 'queue-status'] });
+      toast.success(`${variables.delayMinutes}분 후 알림이 예약되었습니다! (Job ID: ${data.jobId})`)
+      queryClient.invalidateQueries({ queryKey: ['admin', 'queue-status'] })
     },
     onError: (error) => {
-      console.error('Schedule test error:', error);
-      toast.error(error instanceof Error ? error.message : '알림 예약 중 오류가 발생했습니다.');
+      console.error('Schedule test error:', error)
+      toast.error(error instanceof Error ? error.message : '알림 예약 중 오류가 발생했습니다.')
     },
-  });
+  })
 
   const handleSendFCM = () => {
     if (!selectedUserId || !notificationTitle || !notificationBody) {
-      toast.error('모든 필드를 입력해주세요.');
-      return;
+      toast.error('모든 필드를 입력해주세요.')
+      return
     }
     sendFCMMutation.mutate({
       userId: selectedUserId,
       title: notificationTitle,
       body: notificationBody,
-    });
-  };
+    })
+  }
 
   const handleScheduleTest = () => {
     if (!selectedUserId || delayMinutes < 1) {
-      toast.error('유효한 사용자와 시간을 선택해주세요.');
-      return;
+      toast.error('유효한 사용자와 시간을 선택해주세요.')
+      return
     }
     scheduleTestMutation.mutate({
       userId: selectedUserId,
       delayMinutes,
       title: testNotificationTitle,
       body: testNotificationBody,
-    });
-  };
+    })
+  }
 
-  const users = usersData?.users || [];
-  const queueStatus = queueData?.status || null;
-  const recentJobs = queueData?.recentJobs || [];
+  const users = usersData?.users || []
+  const queueStatus = queueData?.status || null
+  const recentJobs = queueData?.recentJobs || []
 
   if (isPending || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   if (!session || session.user?.role !== 'ADMIN') {
-    return null;
+    return null
   }
 
-  const selectedUser = users.find((user: User) => user.id === selectedUserId);
+  const selectedUser = users.find((user: User) => user.id === selectedUserId)
 
   return (
     <div className="space-y-6">
@@ -491,5 +489,5 @@ export default function SystemTestPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

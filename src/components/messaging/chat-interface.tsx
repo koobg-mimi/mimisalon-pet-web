@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { useState, useEffect, useRef } from 'react';
-import { useForm, type SubmitHandler } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { MessageBubble } from './message-bubble';
+import { useState, useEffect, useRef } from 'react'
+import { useForm, type SubmitHandler } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import Image from 'next/image'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { MessageBubble } from './message-bubble'
 import {
   SendIcon,
   PaperclipIcon,
@@ -19,64 +19,64 @@ import {
   VideoIcon,
   MoreVerticalIcon,
   XIcon,
-} from 'lucide-react';
+} from 'lucide-react'
 import {
   createMessageSchema,
   type CreateMessageInput,
   type MessageType,
-} from '@/lib/validations/message';
-import { cn } from '@/lib/utils';
+} from '@/lib/validations/message'
+import { cn } from '@/lib/utils'
 
 interface Message {
-  id: string;
-  content: string;
-  type: MessageType;
-  status: 'SENT' | 'DELIVERED' | 'READ' | 'FAILED';
-  senderId: string;
-  senderName: string;
-  senderAvatar?: string;
-  createdAt: string;
-  updatedAt?: string;
-  readAt?: string;
+  id: string
+  content: string
+  type: MessageType
+  status: 'SENT' | 'DELIVERED' | 'READ' | 'FAILED'
+  senderId: string
+  senderName: string
+  senderAvatar?: string
+  createdAt: string
+  updatedAt?: string
+  readAt?: string
   attachments?: Array<{
-    fileName: string;
-    fileUrl: string;
-    fileSize: number;
-    mimeType: string;
-  }>;
+    fileName: string
+    fileUrl: string
+    fileSize: number
+    mimeType: string
+  }>
   replyTo?: {
-    id: string;
-    content: string;
-    senderName: string;
-  };
-  metadata?: Record<string, string | number | boolean>;
+    id: string
+    content: string
+    senderName: string
+  }
+  metadata?: Record<string, string | number | boolean>
 }
 
 interface Conversation {
-  id: string;
-  type: 'CUSTOMER_GROOMER' | 'CUSTOMER_ADMIN' | 'GROOMER_ADMIN' | 'GROUP';
-  title?: string;
+  id: string
+  type: 'CUSTOMER_GROOMER' | 'CUSTOMER_ADMIN' | 'GROOMER_ADMIN' | 'GROUP'
+  title?: string
   participants: Array<{
-    id: string;
-    name: string;
-    avatar?: string;
-    role: string;
-    isOnline: boolean;
-    lastSeen?: string;
-  }>;
-  bookingId?: string;
-  lastMessage?: Message;
-  unreadCount: number;
-  createdAt: string;
+    id: string
+    name: string
+    avatar?: string
+    role: string
+    isOnline: boolean
+    lastSeen?: string
+  }>
+  bookingId?: string
+  lastMessage?: Message
+  unreadCount: number
+  createdAt: string
 }
 
 interface ChatInterfaceProps {
-  conversation: Conversation;
-  currentUserId: string;
-  onSendMessage: (message: CreateMessageInput) => Promise<void>;
-  onMarkAsRead: (messageIds: string[]) => Promise<void>;
-  onDeleteMessage: (messageId: string) => Promise<void>;
-  className?: string;
+  conversation: Conversation
+  currentUserId: string
+  onSendMessage: (message: CreateMessageInput) => Promise<void>
+  onMarkAsRead: (messageIds: string[]) => Promise<void>
+  onDeleteMessage: (messageId: string) => Promise<void>
+  className?: string
 }
 
 export function ChatInterface({
@@ -87,14 +87,14 @@ export function ChatInterface({
   onDeleteMessage,
   className,
 }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSending, setIsSending] = useState(false);
-  const [replyToMessage, setReplyToMessage] = useState<Message | null>(null);
-  const [typingUsers] = useState<string[]>([]);
+  const [messages, setMessages] = useState<Message[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSending, setIsSending] = useState(false)
+  const [replyToMessage, setReplyToMessage] = useState<Message | null>(null)
+  const [typingUsers] = useState<string[]>([])
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const {
     register,
@@ -108,43 +108,43 @@ export function ChatInterface({
       conversationId: conversation.id,
       type: 'TEXT',
     },
-  });
+  })
 
-  const messageContent = watch('content');
+  const messageContent = watch('content')
 
   // 메시지 목록 로드
   useEffect(() => {
     const fetchMessages = async () => {
-      setIsLoading(true);
+      setIsLoading(true)
       try {
-        const response = await fetch(`/api/conversations/${conversation.id}/messages`);
+        const response = await fetch(`/api/conversations/${conversation.id}/messages`)
         if (response.ok) {
-          const data = await response.json();
-          setMessages(data.messages);
+          const data = await response.json()
+          setMessages(data.messages)
 
           // 읽지 않은 메시지들을 읽음 처리
           const unreadMessages = data.messages
             .filter((msg: Message) => msg.senderId !== currentUserId && msg.status !== 'READ')
-            .map((msg: Message) => msg.id);
+            .map((msg: Message) => msg.id)
 
           if (unreadMessages.length > 0) {
-            await onMarkAsRead(unreadMessages);
+            await onMarkAsRead(unreadMessages)
           }
         }
       } catch (error) {
-        console.error('Error fetching messages:', error);
+        console.error('Error fetching messages:', error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchMessages();
-  }, [conversation.id, currentUserId, onMarkAsRead]);
+    fetchMessages()
+  }, [conversation.id, currentUserId, onMarkAsRead])
 
   // 메시지 리스트 자동 스크롤
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    scrollToBottom()
+  }, [messages])
 
   // 실시간 메시지 수신 (WebSocket)
   useEffect(() => {
@@ -161,49 +161,49 @@ export function ChatInterface({
     //   }
     // }
     // return () => ws.close()
-  }, [conversation.id]);
+  }, [conversation.id])
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   const onSubmit: SubmitHandler<CreateMessageInput> = async (data) => {
-    if (!data.content.trim()) return;
+    if (!data.content.trim()) return
 
-    setIsSending(true);
+    setIsSending(true)
     try {
       const messageData = {
         ...data,
         replyToId: replyToMessage?.id,
-      };
+      }
 
-      await onSendMessage(messageData);
-      reset();
-      setReplyToMessage(null);
+      await onSendMessage(messageData)
+      reset()
+      setReplyToMessage(null)
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('Error sending message:', error)
     } finally {
-      setIsSending(false);
+      setIsSending(false)
     }
-  };
+  }
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+    const files = event.target.files
+    if (!files || files.length === 0) return
 
-    const file = files[0];
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('conversationId', conversation.id);
+    const file = files[0]
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('conversationId', conversation.id)
 
     try {
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
-      });
+      })
 
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json()
 
         // 파일 첨부된 메시지 전송
         const messageData: CreateMessageInput = {
@@ -218,31 +218,31 @@ export function ChatInterface({
               mimeType: file.type,
             },
           ],
-        };
+        }
 
-        await onSendMessage(messageData);
+        await onSendMessage(messageData)
       }
     } catch (error) {
-      console.error('Error uploading file:', error);
+      console.error('Error uploading file:', error)
     }
 
     // 파일 입력 초기화
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = ''
     }
-  };
+  }
 
   const handleReply = (message: Message) => {
-    setReplyToMessage(message);
+    setReplyToMessage(message)
     // 입력창에 포커스
-    document.querySelector('textarea')?.focus();
-  };
+    document.querySelector('textarea')?.focus()
+  }
 
   const cancelReply = () => {
-    setReplyToMessage(null);
-  };
+    setReplyToMessage(null)
+  }
 
-  const otherParticipant = conversation.participants.find((p) => p.id !== currentUserId);
+  const otherParticipant = conversation.participants.find((p) => p.id !== currentUserId)
 
   return (
     <div className={cn('flex h-full flex-col', className)}>
@@ -314,14 +314,14 @@ export function ChatInterface({
         ) : (
           <div className="space-y-4">
             {messages.map((message, index) => {
-              const isOwn = message.senderId === currentUserId;
+              const isOwn = message.senderId === currentUserId
               const showSender =
-                !isOwn && (index === 0 || messages[index - 1].senderId !== message.senderId);
+                !isOwn && (index === 0 || messages[index - 1].senderId !== message.senderId)
               const showTimestamp =
                 index === messages.length - 1 ||
                 new Date(messages[index + 1].createdAt).getTime() -
                   new Date(message.createdAt).getTime() >
-                  5 * 60 * 1000;
+                  5 * 60 * 1000
 
               return (
                 <MessageBubble
@@ -333,7 +333,7 @@ export function ChatInterface({
                   onReply={handleReply}
                   onDelete={onDeleteMessage}
                 />
-              );
+              )
             })}
 
             {/* 타이핑 인디케이터 */}
@@ -389,8 +389,8 @@ export function ChatInterface({
                 className="max-h-32 min-h-[40px] resize-none"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit(onSubmit)();
+                    e.preventDefault()
+                    handleSubmit(onSubmit)()
                   }
                 }}
               />
@@ -438,5 +438,5 @@ export function ChatInterface({
         </form>
       </div>
     </div>
-  );
+  )
 }

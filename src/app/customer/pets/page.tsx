@@ -1,98 +1,98 @@
-'use client';
+'use client'
 
-import { useSession } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { PageHeader } from '@/components/layout/PageHeader';
-import { PetCard } from '@/components/pets/PetCard';
-import { PetModal } from '@/components/pets/PetModal';
-import { usePets, Pet, PetFormData } from '@/hooks/usePets';
-import { Plus, PawPrint } from 'lucide-react';
-import { toast } from 'sonner';
+import { useSession } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { PageHeader } from '@/components/layout/PageHeader'
+import { PetCard } from '@/components/pets/PetCard'
+import { PetModal } from '@/components/pets/PetModal'
+import { usePets, Pet, PetFormData } from '@/hooks/usePets'
+import { Plus, PawPrint } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function CustomerPetsPage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-  const { pets, isLoading, createPet, updatePet, deletePet, fetchPets } = usePets();
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const { pets, isLoading, createPet, updatePet, deletePet, fetchPets } = usePets()
 
   // Modal states
-  const [isPetModalOpen, setIsPetModalOpen] = useState(false);
-  const [selectedPet, setSelectedPet] = useState<Pet | undefined>();
-  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [isPetModalOpen, setIsPetModalOpen] = useState(false)
+  const [selectedPet, setSelectedPet] = useState<Pet | undefined>()
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
 
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
     if (session?.user?.role && session.user.role !== 'CUSTOMER') {
-      router.push('/dashboard');
+      router.push('/dashboard')
     }
-  }, [session, router]);
+  }, [session, router])
 
   const handleAddPet = () => {
-    setSelectedPet(undefined);
-    setModalMode('create');
-    setIsPetModalOpen(true);
-  };
+    setSelectedPet(undefined)
+    setModalMode('create')
+    setIsPetModalOpen(true)
+  }
 
   const handleEditPet = (pet: Pet) => {
-    setSelectedPet(pet);
-    setModalMode('edit');
-    setIsPetModalOpen(true);
-  };
+    setSelectedPet(pet)
+    setModalMode('edit')
+    setIsPetModalOpen(true)
+  }
 
   const handleSavePet = async (petData: PetFormData & { images?: File[] }) => {
     if (modalMode === 'edit' && selectedPet) {
-      await updatePet(selectedPet.id, petData);
+      await updatePet(selectedPet.id, petData)
       // Refresh pets to show any updated information
-      await fetchPets();
+      await fetchPets()
     } else {
       // Extract images from petData if present
-      const { images, ...petInfo } = petData;
+      const { images, ...petInfo } = petData
 
       // Create the pet first
-      const newPet = await createPet(petInfo);
+      const newPet = await createPet(petInfo)
 
       // If there are images, upload them
       if (images && images.length > 0 && newPet?.id) {
         try {
-          const formData = new FormData();
+          const formData = new FormData()
           images.forEach((image: File) => {
-            formData.append('files', image);
-          });
+            formData.append('files', image)
+          })
 
           const response = await fetch(`/api/customer/pets/${newPet.id}/images`, {
             method: 'POST',
             body: formData,
-          });
+          })
 
           if (!response.ok) {
-            console.error('Failed to upload images');
-            toast.error('이미지 업로드에 실패했습니다');
+            console.error('Failed to upload images')
+            toast.error('이미지 업로드에 실패했습니다')
           } else {
-            toast.success(`${images.length}개의 이미지가 업로드되었습니다`);
+            toast.success(`${images.length}개의 이미지가 업로드되었습니다`)
             // Refresh pets to show the new images
-            await fetchPets();
+            await fetchPets()
           }
         } catch (error) {
-          console.error('Error uploading images:', error);
+          console.error('Error uploading images:', error)
         }
       }
     }
-  };
+  }
 
   if (isPending) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   if (!session || session.user?.role !== 'CUSTOMER') {
-    return null;
+    return null
   }
 
   return (
@@ -176,8 +176,8 @@ export default function CustomerPetsPage() {
       <PetModal
         isOpen={isPetModalOpen}
         onClose={() => {
-          setIsPetModalOpen(false);
-          setSelectedPet(undefined);
+          setIsPetModalOpen(false)
+          setSelectedPet(undefined)
         }}
         onSave={handleSavePet}
         pet={selectedPet}
@@ -185,5 +185,5 @@ export default function CustomerPetsPage() {
         onImagesUpdated={fetchPets}
       />
     </div>
-  );
+  )
 }

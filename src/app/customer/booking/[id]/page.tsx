@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { useState, useEffect, use } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useState, useEffect, use } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import {
   CalendarIcon,
   ClockIcon,
@@ -22,15 +22,15 @@ import {
   XCircleIcon,
   CreditCardIcon,
   ArrowLeftIcon,
-} from 'lucide-react';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+} from 'lucide-react'
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
 interface BookingDetails {
-  id: string;
-  appointmentDate: string;
-  startTime: string;
-  endTime: string;
+  id: string
+  appointmentDate: string
+  startTime: string
+  endTime: string
   status:
     | 'FIRST_PAYMENT_PENDING'
     | 'FIRST_PAYMENT_COMPLETE'
@@ -41,103 +41,103 @@ interface BookingDetails {
     | 'WORK_IN_PROGRESS'
     | 'SERVICE_COMPLETED'
     | 'SERVICE_CANCELLED'
-    | 'BOOKING_FAILED';
-  totalAmount: number;
-  paidAmount: number;
-  additionalAmount?: number;
-  paymentStatus: 'PENDING' | 'PAID' | 'REFUNDED';
+    | 'BOOKING_FAILED'
+  totalAmount: number
+  paidAmount: number
+  additionalAmount?: number
+  paymentStatus: 'PENDING' | 'PAID' | 'REFUNDED'
   pet: {
-    id: string;
-    name: string;
-    species: string;
-    breed: string;
-    weight: number;
-    photoUrl?: string;
-  };
+    id: string
+    name: string
+    species: string
+    breed: string
+    weight: number
+    photoUrl?: string
+  }
   services: Array<{
-    id: string;
-    name: string;
-    description: string;
-    duration: number;
-    price: number;
-    status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
-  }>;
+    id: string
+    name: string
+    description: string
+    duration: number
+    price: number
+    status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED'
+  }>
   groomer: {
-    id: string;
-    name: string;
-    photoUrl?: string | null;
-    rating: number;
-    experience: string | null; // null until we add this field to schema
-    phone: string;
+    id: string
+    name: string
+    photoUrl?: string | null
+    rating: number
+    experience: string | null // null until we add this field to schema
+    phone: string
     salon: {
-      id: string;
-      name: string;
-      address: string;
-      phone: string;
-    };
-  };
-  notes?: string;
-  estimatedEndTime?: string;
-  createdAt?: string;
-  actualStartTime?: string;
-  actualEndTime?: string;
+      id: string
+      name: string
+      address: string
+      phone: string
+    }
+  }
+  notes?: string
+  estimatedEndTime?: string
+  createdAt?: string
+  actualStartTime?: string
+  actualEndTime?: string
 }
 
 const getStatusColor = (status: BookingDetails['status']) => {
   switch (status) {
     case 'FIRST_PAYMENT_PENDING':
     case 'GROOMER_CONFIRM_PENDING':
-      return 'warning';
+      return 'warning'
     case 'FIRST_PAYMENT_COMPLETE':
     case 'GROOMER_CONFIRM':
-      return 'info';
+      return 'info'
     case 'ADDITIONAL_PAYMENT_PENDING':
-      return 'warning';
+      return 'warning'
     case 'ADDITIONAL_PAYMENT_COMPLETE':
     case 'WORK_IN_PROGRESS':
-      return 'info';
+      return 'info'
     case 'SERVICE_COMPLETED':
-      return 'success';
+      return 'success'
     case 'SERVICE_CANCELLED':
     case 'BOOKING_FAILED':
-      return 'destructive';
+      return 'destructive'
     default:
-      return 'secondary';
+      return 'secondary'
   }
-};
+}
 
 const getStatusText = (status: BookingDetails['status']) => {
   switch (status) {
     case 'FIRST_PAYMENT_PENDING':
-      return '1차 결제 대기';
+      return '1차 결제 대기'
     case 'FIRST_PAYMENT_COMPLETE':
-      return '1차 결제 완료';
+      return '1차 결제 완료'
     case 'GROOMER_CONFIRM_PENDING':
-      return '미용사 확인 대기';
+      return '미용사 확인 대기'
     case 'GROOMER_CONFIRM':
-      return '미용사 확정';
+      return '미용사 확정'
     case 'ADDITIONAL_PAYMENT_PENDING':
-      return '추가 결제 대기';
+      return '추가 결제 대기'
     case 'ADDITIONAL_PAYMENT_COMPLETE':
-      return '추가 결제 완료';
+      return '추가 결제 완료'
     case 'WORK_IN_PROGRESS':
-      return '진행 중';
+      return '진행 중'
     case 'SERVICE_COMPLETED':
-      return '완료';
+      return '완료'
     case 'SERVICE_CANCELLED':
-      return '취소됨';
+      return '취소됨'
     case 'BOOKING_FAILED':
-      return '예약 실패';
+      return '예약 실패'
     default:
-      return '알 수 없음';
+      return '알 수 없음'
   }
-};
+}
 
 export default function CustomerBookingDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [showReviewSuccess, setShowReviewSuccess] = useState(false);
+  const resolvedParams = use(params)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [showReviewSuccess, setShowReviewSuccess] = useState(false)
 
   // Fetch booking details using React Query
   const {
@@ -147,35 +147,35 @@ export default function CustomerBookingDetailPage({ params }: { params: Promise<
   } = useQuery<BookingDetails>({
     queryKey: ['customer', 'booking', resolvedParams.id],
     queryFn: async () => {
-      const response = await fetch(`/api/customer/booking/${resolvedParams.id}`);
+      const response = await fetch(`/api/customer/booking/${resolvedParams.id}`)
       if (!response.ok) {
-        throw new Error(`Failed to fetch booking: ${response.statusText}`);
+        throw new Error(`Failed to fetch booking: ${response.statusText}`)
       }
-      return response.json();
+      return response.json()
     },
     enabled: !!resolvedParams.id,
-  });
+  })
 
   // Fetch review if booking is completed
   const { data: review } = useQuery({
     queryKey: ['customer', 'reviews', 'booking', resolvedParams.id],
     queryFn: async () => {
-      const reviewResponse = await fetch(`/api/customer/reviews?bookingId=${resolvedParams.id}`);
+      const reviewResponse = await fetch(`/api/customer/reviews?bookingId=${resolvedParams.id}`)
       if (!reviewResponse.ok) {
-        return null;
+        return null
       }
-      return reviewResponse.json();
+      return reviewResponse.json()
     },
     enabled: !!booking && booking.status === 'SERVICE_COMPLETED',
-  });
+  })
 
   // 리뷰 작성 완료 후 알림 표시
   useEffect(() => {
     if (searchParams.get('reviewSubmitted') === 'true') {
-      setShowReviewSuccess(true);
-      setTimeout(() => setShowReviewSuccess(false), 5000);
+      setShowReviewSuccess(true)
+      setTimeout(() => setShowReviewSuccess(false), 5000)
     }
-  }, [searchParams]);
+  }, [searchParams])
 
   if (isLoading) {
     return (
@@ -189,7 +189,7 @@ export default function CustomerBookingDetailPage({ params }: { params: Promise<
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   if (!booking) {
@@ -208,7 +208,7 @@ export default function CustomerBookingDetailPage({ params }: { params: Promise<
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   return (
@@ -337,8 +337,8 @@ export default function CustomerBookingDetailPage({ params }: { params: Promise<
                   className="h-16 w-16 rounded-full object-cover"
                   unoptimized // Bypass Next.js image optimization for GCS images
                   onError={(e) => {
-                    console.error('Failed to load pet image:', booking.pet.photoUrl);
-                    console.error('Error event:', e);
+                    console.error('Failed to load pet image:', booking.pet.photoUrl)
+                    console.error('Error event:', e)
                   }}
                 />
               ) : (
@@ -421,8 +421,8 @@ export default function CustomerBookingDetailPage({ params }: { params: Promise<
                     className="h-16 w-16 rounded-full object-cover"
                     unoptimized // Bypass Next.js image optimization for GCS images
                     onError={(e) => {
-                      console.error('Failed to load groomer image:', booking.groomer.photoUrl);
-                      console.error('Error event:', e);
+                      console.error('Failed to load groomer image:', booking.groomer.photoUrl)
+                      console.error('Error event:', e)
                     }}
                   />
                 ) : (
@@ -458,7 +458,7 @@ export default function CustomerBookingDetailPage({ params }: { params: Promise<
                     size="sm"
                     onClick={() => {
                       if (booking.groomer.phone) {
-                        window.location.href = `tel:${booking.groomer.phone}`;
+                        window.location.href = `tel:${booking.groomer.phone}`
                       }
                     }}
                     disabled={!booking.groomer.phone}
@@ -486,8 +486,8 @@ export default function CustomerBookingDetailPage({ params }: { params: Promise<
           <CardContent>
             {(() => {
               // 상태에 따른 타임라인 아이템 생성
-              const timelineItems = [];
-              const currentStatus = booking.status;
+              const timelineItems = []
+              const currentStatus = booking.status
 
               // 예약 생성
               timelineItems.push({
@@ -497,7 +497,7 @@ export default function CustomerBookingDetailPage({ params }: { params: Promise<
                 icon: <CalendarIcon className="h-4 w-4" />,
                 timestamp: booking.createdAt || booking.appointmentDate,
                 isCompleted: true,
-              });
+              })
 
               // 1차 결제
               if (
@@ -518,7 +518,7 @@ export default function CustomerBookingDetailPage({ params }: { params: Promise<
                   icon: <CreditCardIcon className="h-4 w-4" />,
                   timestamp: booking.createdAt,
                   isCompleted: true,
-                });
+                })
               }
 
               // 미용사 확정
@@ -538,7 +538,7 @@ export default function CustomerBookingDetailPage({ params }: { params: Promise<
                   icon: <CheckCircleIcon className="h-4 w-4" />,
                   timestamp: booking.createdAt,
                   isCompleted: true,
-                });
+                })
               }
 
               // 추가 결제
@@ -551,7 +551,7 @@ export default function CustomerBookingDetailPage({ params }: { params: Promise<
                   timestamp: null,
                   isCompleted: false,
                   isActive: true,
-                });
+                })
               } else if (
                 ['ADDITIONAL_PAYMENT_COMPLETE', 'WORK_IN_PROGRESS', 'SERVICE_COMPLETED'].includes(
                   currentStatus
@@ -565,7 +565,7 @@ export default function CustomerBookingDetailPage({ params }: { params: Promise<
                   icon: <CreditCardIcon className="h-4 w-4" />,
                   timestamp: booking.createdAt,
                   isCompleted: true,
-                });
+                })
               }
 
               // 서비스 진행
@@ -578,7 +578,7 @@ export default function CustomerBookingDetailPage({ params }: { params: Promise<
                   timestamp: booking.actualStartTime,
                   isCompleted: currentStatus === 'SERVICE_COMPLETED',
                   isActive: currentStatus === 'WORK_IN_PROGRESS',
-                });
+                })
               }
 
               // 서비스 완료
@@ -590,7 +590,7 @@ export default function CustomerBookingDetailPage({ params }: { params: Promise<
                   icon: <CheckCircleIcon className="h-4 w-4" />,
                   timestamp: booking.actualEndTime,
                   isCompleted: true,
-                });
+                })
               }
 
               // 취소된 경우
@@ -606,7 +606,7 @@ export default function CustomerBookingDetailPage({ params }: { params: Promise<
                   timestamp: booking.createdAt,
                   isCompleted: true,
                   isError: true,
-                });
+                })
               }
 
               return (
@@ -651,7 +651,7 @@ export default function CustomerBookingDetailPage({ params }: { params: Promise<
                     </div>
                   ))}
                 </div>
-              );
+              )
             })()}
           </CardContent>
         </Card>
@@ -761,5 +761,5 @@ export default function CustomerBookingDetailPage({ params }: { params: Promise<
         </div>
       </div>
     </div>
-  );
+  )
 }

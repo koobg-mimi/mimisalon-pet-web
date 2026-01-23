@@ -1,23 +1,23 @@
-import { ko } from 'date-fns/locale';
-import { NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import auth from '@/lib/auth';
-import { prisma } from '@mimisalon/shared';
-import { startOfMonth, endOfMonth, subMonths, format } from 'date-fns';
+import { ko } from 'date-fns/locale'
+import { NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import auth from '@/lib/auth'
+import { prisma } from '@mimisalon/shared'
+import { startOfMonth, endOfMonth, subMonths, format } from 'date-fns'
 
 export async function GET() {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session || session.user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const now = new Date();
-    const thisMonthStart = startOfMonth(now);
-    const thisMonthEnd = endOfMonth(now);
-    const lastMonthStart = startOfMonth(subMonths(now, 1));
-    const lastMonthEnd = endOfMonth(subMonths(now, 1));
+    const now = new Date()
+    const thisMonthStart = startOfMonth(now)
+    const thisMonthEnd = endOfMonth(now)
+    const lastMonthStart = startOfMonth(subMonths(now, 1))
+    const lastMonthEnd = endOfMonth(subMonths(now, 1))
 
     // Fetch various statistics
     const [
@@ -71,10 +71,10 @@ export async function GET() {
       // Top groomers by average rating
       prisma.$queryRaw<
         Array<{
-          groomerId: string;
-          groomerName: string;
-          averageRating: number;
-          totalReviews: bigint;
+          groomerId: string
+          groomerName: string
+          averageRating: number
+          totalReviews: bigint
         }>
       >`
         SELECT
@@ -120,7 +120,7 @@ export async function GET() {
         orderBy: { createdAt: 'desc' },
         take: 5,
       }),
-    ]);
+    ])
 
     // Calculate rating distribution and average
     const ratingDistribution = {
@@ -129,22 +129,22 @@ export async function GET() {
       3: 0,
       4: 0,
       5: 0,
-    };
+    }
 
-    let totalRating = 0;
+    let totalRating = 0
     ratingStats.forEach((review) => {
-      ratingDistribution[review.rating as keyof typeof ratingDistribution]++;
-      totalRating += review.rating;
-    });
+      ratingDistribution[review.rating as keyof typeof ratingDistribution]++
+      totalRating += review.rating
+    })
 
-    const averageRating = ratingStats.length > 0 ? totalRating / ratingStats.length : 0;
+    const averageRating = ratingStats.length > 0 ? totalRating / ratingStats.length : 0
 
     // Calculate response rate
-    const responseRate = totalReviews > 0 ? (reviewsWithResponse / totalReviews) * 100 : 0;
+    const responseRate = totalReviews > 0 ? (reviewsWithResponse / totalReviews) * 100 : 0
 
     // Calculate month-over-month growth
     const monthGrowth =
-      lastMonthReviews > 0 ? ((thisMonthReviews - lastMonthReviews) / lastMonthReviews) * 100 : 0;
+      lastMonthReviews > 0 ? ((thisMonthReviews - lastMonthReviews) / lastMonthReviews) * 100 : 0
 
     return NextResponse.json({
       overview: {
@@ -174,9 +174,9 @@ export async function GET() {
         groomer: review.booking.groomer?.name || 'Unknown',
         createdAt: format(review.createdAt, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", { locale: ko }),
       })),
-    });
+    })
   } catch (error) {
-    console.error('Failed to fetch admin review stats:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Failed to fetch admin review stats:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

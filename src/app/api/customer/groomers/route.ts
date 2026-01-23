@@ -1,30 +1,30 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import auth from '@/lib/auth';
-import { prisma } from '@mimisalon/shared';
+import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import auth from '@/lib/auth'
+import { prisma } from '@mimisalon/shared'
 
 // GET /api/customer/groomers - Get groomers available for a specific address
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session?.user?.id) {
-      return new NextResponse('Unauthorized', { status: 401 });
+      return new NextResponse('Unauthorized', { status: 401 })
     }
 
     if (session.user.role !== 'CUSTOMER') {
       return new NextResponse('Forbidden - Customer access only', {
         status: 403,
-      });
+      })
     }
 
-    const { searchParams } = new URL(request.url);
-    const addressId = searchParams.get('addressId');
+    const { searchParams } = new URL(request.url)
+    const addressId = searchParams.get('addressId')
 
     if (!addressId) {
       return new NextResponse('addressId parameter is required', {
         status: 400,
-      });
+      })
     }
 
     // Verify that the address belongs to the current customer
@@ -33,12 +33,12 @@ export async function GET(request: NextRequest) {
         id: addressId,
         customerId: session.user.id,
       },
-    });
+    })
 
     if (!address) {
       return new NextResponse('Address not found or access denied', {
         status: 404,
-      });
+      })
     }
 
     // Find groomers who service this area
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-    });
+    })
 
     // Transform the data to match the expected format
     const formattedGroomers = groomers.map((groomer) => ({
@@ -107,11 +107,11 @@ export async function GET(request: NextRequest) {
         address: area.address,
       })),
       totalBookings: groomer._count.groomerBookings,
-    }));
+    }))
 
-    return NextResponse.json(formattedGroomers);
+    return NextResponse.json(formattedGroomers)
   } catch (error) {
-    console.error('Failed to fetch groomers:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    console.error('Failed to fetch groomers:', error)
+    return new NextResponse('Internal Server Error', { status: 500 })
   }
 }

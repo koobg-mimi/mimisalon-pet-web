@@ -1,21 +1,21 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import auth from '@/lib/auth';
-import { prisma } from '@mimisalon/shared';
+import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import auth from '@/lib/auth'
+import { prisma } from '@mimisalon/shared'
 
 interface RouteParams {
   params: Promise<{
-    id: string;
-  }>;
+    id: string
+  }>
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
-  const { id: groomerId } = await params;
+  const { id: groomerId } = await params
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session || session.user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const groomer = await prisma.user.findFirst({
@@ -60,29 +60,29 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           },
         },
       },
-    });
+    })
 
     if (!groomer) {
-      return NextResponse.json({ error: 'Groomer not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Groomer not found' }, { status: 404 })
     }
 
     // Calculate statistics
-    const ratings = groomer.reviews.map((r) => r.rating);
+    const ratings = groomer.reviews.map((r) => r.rating)
     const averageRating =
-      ratings.length > 0 ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length : 0;
+      ratings.length > 0 ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length : 0
 
     // Calculate monthly revenue (last 30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
     const monthlyBookings = groomer.groomerBookings.filter(
       (booking) => new Date(booking.createdAt) >= thirtyDaysAgo
-    );
-    const monthlyRevenue = monthlyBookings.reduce((sum, booking) => sum + booking.totalPrice, 0);
+    )
+    const monthlyRevenue = monthlyBookings.reduce((sum, booking) => sum + booking.totalPrice, 0)
 
     // Get last activity
     const lastActivityAt =
-      groomer.groomerBookings.length > 0 ? groomer.groomerBookings[0].createdAt : null;
+      groomer.groomerBookings.length > 0 ? groomer.groomerBookings[0].createdAt : null
 
     const groomerDetails = {
       id: groomer.id,
@@ -143,11 +143,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         comment: review.comment,
         createdAt: review.createdAt.toISOString(),
       })),
-    };
+    }
 
-    return NextResponse.json(groomerDetails);
+    return NextResponse.json(groomerDetails)
   } catch (error) {
-    console.error(`Error fetching groomer ${groomerId}:`, error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error(`Error fetching groomer ${groomerId}:`, error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

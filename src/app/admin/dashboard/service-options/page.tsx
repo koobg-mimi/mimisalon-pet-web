@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import {
   Table,
   TableBody,
@@ -15,48 +15,48 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+} from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Edit, Trash2, AlertCircle } from 'lucide-react';
-import { toast } from 'sonner';
-import { DOG_CATEGORIES, CAT_CATEGORIES } from '@/constants/breed-categories';
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Plus, Edit, Trash2, AlertCircle } from 'lucide-react'
+import { toast } from 'sonner'
+import { DOG_CATEGORIES, CAT_CATEGORIES } from '@/constants/breed-categories'
 
 interface ServiceOption {
-  id: string;
-  name: string;
-  description?: string;
-  price: number;
-  isActive: boolean;
-  displayOrder: number;
-  applicableCategories: string[];
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  name: string
+  description?: string
+  price: number
+  isActive: boolean
+  displayOrder: number
+  applicableCategories: string[]
+  createdAt: string
+  updatedAt: string
 }
 
 interface ServiceOptionFormData {
-  name: string;
-  description: string;
-  price: string;
-  applicableCategories: string[];
-  displayOrder: string;
-  isActive: boolean;
+  name: string
+  description: string
+  price: string
+  applicableCategories: string[]
+  displayOrder: string
+  isActive: boolean
 }
 
 export default function ServiceOptionsPage() {
-  const queryClient = useQueryClient();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingOption, setEditingOption] = useState<ServiceOption | null>(null);
+  const queryClient = useQueryClient()
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [editingOption, setEditingOption] = useState<ServiceOption | null>(null)
   const [formData, setFormData] = useState<ServiceOptionFormData>({
     name: '',
     description: '',
@@ -64,7 +64,7 @@ export default function ServiceOptionsPage() {
     applicableCategories: [],
     displayOrder: '0',
     isActive: true,
-  });
+  })
 
   // Fetch service options
   const {
@@ -75,13 +75,13 @@ export default function ServiceOptionsPage() {
   } = useQuery<ServiceOption[]>({
     queryKey: ['admin', 'service-options'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/service-options');
+      const response = await fetch('/api/admin/service-options')
       if (!response.ok) {
-        throw new Error('Failed to fetch service options');
+        throw new Error('Failed to fetch service options')
       }
-      return response.json();
+      return response.json()
     },
-  });
+  })
 
   // Create mutation
   const createMutation = useMutation({
@@ -97,28 +97,28 @@ export default function ServiceOptionsPage() {
           displayOrder: parseInt(data.displayOrder),
           isActive: data.isActive,
         }),
-      });
+      })
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create option');
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create option')
       }
 
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'service-options'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'service-options'] })
       toast.success('옵션 생성 완료', {
         description: '서비스 옵션이 성공적으로 생성되었습니다.',
-      });
-      handleCloseDialog();
+      })
+      handleCloseDialog()
     },
     onError: (error: Error) => {
       toast.error('옵션 생성 실패', {
         description: error.message,
-      });
+      })
     },
-  });
+  })
 
   // Update mutation
   const updateMutation = useMutation({
@@ -134,59 +134,59 @@ export default function ServiceOptionsPage() {
           displayOrder: parseInt(data.displayOrder),
           isActive: data.isActive,
         }),
-      });
+      })
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update option');
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update option')
       }
 
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'service-options'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'service-options'] })
       toast.success('옵션 수정 완료', {
         description: '서비스 옵션이 성공적으로 수정되었습니다.',
-      });
-      handleCloseDialog();
+      })
+      handleCloseDialog()
     },
     onError: (error: Error) => {
       toast.error('옵션 수정 실패', {
         description: error.message,
-      });
+      })
     },
-  });
+  })
 
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const response = await fetch(`/api/admin/service-options/${id}`, {
         method: 'DELETE',
-      });
+      })
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete option');
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to delete option')
       }
 
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'service-options'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'service-options'] })
       toast.success('옵션 삭제 완료', {
         description: '서비스 옵션이 성공적으로 삭제되었습니다.',
-      });
+      })
     },
     onError: (error: Error) => {
       toast.error('옵션 삭제 실패', {
         description: error.message,
-      });
+      })
     },
-  });
+  })
 
   const handleOpenDialog = (option?: ServiceOption) => {
     if (option) {
-      setEditingOption(option);
+      setEditingOption(option)
       setFormData({
         name: option.name,
         description: option.description || '',
@@ -194,9 +194,9 @@ export default function ServiceOptionsPage() {
         applicableCategories: option.applicableCategories,
         displayOrder: option.displayOrder.toString(),
         isActive: option.isActive,
-      });
+      })
     } else {
-      setEditingOption(null);
+      setEditingOption(null)
       setFormData({
         name: '',
         description: '',
@@ -204,14 +204,14 @@ export default function ServiceOptionsPage() {
         applicableCategories: [],
         displayOrder: '0',
         isActive: true,
-      });
+      })
     }
-    setIsDialogOpen(true);
-  };
+    setIsDialogOpen(true)
+  }
 
   const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-    setEditingOption(null);
+    setIsDialogOpen(false)
+    setEditingOption(null)
     setFormData({
       name: '',
       description: '',
@@ -219,24 +219,24 @@ export default function ServiceOptionsPage() {
       applicableCategories: [],
       displayOrder: '0',
       isActive: true,
-    });
-  };
+    })
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (editingOption) {
-      updateMutation.mutate({ id: editingOption.id, data: formData });
+      updateMutation.mutate({ id: editingOption.id, data: formData })
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(formData)
     }
-  };
+  }
 
   const handleDelete = (id: string) => {
     if (confirm('정말 이 옵션을 삭제하시겠습니까?')) {
-      deleteMutation.mutate(id);
+      deleteMutation.mutate(id)
     }
-  };
+  }
 
   const handleCategoryToggle = (category: string) => {
     setFormData((prev) => ({
@@ -244,19 +244,19 @@ export default function ServiceOptionsPage() {
       applicableCategories: prev.applicableCategories.includes(category)
         ? prev.applicableCategories.filter((c) => c !== category)
         : [...prev.applicableCategories, category],
-    }));
-  };
+    }))
+  }
 
   const getCategoryDisplayName = (category: string): string => {
-    return { ...DOG_CATEGORIES, ...CAT_CATEGORIES }[category] || category;
-  };
+    return { ...DOG_CATEGORIES, ...CAT_CATEGORIES }[category] || category
+  }
 
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner />
       </div>
-    );
+    )
   }
 
   if (isError) {
@@ -267,7 +267,7 @@ export default function ServiceOptionsPage() {
           <p>{error instanceof Error ? error.message : '옵션을 불러오는데 실패했습니다'}</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -495,5 +495,5 @@ export default function ServiceOptionsPage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }

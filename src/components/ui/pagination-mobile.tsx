@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import * as React from 'react'
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 
 interface MobilePaginationProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-  className?: string;
-  showPageInfo?: boolean;
+  currentPage: number
+  totalPages: number
+  onPageChange: (page: number) => void
+  className?: string
+  showPageInfo?: boolean
 }
 
 /**
@@ -24,8 +24,8 @@ export function MobilePagination({
   className,
   showPageInfo = true,
 }: MobilePaginationProps) {
-  const canGoPrevious = currentPage > 1;
-  const canGoNext = currentPage < totalPages;
+  const canGoPrevious = currentPage > 1
+  const canGoNext = currentPage < totalPages
 
   return (
     <div
@@ -74,7 +74,7 @@ export function MobilePagination({
         <ChevronRightIcon className="h-5 w-5" />
       </Button>
     </div>
-  );
+  )
 }
 
 /**
@@ -91,21 +91,21 @@ export function SwipeablePagination({
   // Calculate which dots to show
   const getVisiblePages = () => {
     if (totalPages <= maxDots) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
+      return Array.from({ length: totalPages }, (_, i) => i + 1)
     }
 
-    const half = Math.floor(maxDots / 2);
-    let start = Math.max(1, currentPage - half);
-    const end = Math.min(totalPages, start + maxDots - 1);
+    const half = Math.floor(maxDots / 2)
+    let start = Math.max(1, currentPage - half)
+    const end = Math.min(totalPages, start + maxDots - 1)
 
     if (end - start < maxDots - 1) {
-      start = Math.max(1, end - maxDots + 1);
+      start = Math.max(1, end - maxDots + 1)
     }
 
-    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-  };
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i)
+  }
 
-  const visiblePages = getVisiblePages();
+  const visiblePages = getVisiblePages()
 
   return (
     <div
@@ -188,5 +188,5 @@ export function SwipeablePagination({
         </Button>
       </div>
     </div>
-  );
+  )
 }

@@ -7,10 +7,10 @@
  * @module components/providers/fetch-interceptor-provider
  */
 
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { installFetchInterceptor } from '@/lib/global-fetch-interceptor';
+import { useEffect } from 'react'
+import { installFetchInterceptor } from '@/lib/global-fetch-interceptor'
 
 /**
  * Provider component that installs fetch interceptor
@@ -26,13 +26,13 @@ import { installFetchInterceptor } from '@/lib/global-fetch-interceptor';
 export function FetchInterceptorProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Install fetch interceptor on mount
-    installFetchInterceptor();
+    installFetchInterceptor()
 
     // Cleanup is optional - usually we want to keep it installed
     // return () => {
     //   uninstallFetchInterceptor();
     // };
-  }, []);
+  }, [])
 
-  return <>{children}</>;
+  return <>{children}</>
 }

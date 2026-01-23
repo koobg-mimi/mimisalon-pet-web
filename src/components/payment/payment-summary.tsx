@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
+import { Badge } from '@/components/ui/badge'
 import {
   ScissorsIcon,
   ClockIcon,
@@ -19,28 +19,28 @@ import {
   CreditCardIcon,
   AlertCircleIcon,
   CheckCircleIcon,
-} from 'lucide-react';
-import { couponSchema, type CouponInput } from '@/lib/validations/payment';
-import { cn } from '@/lib/utils';
+} from 'lucide-react'
+import { couponSchema, type CouponInput } from '@/lib/validations/payment'
+import { cn } from '@/lib/utils'
 
 interface Service {
-  id: string;
-  name: string;
-  price: number;
-  duration: number;
-  category: string;
+  id: string
+  name: string
+  price: number
+  duration: number
+  category: string
 }
 
 interface PaymentSummaryProps {
-  services: Service[];
+  services: Service[]
   couponDiscount?: {
-    code: string;
-    discountAmount: number;
-    discountType: 'AMOUNT' | 'PERCENTAGE';
-  };
-  onCouponApply: (coupon: CouponInput) => Promise<boolean>;
-  onCouponRemove: () => void;
-  className?: string;
+    code: string
+    discountAmount: number
+    discountType: 'AMOUNT' | 'PERCENTAGE'
+  }
+  onCouponApply: (coupon: CouponInput) => Promise<boolean>
+  onCouponRemove: () => void
+  className?: string
 }
 
 export function PaymentSummary({
@@ -50,8 +50,8 @@ export function PaymentSummary({
   onCouponRemove,
   className,
 }: PaymentSummaryProps) {
-  const [isCouponLoading, setIsCouponLoading] = useState(false);
-  const [couponError, setCouponError] = useState<string | null>(null);
+  const [isCouponLoading, setIsCouponLoading] = useState(false)
+  const [couponError, setCouponError] = useState<string | null>(null)
 
   const {
     register,
@@ -60,39 +60,39 @@ export function PaymentSummary({
     reset,
   } = useForm<CouponInput>({
     resolver: zodResolver(couponSchema),
-  });
+  })
 
-  const subtotal = services.reduce((sum, service) => sum + service.price, 0);
-  const discountAmount = couponDiscount?.discountAmount || 0;
-  const total = subtotal - discountAmount;
-  const totalDuration = services.reduce((sum, service) => sum + service.duration, 0);
+  const subtotal = services.reduce((sum, service) => sum + service.price, 0)
+  const discountAmount = couponDiscount?.discountAmount || 0
+  const total = subtotal - discountAmount
+  const totalDuration = services.reduce((sum, service) => sum + service.duration, 0)
 
   const onCouponSubmit = async (data: CouponInput) => {
-    setIsCouponLoading(true);
-    setCouponError(null);
+    setIsCouponLoading(true)
+    setCouponError(null)
 
     try {
       const success = await onCouponApply({
         ...data,
         bookingAmount: subtotal,
-      });
+      })
 
       if (success) {
-        reset();
+        reset()
       } else {
-        setCouponError('유효하지 않은 쿠폰 코드입니다');
+        setCouponError('유효하지 않은 쿠폰 코드입니다')
       }
     } catch {
-      setCouponError('쿠폰 적용 중 오류가 발생했습니다');
+      setCouponError('쿠폰 적용 중 오류가 발생했습니다')
     } finally {
-      setIsCouponLoading(false);
+      setIsCouponLoading(false)
     }
-  };
+  }
 
   const handleCouponRemove = () => {
-    onCouponRemove();
-    setCouponError(null);
-  };
+    onCouponRemove()
+    setCouponError(null)
+  }
 
   return (
     <div className={cn('space-y-6', className)}>
@@ -238,5 +238,5 @@ export function PaymentSummary({
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

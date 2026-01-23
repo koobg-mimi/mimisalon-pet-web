@@ -1,38 +1,38 @@
-'use client';
+'use client'
 
-import { useSession } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { Users } from 'lucide-react';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { PageHeader } from '@/components/layout/PageHeader';
-import { AdminStatsCards } from '@/components/admin/AdminStatsCards';
-import { AdminUserTable } from '@/components/table/AdminUserTable';
+import { useSession } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { Users } from 'lucide-react'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { PageHeader } from '@/components/layout/PageHeader'
+import { AdminStatsCards } from '@/components/admin/AdminStatsCards'
+import { AdminUserTable } from '@/components/table/AdminUserTable'
 
 export default function AdminDashboardUsersPage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
 
   // Authentication and authorization check
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
     if (session?.user?.role && session.user.role !== 'ADMIN') {
-      router.push('/admin/dashboard/overview');
+      router.push('/admin/dashboard/overview')
     }
-  }, [session, router]);
+  }, [session, router])
 
   if (isPending) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   if (!session || session.user?.role !== 'ADMIN') {
-    return null;
+    return null
   }
 
   return (
@@ -55,5 +55,5 @@ export default function AdminDashboardUsersPage() {
         </div>
       </main>
     </div>
-  );
+  )
 }

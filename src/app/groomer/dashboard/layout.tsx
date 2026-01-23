@@ -1,12 +1,12 @@
-'use client';
+'use client'
 
-import { ReactNode } from 'react';
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
+import { ReactNode } from 'react'
+import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
 
 interface GroomerDashboardLayoutProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export default function GroomerDashboardLayout({ children }: GroomerDashboardLayoutProps) {
-  return <DashboardLayout>{children}</DashboardLayout>;
+  return <DashboardLayout>{children}</DashboardLayout>
 }

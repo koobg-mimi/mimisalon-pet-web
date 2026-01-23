@@ -1,12 +1,12 @@
-import { PrismaClient, PetType, BreedCategory } from '@prisma/client';
+import { PrismaClient, PetType, BreedCategory } from '@prisma/client'
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 interface BreedData {
-  name: string;
-  petType: PetType;
-  category: BreedCategory;
-  displayOrder: number;
+  name: string
+  petType: PetType
+  category: BreedCategory
+  displayOrder: number
 }
 
 const breeds: BreedData[] = [
@@ -81,10 +81,10 @@ const breeds: BreedData[] = [
   { name: '히말라얀', petType: 'CAT', category: 'LONG_HAIR', displayOrder: 58 },
   { name: '발리니즈', petType: 'CAT', category: 'LONG_HAIR', displayOrder: 59 },
   { name: '소말리', petType: 'CAT', category: 'LONG_HAIR', displayOrder: 60 },
-];
+]
 
 async function main() {
-  console.log('Starting breed seed...');
+  console.log('Starting breed seed...')
 
   for (const breed of breeds) {
     try {
@@ -101,21 +101,21 @@ async function main() {
           isActive: true,
         },
         create: breed,
-      });
-      console.log(`✅ Created/Updated breed: ${breed.name} (${breed.category})`);
+      })
+      console.log(`✅ Created/Updated breed: ${breed.name} (${breed.category})`)
     } catch (error) {
-      console.error(`❌ Error creating breed ${breed.name}:`, error);
+      console.error(`❌ Error creating breed ${breed.name}:`, error)
     }
   }
 
-  console.log('✅ Breed seed completed!');
+  console.log('✅ Breed seed completed!')
 }
 
 main()
   .catch((e) => {
-    console.error('Error in seed:', e);
-    process.exit(1);
+    console.error('Error in seed:', e)
+    process.exit(1)
   })
   .finally(async () => {
-    await prisma.$disconnect();
-  });
+    await prisma.$disconnect()
+  })

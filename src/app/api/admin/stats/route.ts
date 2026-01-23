@@ -1,14 +1,14 @@
-import { NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import auth from '@/lib/auth';
-import { prisma } from '@mimisalon/shared';
+import { NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import auth from '@/lib/auth'
+import { prisma } from '@mimisalon/shared'
 
 export async function GET() {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session || session.user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get total users count by role
@@ -17,7 +17,7 @@ export async function GET() {
       prisma.user.count({ where: { role: 'CUSTOMER' } }),
       prisma.user.count({ where: { role: 'GROOMER' } }),
       prisma.user.count({ where: { role: 'ADMIN' } }),
-    ]);
+    ])
 
     // Get booking statistics
     const [totalBookings, pendingBookings, completedBookings, cancelledBookings] =
@@ -37,13 +37,13 @@ export async function GET() {
         }),
         prisma.booking.count({ where: { status: 'SERVICE_COMPLETED' } }),
         prisma.booking.count({ where: { status: 'SERVICE_CANCELLED' } }),
-      ]);
+      ])
 
     // Get today's statistics
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
 
     const [todayBookings, todayRevenue] = await Promise.all([
       prisma.booking.count({
@@ -66,10 +66,10 @@ export async function GET() {
           amount: true,
         },
       }),
-    ]);
+    ])
 
     // Get monthly revenue
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
     const monthlyRevenue = await prisma.payment.aggregate({
       where: {
         createdAt: {
@@ -80,7 +80,7 @@ export async function GET() {
       _sum: {
         amount: true,
       },
-    });
+    })
 
     // Get total revenue
     const totalRevenue = await prisma.payment.aggregate({
@@ -90,7 +90,7 @@ export async function GET() {
       _sum: {
         amount: true,
       },
-    });
+    })
 
     // Get reviews statistics
     const [totalReviews, averageRating] = await Promise.all([
@@ -100,7 +100,7 @@ export async function GET() {
           rating: true,
         },
       }),
-    ]);
+    ])
 
     const stats = {
       totalUsers,
@@ -117,11 +117,11 @@ export async function GET() {
       totalRevenue: totalRevenue._sum.amount || 0,
       totalReviews,
       averageRating: averageRating._avg.rating || 0,
-    };
+    }
 
-    return NextResponse.json(stats);
+    return NextResponse.json(stats)
   } catch (error) {
-    console.error('Error fetching admin stats:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error fetching admin stats:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

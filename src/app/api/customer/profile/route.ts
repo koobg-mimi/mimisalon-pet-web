@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import { z } from 'zod';
-import { Prisma } from '@prisma/client';
-import auth from '@/lib/auth';
-import { prisma } from '@mimisalon/shared';
+import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import { z } from 'zod'
+import { Prisma } from '@prisma/client'
+import auth from '@/lib/auth'
+import { prisma } from '@mimisalon/shared'
 
 // ============================================
 // Type Definitions
@@ -21,45 +21,45 @@ export const updateProfileSchema = z.object({
       'Invalid Korean phone number format'
     )
     .optional(),
-});
+})
 
 /**
  * Request type for updating customer profile
  */
-export type UpdateProfileRequest = z.infer<typeof updateProfileSchema>;
+export type UpdateProfileRequest = z.infer<typeof updateProfileSchema>
 
 /**
  * Response type for customer profile (with addresses)
  */
 export type ProfileResponse = Prisma.UserGetPayload<{
   select: {
-    id: true;
-    name: true;
-    email: true;
-    phoneNumber: true;
-    image: true;
-    role: true;
-    createdAt: true;
-    updatedAt: true;
-    addresses: true;
-  };
-}>;
+    id: true
+    name: true
+    email: true
+    phoneNumber: true
+    image: true
+    role: true
+    createdAt: true
+    updatedAt: true
+    addresses: true
+  }
+}>
 
 /**
  * Response type for profile update (without addresses)
  */
 export type ProfileUpdateResponse = Prisma.UserGetPayload<{
   select: {
-    id: true;
-    name: true;
-    email: true;
-    phoneNumber: true;
-    image: true;
-    role: true;
-    createdAt: true;
-    updatedAt: true;
-  };
-}>;
+    id: true
+    name: true
+    email: true
+    phoneNumber: true
+    image: true
+    role: true
+    createdAt: true
+    updatedAt: true
+  }
+}>
 
 // ============================================
 // API Handlers
@@ -70,14 +70,14 @@ export type ProfileUpdateResponse = Prisma.UserGetPayload<{
  */
 export async function GET(): Promise<NextResponse<ProfileResponse>> {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' } as never, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' } as never, { status: 401 })
     }
 
     if (session.user.role !== 'CUSTOMER') {
-      return NextResponse.json({ error: 'Forbidden' } as never, { status: 403 });
+      return NextResponse.json({ error: 'Forbidden' } as never, { status: 403 })
     }
 
     const user = await prisma.user.findUnique({
@@ -95,16 +95,16 @@ export async function GET(): Promise<NextResponse<ProfileResponse>> {
           orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }],
         },
       },
-    });
+    })
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' } as never, { status: 404 });
+      return NextResponse.json({ error: 'User not found' } as never, { status: 404 })
     }
 
-    return NextResponse.json<ProfileResponse>(user);
+    return NextResponse.json<ProfileResponse>(user)
   } catch (error) {
-    console.error('Profile fetch error:', error);
-    return NextResponse.json({ error: 'Internal server error' } as never, { status: 500 });
+    console.error('Profile fetch error:', error)
+    return NextResponse.json({ error: 'Internal server error' } as never, { status: 500 })
   }
 }
 
@@ -113,18 +113,18 @@ export async function GET(): Promise<NextResponse<ProfileResponse>> {
  */
 export async function PUT(request: NextRequest): Promise<NextResponse<ProfileUpdateResponse>> {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' } as never, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' } as never, { status: 401 })
     }
 
     if (session.user.role !== 'CUSTOMER') {
-      return NextResponse.json({ error: 'Forbidden' } as never, { status: 403 });
+      return NextResponse.json({ error: 'Forbidden' } as never, { status: 403 })
     }
 
-    const body: unknown = await request.json();
-    const validatedData = updateProfileSchema.parse(body);
+    const body: unknown = await request.json()
+    const validatedData = updateProfileSchema.parse(body)
 
     const updatedUser = await prisma.user.update({
       where: { email: session.user.email },
@@ -142,17 +142,16 @@ export async function PUT(request: NextRequest): Promise<NextResponse<ProfileUpd
         createdAt: true,
         updatedAt: true,
       },
-    });
+    })
 
-    return NextResponse.json<ProfileUpdateResponse>(updatedUser);
+    return NextResponse.json<ProfileUpdateResponse>(updatedUser)
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Invalid data', details: error.issues } as never,
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid data', details: error.issues } as never, {
+        status: 400,
+      })
     }
-    console.error('Profile update error:', error);
-    return NextResponse.json({ error: 'Internal server error' } as never, { status: 500 });
+    console.error('Profile update error:', error)
+    return NextResponse.json({ error: 'Internal server error' } as never, { status: 500 })
   }
 }

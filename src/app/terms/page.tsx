@@ -1,6 +1,6 @@
-import { Metadata } from 'next';
-import TermsNavigation from './terms-navigation';
-import { CUSTOMER_SERVICE } from '@/lib/constants/customer-service';
+import { Metadata } from 'next'
+import TermsNavigation from './terms-navigation'
+import { CUSTOMER_SERVICE } from '@/lib/constants/customer-service'
 
 export const metadata: Metadata = {
   title: '이용약관 | 미미살롱',
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-};
+}
 
 // Server Component - Pre-rendered on the server
 export default function TermsPage() {
@@ -150,7 +150,7 @@ export default function TermsPage() {
         <p className="text-xs text-gray-600">최종 수정일: 2025년 10월 3일</p>
       </div>
     </div>
-  );
+  )
 
   const privacyPolicy = (
     <div className="space-y-6 text-sm">
@@ -231,7 +231,7 @@ export default function TermsPage() {
         <p className="text-xs text-gray-600">시행일: 2025년 10월 3일</p>
       </div>
     </div>
-  );
+  )
 
   const paymentTerms = (
     <div className="space-y-6 text-sm">
@@ -284,7 +284,7 @@ export default function TermsPage() {
         <p className="text-xs text-gray-600">최종 수정일: 2025년 10월 3일</p>
       </div>
     </div>
-  );
+  )
 
   const marketingTerms = (
     <div className="space-y-6 text-sm">
@@ -332,7 +332,7 @@ export default function TermsPage() {
         <p className="text-xs text-gray-600">최종 수정일: 2025년 10월 3일</p>
       </div>
     </div>
-  );
+  )
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -354,5 +354,5 @@ export default function TermsPage() {
         />
       </div>
     </div>
-  );
+  )
 }

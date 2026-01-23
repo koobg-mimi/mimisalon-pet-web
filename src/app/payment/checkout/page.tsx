@@ -1,83 +1,83 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { useSession } from '@/lib/auth-client';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useSession } from '@/lib/auth-client'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 interface BookingInfo {
-  id: string;
+  id: string
   service: {
-    name: string;
-    price: number;
-    duration: number;
-  };
+    name: string
+    price: number
+    duration: number
+  }
   pet: {
-    name: string;
-    breed: string;
-  };
+    name: string
+    breed: string
+  }
   groomer: {
-    name: string;
-  };
+    name: string
+  }
   location: {
-    name: string;
-    address: string;
-  };
-  date: string;
-  time: string;
+    name: string
+    address: string
+  }
+  date: string
+  time: string
 }
 
 interface PaymentForm {
-  method: 'CREDIT_CARD' | 'BANK_TRANSFER' | 'KAKAO_PAY' | 'TOSS_PAY';
-  cardNumber?: string;
-  cardExpiry?: string;
-  cardCvc?: string;
-  cardHolder?: string;
-  bankAccount?: string;
+  method: 'CREDIT_CARD' | 'BANK_TRANSFER' | 'KAKAO_PAY' | 'TOSS_PAY'
+  cardNumber?: string
+  cardExpiry?: string
+  cardCvc?: string
+  cardHolder?: string
+  bankAccount?: string
 }
 
 export default function CheckoutPage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const bookingId = searchParams.get('bookingId');
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const bookingId = searchParams.get('bookingId')
   const [paymentForm, setPaymentForm] = useState<PaymentForm>({
     method: 'CREDIT_CARD',
-  });
+  })
 
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
     if (session?.user?.role && session.user.role !== 'CUSTOMER') {
-      router.push('/dashboard');
+      router.push('/dashboard')
     }
-  }, [session, router]);
+  }, [session, router])
 
   // Fetch booking details using React Query
   const { data: booking, isLoading } = useQuery<BookingInfo>({
     queryKey: ['booking', bookingId, 'payment-info'],
     queryFn: async () => {
-      const response = await fetch(`/api/bookings/${bookingId}/payment-info`);
+      const response = await fetch(`/api/bookings/${bookingId}/payment-info`)
       if (!response.ok) {
-        throw new Error('Failed to fetch booking');
+        throw new Error('Failed to fetch booking')
       }
-      return response.json();
+      return response.json()
     },
     enabled: !!bookingId && !!session?.user && session.user.role === 'CUSTOMER',
     retry: false,
-  });
+  })
 
   useEffect(() => {
     if (!bookingId) {
-      router.push('/customer/bookings');
+      router.push('/customer/bookings')
     }
-  }, [bookingId, router]);
+  }, [bookingId, router])
 
   const handlePaymentMethodChange = (method: PaymentForm['method']) => {
     setPaymentForm({
@@ -87,15 +87,15 @@ export default function CheckoutPage() {
       cardCvc: '',
       cardHolder: '',
       bankAccount: '',
-    });
-  };
+    })
+  }
 
   const handleInputChange = (field: keyof PaymentForm, value: string) => {
     setPaymentForm((prev) => ({
       ...prev,
       [field]: value,
-    }));
-  };
+    }))
+  }
 
   // Process payment using React Query mutation
   const paymentMutation = useMutation({
@@ -110,52 +110,52 @@ export default function CheckoutPage() {
           paymentMethod: formData.method,
           paymentData: formData,
         }),
-      });
+      })
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Payment processing failed');
+        const error = await response.json()
+        throw new Error(error.message || 'Payment processing failed')
       }
 
-      return response.json();
+      return response.json()
     },
     onSuccess: (result) => {
-      router.push(`/payment/success?paymentId=${result.paymentId}`);
+      router.push(`/payment/success?paymentId=${result.paymentId}`)
     },
     onError: (error: Error) => {
-      console.error('Payment processing failed:', error);
-      router.push(`/payment/fail?reason=${encodeURIComponent(error.message)}`);
+      console.error('Payment processing failed:', error)
+      router.push(`/payment/fail?reason=${encodeURIComponent(error.message)}`)
     },
-  });
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    paymentMutation.mutate(paymentForm);
-  };
+    e.preventDefault()
+    paymentMutation.mutate(paymentForm)
+  }
 
   const formatCardNumber = (value: string) => {
-    const numbers = value.replace(/\D/g, '');
-    return numbers.replace(/(\d{4})(?=\d)/g, '$1-');
-  };
+    const numbers = value.replace(/\D/g, '')
+    return numbers.replace(/(\d{4})(?=\d)/g, '$1-')
+  }
 
   const formatExpiry = (value: string) => {
-    const numbers = value.replace(/\D/g, '');
+    const numbers = value.replace(/\D/g, '')
     if (numbers.length >= 2) {
-      return numbers.substring(0, 2) + '/' + numbers.substring(2, 4);
+      return numbers.substring(0, 2) + '/' + numbers.substring(2, 4)
     }
-    return numbers;
-  };
+    return numbers
+  }
 
   if (isPending || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   if (!session || session.user?.role !== 'CUSTOMER' || !booking) {
-    return null;
+    return null
   }
 
   return (
@@ -378,5 +378,5 @@ export default function CheckoutPage() {
         </div>
       </main>
     </div>
-  );
+  )
 }

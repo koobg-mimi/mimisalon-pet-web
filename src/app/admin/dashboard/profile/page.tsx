@@ -1,64 +1,64 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { useSession } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { User, Shield, Mail, Phone, Calendar, Settings } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { PhoneInput } from '@/components/ui/phone-input';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import Image from 'next/image';
+import { useSession } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { User, Shield, Mail, Phone, Calendar, Settings } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { PhoneInput } from '@/components/ui/phone-input'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import Image from 'next/image'
 
 interface AdminProfile {
-  id: string;
-  name: string;
-  email: string;
-  phoneNumber: string | null;
-  address: string | null;
-  dateOfBirth: string | null;
-  profileImage: string | null;
-  role: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-  lastLoginAt: string | null;
+  id: string
+  name: string
+  email: string
+  phoneNumber: string | null
+  address: string | null
+  dateOfBirth: string | null
+  profileImage: string | null
+  role: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+  lastLoginAt: string | null
 }
 
 export default function AdminDashboardProfilePage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const [isEditing, setIsEditing] = useState(false);
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const [isEditing, setIsEditing] = useState(false)
 
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
     if (session?.user?.role && session.user.role !== 'ADMIN') {
-      router.push('/admin/dashboard/overview');
+      router.push('/admin/dashboard/overview')
     }
-  }, [session, router]);
+  }, [session, router])
 
   const { data: profile, isLoading } = useQuery<AdminProfile>({
     queryKey: ['admin', 'profile'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/profile');
-      if (!response.ok) throw new Error('Failed to fetch profile');
-      return response.json();
+      const response = await fetch('/api/admin/profile')
+      if (!response.ok) throw new Error('Failed to fetch profile')
+      return response.json()
     },
     enabled: !!session?.user && session.user.role === 'ADMIN',
-  });
+  })
 
   const updateProfileMutation = useMutation({
     mutationFn: async (updates: {
-      name: string;
-      phoneNumber: string;
-      address: string;
-      dateOfBirth: string;
+      name: string
+      phoneNumber: string
+      address: string
+      dateOfBirth: string
     }) => {
       const response = await fetch('/api/admin/profile', {
         method: 'PATCH',
@@ -66,18 +66,18 @@ export default function AdminDashboardProfilePage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(updates),
-      });
-      if (!response.ok) throw new Error('Failed to update profile');
-      return response.json();
+      })
+      if (!response.ok) throw new Error('Failed to update profile')
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'profile'] });
-      setIsEditing(false);
+      queryClient.invalidateQueries({ queryKey: ['admin', 'profile'] })
+      setIsEditing(false)
     },
     onError: (error) => {
-      console.error('Failed to update profile:', error);
+      console.error('Failed to update profile:', error)
     },
-  });
+  })
 
   const handleProfileUpdate = (formData: FormData) => {
     const updates = {
@@ -85,28 +85,28 @@ export default function AdminDashboardProfilePage() {
       phoneNumber: formData.get('phoneNumber') as string,
       address: formData.get('address') as string,
       dateOfBirth: formData.get('dateOfBirth') as string,
-    };
-    updateProfileMutation.mutate(updates);
-  };
+    }
+    updateProfileMutation.mutate(updates)
+  }
 
   const formatDate = (dateString: string) => {
-    return format(new Date(dateString), 'yyyy-MM-dd', { locale: ko });
-  };
+    return format(new Date(dateString), 'yyyy-MM-dd', { locale: ko })
+  }
 
   const formatDateTime = (dateString: string) => {
-    return format(new Date(dateString), 'yyyy-MM-dd HH:mm:ss', { locale: ko });
-  };
+    return format(new Date(dateString), 'yyyy-MM-dd HH:mm:ss', { locale: ko })
+  }
 
   if (isPending || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   if (!session || session.user?.role !== 'ADMIN' || !profile) {
-    return null;
+    return null
   }
 
   return (
@@ -177,9 +177,9 @@ export default function AdminDashboardProfilePage() {
               {isEditing ? (
                 <form
                   onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.currentTarget);
-                    handleProfileUpdate(formData);
+                    e.preventDefault()
+                    const formData = new FormData(e.currentTarget)
+                    handleProfileUpdate(formData)
                   }}
                   className="space-y-6 p-6"
                 >
@@ -352,5 +352,5 @@ export default function AdminDashboardProfilePage() {
         </div>
       </main>
     </div>
-  );
+  )
 }

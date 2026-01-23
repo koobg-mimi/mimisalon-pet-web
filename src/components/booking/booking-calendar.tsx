@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import { ko } from 'date-fns/locale';
+import { ko } from 'date-fns/locale'
 
-import { useState, useEffect } from 'react';
-import { format, parseISO } from 'date-fns';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useState, useEffect } from 'react'
+import { format, parseISO } from 'date-fns'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -15,42 +15,42 @@ import {
   ClockIcon,
   UserIcon,
   AlertCircleIcon,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface TimeSlot {
-  id: string;
-  startTime: string;
-  endTime: string;
-  isAvailable: boolean;
-  isBooked: boolean;
-  groomerId: string;
-  groomerName: string;
-  price: number;
-  estimatedDuration: number;
+  id: string
+  startTime: string
+  endTime: string
+  isAvailable: boolean
+  isBooked: boolean
+  groomerId: string
+  groomerName: string
+  price: number
+  estimatedDuration: number
 }
 
 interface DayAvailability {
-  date: string;
-  isAvailable: boolean;
-  timeSlots: TimeSlot[];
-  specialNote?: string;
+  date: string
+  isAvailable: boolean
+  timeSlots: TimeSlot[]
+  specialNote?: string
 }
 
 interface BookingCalendarProps {
   selectedServices: Array<{
-    id: string;
-    name: string;
-    duration: number;
-    price: number;
-  }>;
-  petId: string;
-  onTimeSlotSelect: (date: string, timeSlot: TimeSlot) => void;
-  selectedDate?: string;
-  selectedTimeSlot?: TimeSlot;
+    id: string
+    name: string
+    duration: number
+    price: number
+  }>
+  petId: string
+  onTimeSlotSelect: (date: string, timeSlot: TimeSlot) => void
+  selectedDate?: string
+  selectedTimeSlot?: TimeSlot
 }
 
-const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
+const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
 const MONTHS = [
   '1월',
   '2월',
@@ -64,7 +64,7 @@ const MONTHS = [
   '10월',
   '11월',
   '12월',
-];
+]
 
 export function BookingCalendar({
   selectedServices,
@@ -73,45 +73,45 @@ export function BookingCalendar({
   selectedDate,
   selectedTimeSlot,
 }: BookingCalendarProps) {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [availability, setAvailability] = useState<Record<string, DayAvailability>>({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<'calendar' | 'slots'>('calendar');
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const [availability, setAvailability] = useState<Record<string, DayAvailability>>({})
+  const [isLoading, setIsLoading] = useState(false)
+  const [viewMode, setViewMode] = useState<'calendar' | 'slots'>('calendar')
 
-  const totalDuration = selectedServices.reduce((acc, service) => acc + service.duration, 0);
-  const totalPrice = selectedServices.reduce((acc, service) => acc + service.price, 0);
+  const totalDuration = selectedServices.reduce((acc, service) => acc + service.duration, 0)
+  const totalPrice = selectedServices.reduce((acc, service) => acc + service.price, 0)
 
   // 달력 날짜 생성
   const generateCalendarDays = () => {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
+    const year = currentDate.getFullYear()
+    const month = currentDate.getMonth()
 
-    const firstDay = new Date(year, month, 1);
-    const startCalendar = new Date(firstDay);
-    startCalendar.setDate(startCalendar.getDate() - firstDay.getDay());
+    const firstDay = new Date(year, month, 1)
+    const startCalendar = new Date(firstDay)
+    startCalendar.setDate(startCalendar.getDate() - firstDay.getDay())
 
-    const days = [];
-    const currentDay = new Date(startCalendar);
+    const days = []
+    const currentDay = new Date(startCalendar)
 
     for (let i = 0; i < 42; i++) {
-      days.push(new Date(currentDay));
-      currentDay.setDate(currentDay.getDate() + 1);
+      days.push(new Date(currentDay))
+      currentDay.setDate(currentDay.getDate() + 1)
     }
 
-    return days;
-  };
+    return days
+  }
 
   // 예약 가능 시간 조회
   useEffect(() => {
     const fetchAvailability = async () => {
-      if (selectedServices.length === 0) return;
+      if (selectedServices.length === 0) return
 
-      setIsLoading(true);
+      setIsLoading(true)
       try {
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
+        const year = currentDate.getFullYear()
+        const month = currentDate.getMonth()
+        const firstDay = new Date(year, month, 1)
+        const lastDay = new Date(year, month + 1, 0)
 
         const response = await fetch('/api/booking/availability', {
           method: 'POST',
@@ -125,84 +125,84 @@ export function BookingCalendar({
             petId,
             totalDuration,
           }),
-        });
+        })
 
         if (!response.ok) {
-          throw new Error('예약 가능 시간을 불러오는데 실패했습니다');
+          throw new Error('예약 가능 시간을 불러오는데 실패했습니다')
         }
 
-        const data = await response.json();
-        setAvailability(data);
+        const data = await response.json()
+        setAvailability(data)
       } catch (error) {
-        console.error('Error fetching availability:', error);
+        console.error('Error fetching availability:', error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchAvailability();
-  }, [currentDate, selectedServices, petId, totalDuration]);
+    fetchAvailability()
+  }, [currentDate, selectedServices, petId, totalDuration])
 
   const navigateMonth = (direction: 'prev' | 'next') => {
     setCurrentDate((prev) => {
-      const newDate = new Date(prev);
+      const newDate = new Date(prev)
       if (direction === 'prev') {
-        newDate.setMonth(prev.getMonth() - 1);
+        newDate.setMonth(prev.getMonth() - 1)
       } else {
-        newDate.setMonth(prev.getMonth() + 1);
+        newDate.setMonth(prev.getMonth() + 1)
       }
-      return newDate;
-    });
-  };
+      return newDate
+    })
+  }
 
   const formatDate = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
 
   const isToday = (date: Date) => {
-    const today = new Date();
-    return date.toDateString() === today.toDateString();
-  };
+    const today = new Date()
+    return date.toDateString() === today.toDateString()
+  }
 
   const isPastDate = (date: Date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return date < today;
-  };
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    return date < today
+  }
 
   const isCurrentMonth = (date: Date) => {
-    return date.getMonth() === currentDate.getMonth();
-  };
+    return date.getMonth() === currentDate.getMonth()
+  }
 
   const getDayAvailability = (date: Date) => {
-    const dateStr = formatDate(date);
-    return availability[dateStr];
-  };
+    const dateStr = formatDate(date)
+    return availability[dateStr]
+  }
 
   const handleDateSelect = (date: Date) => {
-    if (isPastDate(date) || !isCurrentMonth(date)) return;
+    if (isPastDate(date) || !isCurrentMonth(date)) return
 
-    const dayAvail = getDayAvailability(date);
-    if (!dayAvail?.isAvailable) return;
+    const dayAvail = getDayAvailability(date)
+    if (!dayAvail?.isAvailable) return
 
-    setViewMode('slots');
-  };
+    setViewMode('slots')
+  }
 
   const handleTimeSlotSelect = (date: string, timeSlot: TimeSlot) => {
-    onTimeSlotSelect(date, timeSlot);
-    setViewMode('calendar');
-  };
+    onTimeSlotSelect(date, timeSlot)
+    setViewMode('calendar')
+  }
 
   const getSelectedDateAvailability = () => {
-    if (!selectedDate) return null;
-    return availability[selectedDate];
-  };
+    if (!selectedDate) return null
+    return availability[selectedDate]
+  }
 
-  const calendarDays = generateCalendarDays();
-  const selectedDateAvail = getSelectedDateAvailability();
+  const calendarDays = generateCalendarDays()
+  const selectedDateAvail = getSelectedDateAvailability()
 
   if (selectedServices.length === 0) {
     return (
@@ -215,7 +215,7 @@ export function BookingCalendar({
           </div>
         </CardContent>
       </Card>
-    );
+    )
   }
 
   return (
@@ -314,13 +314,13 @@ export function BookingCalendar({
               ) : (
                 <div className="grid grid-cols-7 gap-1">
                   {calendarDays.map((date, index) => {
-                    const dateStr = formatDate(date);
-                    const dayAvail = getDayAvailability(date);
-                    const isPast = isPastDate(date);
-                    const isCurrent = isCurrentMonth(date);
-                    const isSelectedDate = selectedDate === dateStr;
+                    const dateStr = formatDate(date)
+                    const dayAvail = getDayAvailability(date)
+                    const isPast = isPastDate(date)
+                    const isCurrent = isCurrentMonth(date)
+                    const isSelectedDate = selectedDate === dateStr
                     const hasAvailableSlots =
-                      dayAvail?.timeSlots?.some((slot) => slot.isAvailable) || false;
+                      dayAvail?.timeSlots?.some((slot) => slot.isAvailable) || false
 
                     return (
                       <button
@@ -352,7 +352,7 @@ export function BookingCalendar({
                           </div>
                         )}
                       </button>
-                    );
+                    )
                   })}
                 </div>
               )}
@@ -492,5 +492,5 @@ export function BookingCalendar({
         </Card>
       )}
     </div>
-  );
+  )
 }

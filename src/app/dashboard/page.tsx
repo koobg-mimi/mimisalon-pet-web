@@ -1,50 +1,50 @@
-'use client';
+'use client'
 
-import { useSession, authClient } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useSession, authClient } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 export default function DashboardPage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
 
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
-      return;
+      router.push('/auth/signin')
+      return
     }
 
     // Redirect authenticated users to their role-specific dashboard
     if (session?.user?.role) {
-      const userRole = session.user.role;
+      const userRole = session.user.role
       if (userRole === 'ADMIN') {
-        router.push('/admin/dashboard/overview');
+        router.push('/admin/dashboard/overview')
       } else if (userRole === 'GROOMER') {
-        router.push('/groomer/dashboard/overview');
+        router.push('/groomer/dashboard/overview')
       } else if (userRole === 'CUSTOMER') {
-        router.push('/customer/dashboard/overview');
+        router.push('/customer/dashboard/overview')
       }
     }
-  }, [session, router]);
+  }, [session, router])
 
   if (isPending) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   if (!session) {
-    return null;
+    return null
   }
 
   const handleSignOut = async () => {
-    await authClient.signOut();
-    router.push('/');
-  };
+    await authClient.signOut()
+    router.push('/')
+  }
 
   return (
     <div className="bg-background min-h-screen">
@@ -121,5 +121,5 @@ export default function DashboardPage() {
         </div>
       </main>
     </div>
-  );
+  )
 }

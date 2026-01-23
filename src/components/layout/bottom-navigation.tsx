@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Badge } from '@/components/ui/badge';
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { Badge } from '@/components/ui/badge'
 import {
   HomeIcon,
   CalendarIcon,
@@ -11,21 +11,21 @@ import {
   UserIcon,
   ScissorsIcon,
   BarChart3Icon,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface BottomNavigationItem {
-  label: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-  badge?: number;
+  label: string
+  href: string
+  icon: React.ComponentType<{ className?: string }>
+  badge?: number
 }
 
 interface BottomNavigationProps {
-  userRole: 'CUSTOMER' | 'GROOMER' | 'ADMIN';
-  unreadNotifications?: number;
-  unreadMessages?: number;
-  className?: string;
+  userRole: 'CUSTOMER' | 'GROOMER' | 'ADMIN'
+  unreadNotifications?: number
+  unreadMessages?: number
+  className?: string
 }
 
 const CUSTOMER_TABS: BottomNavigationItem[] = [
@@ -54,7 +54,7 @@ const CUSTOMER_TABS: BottomNavigationItem[] = [
     href: '/customer/profile',
     icon: UserIcon,
   },
-];
+]
 
 const GROOMER_TABS: BottomNavigationItem[] = [
   {
@@ -82,7 +82,7 @@ const GROOMER_TABS: BottomNavigationItem[] = [
     href: '/groomer/dashboard/profile',
     icon: UserIcon,
   },
-];
+]
 
 const ADMIN_TABS: BottomNavigationItem[] = [
   {
@@ -110,7 +110,7 @@ const ADMIN_TABS: BottomNavigationItem[] = [
     href: '/admin/notifications',
     icon: BellIcon,
   },
-];
+]
 
 export function BottomNavigation({
   userRole,
@@ -118,28 +118,28 @@ export function BottomNavigation({
   unreadMessages = 0,
   className,
 }: BottomNavigationProps) {
-  const pathname = usePathname();
+  const pathname = usePathname()
 
   const getNavigationTabs = () => {
     switch (userRole) {
       case 'CUSTOMER':
-        return CUSTOMER_TABS;
+        return CUSTOMER_TABS
       case 'GROOMER':
-        return GROOMER_TABS;
+        return GROOMER_TABS
       case 'ADMIN':
-        return ADMIN_TABS;
+        return ADMIN_TABS
       default:
-        return [];
+        return []
     }
-  };
+  }
 
-  const navigationTabs = getNavigationTabs();
+  const navigationTabs = getNavigationTabs()
 
   const getBadgeCount = (href: string) => {
-    if (href.includes('/notifications')) return unreadNotifications;
-    if (href.includes('/messages')) return unreadMessages;
-    return undefined;
-  };
+    if (href.includes('/notifications')) return unreadNotifications
+    if (href.includes('/messages')) return unreadMessages
+    return undefined
+  }
 
   const isTabActive = (href: string) => {
     if (
@@ -147,10 +147,10 @@ export function BottomNavigation({
       href === '/groomer/dashboard/overview' ||
       href === '/admin/dashboard/overview'
     ) {
-      return pathname === href;
+      return pathname === href
     }
-    return pathname.startsWith(href);
-  };
+    return pathname.startsWith(href)
+  }
 
   return (
     <div
@@ -162,9 +162,9 @@ export function BottomNavigation({
     >
       <nav className="flex items-center justify-around px-1">
         {navigationTabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = isTabActive(tab.href);
-          const badgeCount = getBadgeCount(tab.href);
+          const Icon = tab.icon
+          const isActive = isTabActive(tab.href)
+          const badgeCount = getBadgeCount(tab.href)
 
           return (
             <Link
@@ -206,12 +206,12 @@ export function BottomNavigation({
                 <div className="bg-primary absolute bottom-0 left-1/2 h-0.5 w-5 -translate-x-1/2 transform rounded-full" />
               )}
             </Link>
-          );
+          )
         })}
       </nav>
 
       {/* Safe area padding for devices with home indicator */}
       <div className="h-safe-area-inset-bottom" />
     </div>
-  );
+  )
 }

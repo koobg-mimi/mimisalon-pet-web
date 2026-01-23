@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import React, { useState, useRef, useCallback } from 'react';
-import { Star, Loader2, Image as ImageIcon, Trash2, Camera, FolderOpen } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import Image from 'next/image';
+import React, { useState, useRef, useCallback } from 'react'
+import { Star, Loader2, Image as ImageIcon, Trash2, Camera, FolderOpen } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import Image from 'next/image'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,25 +14,25 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from '@/components/ui/alert-dialog'
 
 interface ImageUploadAreaProps {
   images: Array<{
-    id: string;
-    url: string;
-    filename: string;
-    isPrimary: boolean;
-  }>;
-  onUpload: (files: File[]) => Promise<void>;
-  onDelete: (imageId: string) => Promise<void>;
-  onSetPrimary: (imageId: string) => Promise<void>;
-  maxImages?: number;
-  isUploading?: boolean;
-  className?: string;
+    id: string
+    url: string
+    filename: string
+    isPrimary: boolean
+  }>
+  onUpload: (files: File[]) => Promise<void>
+  onDelete: (imageId: string) => Promise<void>
+  onSetPrimary: (imageId: string) => Promise<void>
+  maxImages?: number
+  isUploading?: boolean
+  className?: string
 }
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
 
 export function ImageUploadArea({
   images = [],
@@ -43,11 +43,11 @@ export function ImageUploadArea({
   isUploading = false,
   className,
 }: ImageUploadAreaProps) {
-  const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [imageToDelete, setImageToDelete] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set())
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [imageToDelete, setImageToDelete] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
 
   const handleFiles = useCallback(
     async (files: File[]) => {
@@ -59,114 +59,114 @@ export function ImageUploadArea({
           size: f.size,
           sizeMB: (f.size / (1024 * 1024)).toFixed(2),
         })),
-      });
+      })
 
       // Filter valid files
       const validFiles = files.filter((file) => {
         // Check if file type is detected
         if (!file.type) {
-          console.error(`No file type detected for ${file.name}`);
-          alert(`${file.name}: 파일 형식을 인식할 수 없습니다. 다른 이미지를 사용해주세요.`);
-          return false;
+          console.error(`No file type detected for ${file.name}`)
+          alert(`${file.name}: 파일 형식을 인식할 수 없습니다. 다른 이미지를 사용해주세요.`)
+          return false
         }
 
         if (!ALLOWED_TYPES.includes(file.type)) {
-          console.error(`Invalid file type: ${file.type} for ${file.name}`);
+          console.error(`Invalid file type: ${file.type} for ${file.name}`)
           alert(
             `${file.name}: 지원하지 않는 파일 형식입니다 (${file.type}). JPG, PNG, WebP, GIF만 가능합니다.`
-          );
-          return false;
+          )
+          return false
         }
         if (file.size > MAX_FILE_SIZE) {
           console.error(
             `File too large: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)}MB)`
-          );
+          )
           alert(
             `${file.name}: 파일이 너무 큽니다 (${(file.size / (1024 * 1024)).toFixed(2)}MB). 최대 10MB까지 가능합니다.`
-          );
-          return false;
+          )
+          return false
         }
-        return true;
-      });
+        return true
+      })
 
-      console.log(`Valid files after filtering: ${validFiles.length}`);
+      console.log(`Valid files after filtering: ${validFiles.length}`)
 
       // Check max images limit
-      const remainingSlots = maxImages - images.length;
+      const remainingSlots = maxImages - images.length
       if (remainingSlots <= 0) {
-        alert(`최대 ${maxImages}개의 이미지만 업로드할 수 있습니다`);
-        return;
+        alert(`최대 ${maxImages}개의 이미지만 업로드할 수 있습니다`)
+        return
       }
 
-      const filesToUpload = validFiles.slice(0, remainingSlots);
+      const filesToUpload = validFiles.slice(0, remainingSlots)
       if (filesToUpload.length > 0) {
-        console.log(`Uploading ${filesToUpload.length} files...`);
+        console.log(`Uploading ${filesToUpload.length} files...`)
         try {
-          await onUpload(filesToUpload);
+          await onUpload(filesToUpload)
         } catch (error) {
-          console.error('Upload failed:', error);
+          console.error('Upload failed:', error)
           if (error instanceof Error && error.message.includes('Invalid files data')) {
             alert(
               '파일 업로드에 실패했습니다. 스크린샷 파일은 직접 업로드할 수 없을 수 있습니다. 다른 이미지를 사용해주세요.'
-            );
+            )
           }
         }
       } else {
-        console.log('No files to upload after validation');
+        console.log('No files to upload after validation')
       }
 
       if (validFiles.length > filesToUpload.length) {
-        alert(`${validFiles.length - filesToUpload.length}개 파일이 제한을 초과했습니다`);
+        alert(`${validFiles.length - filesToUpload.length}개 파일이 제한을 초과했습니다`)
       }
     },
     [images.length, maxImages, onUpload]
-  );
+  )
 
   const handleFileSelect = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files ? Array.from(e.target.files) : [];
-      console.log(`File input selected ${files.length} files`);
+      const files = e.target.files ? Array.from(e.target.files) : []
+      console.log(`File input selected ${files.length} files`)
 
       if (files.length === 0) {
-        console.log('No files selected from input');
-        return;
+        console.log('No files selected from input')
+        return
       }
 
-      await handleFiles(files);
+      await handleFiles(files)
 
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = ''
       }
       if (cameraInputRef.current) {
-        cameraInputRef.current.value = '';
+        cameraInputRef.current.value = ''
       }
     },
     [handleFiles]
-  );
+  )
 
   const handleDeleteClick = (imageId: string) => {
-    setImageToDelete(imageId);
-    setDeleteDialogOpen(true);
-  };
+    setImageToDelete(imageId)
+    setDeleteDialogOpen(true)
+  }
 
   const handleConfirmDelete = async () => {
     if (imageToDelete) {
-      await onDelete(imageToDelete);
-      setImageToDelete(null);
+      await onDelete(imageToDelete)
+      setImageToDelete(null)
     }
-    setDeleteDialogOpen(false);
-  };
+    setDeleteDialogOpen(false)
+  }
 
   const toggleImageSelection = (imageId: string) => {
-    const newSelection = new Set(selectedImages);
+    const newSelection = new Set(selectedImages)
     if (newSelection.has(imageId)) {
-      newSelection.delete(imageId);
+      newSelection.delete(imageId)
     } else {
-      newSelection.add(imageId);
+      newSelection.add(imageId)
     }
-    setSelectedImages(newSelection);
-  };
+    setSelectedImages(newSelection)
+  }
 
   return (
     <>
@@ -332,8 +332,8 @@ export function ImageUploadArea({
               variant="destructive"
               onClick={() => {
                 // Handle bulk delete
-                selectedImages.forEach((id) => onDelete(id));
-                setSelectedImages(new Set());
+                selectedImages.forEach((id) => onDelete(id))
+                setSelectedImages(new Set())
               }}
             >
               <Trash2 className="mr-1 h-4 w-4" />
@@ -364,5 +364,5 @@ export function ImageUploadArea({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  );
+  )
 }

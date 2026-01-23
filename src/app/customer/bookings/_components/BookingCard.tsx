@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import Link from 'next/link';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { BookingStatus } from '@mimisalon/shared';
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { Booking } from '../_types/booking.types';
-import { BookingStatusBadge } from './BookingStatusBadge';
+import * as React from 'react'
+import Link from 'next/link'
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
+import { BookingStatus } from '@mimisalon/shared'
+import type { VariantProps } from 'class-variance-authority'
+import { cva } from 'class-variance-authority'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { Booking } from '../_types/booking.types'
+import { BookingStatusBadge } from './BookingStatusBadge'
 
 const bookingCardVariants = cva('rounded-lg border transition-all duration-300 overflow-hidden', {
   variants: {
@@ -32,7 +32,7 @@ const bookingCardVariants = cva('rounded-lg border transition-all duration-300 o
     variant: 'default',
     size: 'default',
   },
-});
+})
 
 const bookingCardHeaderVariants = cva('flex items-start justify-between', {
   variants: {
@@ -45,7 +45,7 @@ const bookingCardHeaderVariants = cva('flex items-start justify-between', {
   defaultVariants: {
     size: 'default',
   },
-});
+})
 
 const bookingCardTitleVariants = cva('font-semibold', {
   variants: {
@@ -58,13 +58,13 @@ const bookingCardTitleVariants = cva('font-semibold', {
   defaultVariants: {
     size: 'default',
   },
-});
+})
 
 export interface BookingCardProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof bookingCardVariants> {
-  booking: Booking;
-  onContactCustomerService: () => void;
+  booking: Booking
+  onContactCustomerService: () => void
 }
 
 /**
@@ -74,12 +74,12 @@ export interface BookingCardProps
  */
 const BookingCard = React.forwardRef<HTMLDivElement, BookingCardProps>(
   ({ className, variant, size, booking, onContactCustomerService, ...props }, ref) => {
-    const displayPet = booking.pet || booking.pets[0];
-    const mainService = booking.services[0];
+    const displayPet = booking.pet || booking.pets[0]
+    const mainService = booking.services[0]
     const serviceNames =
       booking.services.length > 1
         ? `${mainService?.name} 외 ${booking.services.length - 1}개`
-        : mainService?.name || booking.serviceType;
+        : mainService?.name || booking.serviceType
 
     return (
       <div ref={ref} className={cn(bookingCardVariants({ variant, size, className }))} {...props}>
@@ -127,10 +127,10 @@ const BookingCard = React.forwardRef<HTMLDivElement, BookingCardProps>(
           </div>
         </div>
       </div>
-    );
+    )
   }
-);
+)
 
-BookingCard.displayName = 'BookingCard';
+BookingCard.displayName = 'BookingCard'
 
-export { BookingCard, bookingCardVariants };
+export { BookingCard, bookingCardVariants }

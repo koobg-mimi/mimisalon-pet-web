@@ -1,25 +1,25 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import Image from 'next/image';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, X, Expand } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState } from 'react'
+import Image from 'next/image'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { ChevronLeft, ChevronRight, X, Expand } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface ImageGalleryProps {
   images: Array<{
-    id: string;
-    url: string;
-    alt?: string;
-  }>;
-  className?: string;
-  aspectRatio?: 'square' | 'video' | 'portrait';
+    id: string
+    url: string
+    alt?: string
+  }>
+  className?: string
+  aspectRatio?: 'square' | 'video' | 'portrait'
   columns?: {
-    mobile?: number;
-    tablet?: number;
-    desktop?: number;
-  };
+    mobile?: number
+    tablet?: number
+    desktop?: number
+  }
 }
 
 export function ImageGallery({
@@ -28,36 +28,36 @@ export function ImageGallery({
   aspectRatio = 'square',
   columns = { mobile: 2, tablet: 3, desktop: 4 },
 }: ImageGalleryProps) {
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
 
   const openLightbox = (index: number) => {
-    setSelectedImageIndex(index);
-    setIsLightboxOpen(true);
-  };
+    setSelectedImageIndex(index)
+    setIsLightboxOpen(true)
+  }
 
   const closeLightbox = () => {
-    setIsLightboxOpen(false);
-    setSelectedImageIndex(null);
-  };
+    setIsLightboxOpen(false)
+    setSelectedImageIndex(null)
+  }
 
   const goToPrevious = () => {
-    if (selectedImageIndex === null) return;
-    const newIndex = selectedImageIndex === 0 ? images.length - 1 : selectedImageIndex - 1;
-    setSelectedImageIndex(newIndex);
-  };
+    if (selectedImageIndex === null) return
+    const newIndex = selectedImageIndex === 0 ? images.length - 1 : selectedImageIndex - 1
+    setSelectedImageIndex(newIndex)
+  }
 
   const goToNext = () => {
-    if (selectedImageIndex === null) return;
-    const newIndex = selectedImageIndex === images.length - 1 ? 0 : selectedImageIndex + 1;
-    setSelectedImageIndex(newIndex);
-  };
+    if (selectedImageIndex === null) return
+    const newIndex = selectedImageIndex === images.length - 1 ? 0 : selectedImageIndex + 1
+    setSelectedImageIndex(newIndex)
+  }
 
   const aspectRatioClass = {
     square: 'aspect-square',
     video: 'aspect-video',
     portrait: 'aspect-[3/4]',
-  }[aspectRatio];
+  }[aspectRatio]
 
   const gridCols = cn(
     'grid gap-2',
@@ -65,10 +65,10 @@ export function ImageGallery({
     `sm:grid-cols-${columns.tablet || 3}`,
     `lg:grid-cols-${columns.desktop || 4}`,
     className
-  );
+  )
 
   if (!images || images.length === 0) {
-    return null;
+    return null
   }
 
   return (
@@ -205,5 +205,5 @@ export function ImageGallery({
         </DialogContent>
       </Dialog>
     </>
-  );
+  )
 }

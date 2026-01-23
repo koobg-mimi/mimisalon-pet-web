@@ -1,34 +1,34 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-import { createConversationSchema } from '@/lib/validations/message';
+import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { createConversationSchema } from '@/lib/validations/message'
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ConversationListResponse {
-  conversations: Array<unknown>;
+  conversations: Array<unknown>
   pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
   summary: {
-    unreadCount: number;
-    totalCount: number;
-  };
+    unreadCount: number
+    totalCount: number
+  }
 }
 
 export interface ConversationCreateResponse {
-  success: true;
-  conversation: unknown;
-  message: string;
+  success: true
+  conversation: unknown
+  message: string
 }
 
 export interface ConversationErrorResponse {
-  error: string;
-  details?: unknown;
+  error: string
+  details?: unknown
 }
 
 // 모의 대화 데이터
@@ -129,7 +129,7 @@ const MOCK_CONVERSATIONS = [
     createdAt: '2024-01-11T16:00:00Z',
     updatedAt: '2024-01-12T09:10:00Z',
   },
-] as const;
+] as const
 
 // ============================================================================
 // Route Handlers
@@ -143,7 +143,7 @@ export async function GET(
   request: NextRequest
 ): Promise<NextResponse<ConversationListResponse | ConversationErrorResponse>> {
   try {
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = new URL(request.url)
 
     // 쿼리 파라미터 파싱
     const filterParams = {
@@ -152,48 +152,48 @@ export async function GET(
       limit: parseInt(searchParams.get('limit') || '20'),
       search: searchParams.get('search') || undefined,
       unreadOnly: searchParams.get('unreadOnly') === 'true',
-    };
+    }
 
     // 사용자 ID (실제로는 JWT에서 추출)
-    const currentUserId = 'user_001';
+    const currentUserId = 'user_001'
 
     // 해당 사용자가 참여한 대화만 필터링
     let conversations = MOCK_CONVERSATIONS.filter((conv) =>
       conv.participants.some((p) => p.id === currentUserId)
-    );
+    )
 
     // 추가 필터링
     if (filterParams.type) {
-      conversations = conversations.filter((conv) => conv.type === filterParams.type);
+      conversations = conversations.filter((conv) => conv.type === filterParams.type)
     }
 
     if (filterParams.unreadOnly) {
-      conversations = conversations.filter((conv) => conv.unreadCount > 0);
+      conversations = conversations.filter((conv) => conv.unreadCount > 0)
     }
 
     if (filterParams.search) {
-      const search = filterParams.search.toLowerCase();
+      const search = filterParams.search.toLowerCase()
       conversations = conversations.filter((conv) => {
-        const otherParticipant = conv.participants.find((p) => p.id !== currentUserId);
-        const title = otherParticipant?.name || '';
+        const otherParticipant = conv.participants.find((p) => p.id !== currentUserId)
+        const title = otherParticipant?.name || ''
         return (
           title.toLowerCase().includes(search) ||
           conv.lastMessage?.content.toLowerCase().includes(search)
-        );
-      });
+        )
+      })
     }
 
     // 정렬 (최근 메시지 순)
     conversations.sort((a, b) => {
-      const aTime = new Date(a.lastMessage?.createdAt || a.updatedAt).getTime();
-      const bTime = new Date(b.lastMessage?.createdAt || b.updatedAt).getTime();
-      return bTime - aTime;
-    });
+      const aTime = new Date(a.lastMessage?.createdAt || a.updatedAt).getTime()
+      const bTime = new Date(b.lastMessage?.createdAt || b.updatedAt).getTime()
+      return bTime - aTime
+    })
 
     // 페이지네이션
-    const startIndex = (filterParams.page - 1) * filterParams.limit;
-    const endIndex = startIndex + filterParams.limit;
-    const paginatedConversations = conversations.slice(startIndex, endIndex);
+    const startIndex = (filterParams.page - 1) * filterParams.limit
+    const endIndex = startIndex + filterParams.limit
+    const paginatedConversations = conversations.slice(startIndex, endIndex)
 
     return NextResponse.json<ConversationListResponse>({
       conversations: paginatedConversations,
@@ -207,13 +207,13 @@ export async function GET(
         unreadCount: conversations.filter((conv) => conv.unreadCount > 0).length,
         totalCount: conversations.length,
       },
-    });
+    })
   } catch (error) {
-    console.error('Error fetching conversations:', error);
+    console.error('Error fetching conversations:', error)
     return NextResponse.json<ConversationErrorResponse>(
       { error: '대화 목록을 불러올 수 없습니다' },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -225,8 +225,8 @@ export async function POST(
   request: NextRequest
 ): Promise<NextResponse<ConversationCreateResponse | ConversationErrorResponse>> {
   try {
-    const body = await request.json();
-    const conversationData = createConversationSchema.parse(body);
+    const body = await request.json()
+    const conversationData = createConversationSchema.parse(body)
 
     // 새 대화 생성
     const newConversation = {
@@ -236,7 +236,7 @@ export async function POST(
       unreadCount: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    };
+    }
 
     // 실제로는 DB에 저장
     // await prisma.conversation.create({
@@ -247,20 +247,20 @@ export async function POST(
       success: true,
       conversation: newConversation,
       message: '대화가 성공적으로 생성되었습니다',
-    });
+    })
   } catch (error) {
-    console.error('Error creating conversation:', error);
+    console.error('Error creating conversation:', error)
 
     if (error instanceof z.ZodError) {
       return NextResponse.json<ConversationErrorResponse>(
         { error: '잘못된 대화 데이터입니다', details: error.issues },
         { status: 400 }
-      );
+      )
     }
 
     return NextResponse.json<ConversationErrorResponse>(
       { error: '대화 생성 중 오류가 발생했습니다' },
       { status: 500 }
-    );
+    )
   }
 }

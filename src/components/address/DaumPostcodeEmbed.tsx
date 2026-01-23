@@ -1,19 +1,19 @@
-'use client';
+'use client'
 
-import { useCallback } from 'react';
-import DaumPostcode, { type Address } from 'react-daum-postcode';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useCallback } from 'react'
+import DaumPostcode, { type Address } from 'react-daum-postcode'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 interface DaumPostcodeEmbedProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen: boolean
+  onClose: () => void
   onComplete: (data: {
-    sido: string;
-    district: string;
-    area: string;
-    address: string;
-    postalCode: string;
-  }) => void;
+    sido: string
+    district: string
+    area: string
+    address: string
+    postalCode: string
+  }) => void
 }
 
 export function DaumPostcodeEmbed({ isOpen, onClose, onComplete }: DaumPostcodeEmbedProps) {
@@ -26,13 +26,13 @@ export function DaumPostcodeEmbed({ isOpen, onClose, onComplete }: DaumPostcodeE
         area: data.bname || '',
         address: data.roadAddress || data.jibunAddress || '',
         postalCode: data.zonecode || '',
-      };
+      }
 
-      onComplete(addressData);
-      onClose();
+      onComplete(addressData)
+      onClose()
     },
     [onComplete, onClose]
-  );
+  )
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -49,5 +49,5 @@ export function DaumPostcodeEmbed({ isOpen, onClose, onComplete }: DaumPostcodeE
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

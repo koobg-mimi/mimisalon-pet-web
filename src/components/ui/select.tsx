@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import * as SelectPrimitive from '@radix-ui/react-select';
-import { ChevronDownIcon, ChevronUpIcon, CheckIcon } from 'lucide-react';
+import * as React from 'react'
+import * as SelectPrimitive from '@radix-ui/react-select'
+import { ChevronDownIcon, ChevronUpIcon, CheckIcon } from 'lucide-react'
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils'
 
-const Select = SelectPrimitive.Root;
+const Select = SelectPrimitive.Root
 
-const SelectGroup = SelectPrimitive.Group;
+const SelectGroup = SelectPrimitive.Group
 
-const SelectValue = SelectPrimitive.Value;
+const SelectValue = SelectPrimitive.Value
 
 function SelectTrigger({
   className,
@@ -35,7 +35,7 @@ function SelectTrigger({
         <ChevronDownIcon className="h-5 w-5 opacity-50 sm:h-4 sm:w-4" />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
-  );
+  )
 }
 
 function SelectScrollUpButton({
@@ -50,7 +50,7 @@ function SelectScrollUpButton({
     >
       <ChevronUpIcon />
     </SelectPrimitive.ScrollUpButton>
-  );
+  )
 }
 
 function SelectScrollDownButton({
@@ -65,7 +65,7 @@ function SelectScrollDownButton({
     >
       <ChevronDownIcon />
     </SelectPrimitive.ScrollDownButton>
-  );
+  )
 }
 
 function SelectContent({
@@ -101,7 +101,7 @@ function SelectContent({
         <SelectScrollDownButton />
       </SelectPrimitive.Content>
     </SelectPrimitive.Portal>
-  );
+  )
 }
 
 function SelectLabel({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.Label>) {
@@ -111,7 +111,7 @@ function SelectLabel({ className, ...props }: React.ComponentProps<typeof Select
       className={cn('px-2 py-1.5 text-sm font-semibold', className)}
       {...props}
     />
-  );
+  )
 }
 
 function SelectItem({
@@ -135,7 +135,7 @@ function SelectItem({
       </span>
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
     </SelectPrimitive.Item>
-  );
+  )
 }
 
 function SelectSeparator({
@@ -148,7 +148,7 @@ function SelectSeparator({
       className={cn('bg-muted -mx-1 my-1 h-px', className)}
       {...props}
     />
-  );
+  )
 }
 
 export {
@@ -162,4 +162,4 @@ export {
   SelectSeparator,
   SelectScrollUpButton,
   SelectScrollDownButton,
-};
+}

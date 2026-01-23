@@ -1,48 +1,48 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { ReactNode } from 'react';
-import Image from 'next/image';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ChevronRightIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ReactNode } from 'react'
+import Image from 'next/image'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { ChevronRightIcon } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface MobileCardItem {
-  id: string;
-  title: string;
-  subtitle?: string;
-  description?: string;
-  icon?: ReactNode;
-  badge?: ReactNode;
-  image?: string;
+  id: string
+  title: string
+  subtitle?: string
+  description?: string
+  icon?: ReactNode
+  badge?: ReactNode
+  image?: string
   action?: {
-    label: string;
-    onClick: () => void;
-  };
-  href?: string;
-  metadata?: Record<string, string | number | boolean>;
+    label: string
+    onClick: () => void
+  }
+  href?: string
+  metadata?: Record<string, string | number | boolean>
 }
 
 interface MobileCardStackProps {
-  items: MobileCardItem[];
-  title?: string;
-  subtitle?: string;
-  onItemClick?: (item: MobileCardItem) => void;
-  showChevron?: boolean;
-  layout?: 'list' | 'grid';
+  items: MobileCardItem[]
+  title?: string
+  subtitle?: string
+  onItemClick?: (item: MobileCardItem) => void
+  showChevron?: boolean
+  layout?: 'list' | 'grid'
   emptyState?: {
-    icon?: ReactNode;
-    title: string;
-    description: string;
+    icon?: ReactNode
+    title: string
+    description: string
     action?: {
-      label: string;
-      onClick: () => void;
-    };
-  };
-  className?: string;
+      label: string
+      onClick: () => void
+    }
+  }
+  className?: string
 }
 
 export function MobileCardStack({
@@ -74,7 +74,7 @@ export function MobileCardStack({
           )}
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -147,8 +147,8 @@ export function MobileCardStack({
                         size="sm"
                         variant="outline"
                         onClick={(e) => {
-                          e.stopPropagation();
-                          item.action!.onClick();
+                          e.stopPropagation()
+                          item.action!.onClick()
                         }}
                         className="text-xs"
                       >
@@ -170,24 +170,24 @@ export function MobileCardStack({
         ))}
       </div>
     </div>
-  );
+  )
 }
 
 // Specialized components for different data types
 interface BookingCardStackProps {
   bookings: Array<{
-    id: string;
-    petName: string;
-    serviceName: string;
-    groomerName: string;
-    salonName: string;
-    scheduledDate: string;
-    scheduledTime: string;
-    status: string;
-    totalAmount: number;
-  }>;
-  onBookingClick: (bookingId: string) => void;
-  className?: string;
+    id: string
+    petName: string
+    serviceName: string
+    groomerName: string
+    salonName: string
+    scheduledDate: string
+    scheduledTime: string
+    status: string
+    totalAmount: number
+  }>
+  onBookingClick: (bookingId: string) => void
+  className?: string
 }
 
 export function BookingCardStack({ bookings, onBookingClick, className }: BookingCardStackProps) {
@@ -221,7 +221,7 @@ export function BookingCardStack({ bookings, onBookingClick, className }: Bookin
       </div>
     ),
     metadata: booking,
-  }));
+  }))
 
   return (
     <MobileCardStack
@@ -241,20 +241,20 @@ export function BookingCardStack({ bookings, onBookingClick, className }: Bookin
       }}
       className={className}
     />
-  );
+  )
 }
 
 interface NotificationCardStackProps {
   notifications: Array<{
-    id: string;
-    title: string;
-    content: string;
-    type: string;
-    createdAt: string;
-    isRead: boolean;
-  }>;
-  onNotificationClick: (notificationId: string) => void;
-  className?: string;
+    id: string
+    title: string
+    content: string
+    type: string
+    createdAt: string
+    isRead: boolean
+  }>
+  onNotificationClick: (notificationId: string) => void
+  className?: string
 }
 
 export function NotificationCardStack({
@@ -273,7 +273,7 @@ export function NotificationCardStack({
       />
     ),
     metadata: notification,
-  }));
+  }))
 
   return (
     <MobileCardStack
@@ -287,5 +287,5 @@ export function NotificationCardStack({
       }}
       className={className}
     />
-  );
+  )
 }

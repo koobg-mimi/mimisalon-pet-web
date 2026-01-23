@@ -1,27 +1,27 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { useSession } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { ErrorReportForm } from '@/components/error-report/ErrorReportForm';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { AlertTriangle, Home } from 'lucide-react';
+import { useEffect, useState } from 'react'
+import { useSession } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
+import { ErrorReportForm } from '@/components/error-report/ErrorReportForm'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { AlertTriangle, Home } from 'lucide-react'
 
 export default function ErrorReportPage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     if (!isPending) {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  }, [isPending]);
+  }, [isPending])
 
   const handleErrorReportSubmit = () => {
-    console.log('Error report submitted:');
-  };
+    console.log('Error report submitted:')
+  }
 
   if (isLoading) {
     return (
@@ -31,7 +31,7 @@ export default function ErrorReportPage() {
           <p className="mt-2 text-gray-600">로딩 중...</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -70,5 +70,5 @@ export default function ErrorReportPage() {
         <ErrorReportForm onSubmit={handleErrorReportSubmit} className="mb-6" />
       </div>
     </div>
-  );
+  )
 }

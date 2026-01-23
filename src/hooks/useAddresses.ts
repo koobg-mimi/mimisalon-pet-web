@@ -1,58 +1,58 @@
-'use client';
+'use client'
 
-import { useState, useEffect, useCallback } from 'react';
-import { toast } from 'sonner';
+import { useState, useEffect, useCallback } from 'react'
+import { toast } from 'sonner'
 
 interface Address {
-  id: string;
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-  isDefault: boolean;
-  centerLat?: number;
-  centerLng?: number;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  street: string
+  city: string
+  state: string
+  zipCode: string
+  country: string
+  isDefault: boolean
+  centerLat?: number
+  centerLng?: number
+  createdAt: string
+  updatedAt: string
 }
 
 interface AddressFormData {
-  name?: string;
-  street: string;
-  detailAddress?: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  isDefault: boolean;
+  name?: string
+  street: string
+  detailAddress?: string
+  city: string
+  state: string
+  zipCode: string
+  isDefault: boolean
 }
 
 export function useAddresses() {
-  const [addresses, setAddresses] = useState<Address[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [addresses, setAddresses] = useState<Address[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   // Fetch all addresses
   const fetchAddresses = useCallback(async () => {
     try {
-      setIsLoading(true);
-      const response = await fetch('/api/customer/addresses');
+      setIsLoading(true)
+      const response = await fetch('/api/customer/addresses')
 
       if (!response.ok) {
-        throw new Error('Failed to fetch addresses');
+        throw new Error('Failed to fetch addresses')
       }
 
-      const data = await response.json();
-      setAddresses(data);
-      setError(null);
+      const data = await response.json()
+      setAddresses(data)
+      setError(null)
     } catch (err) {
-      console.error('Error fetching addresses:', err);
-      setError('주소를 불러오는데 실패했습니다');
-      toast.error('주소를 불러오는데 실패했습니다');
+      console.error('Error fetching addresses:', err)
+      setError('주소를 불러오는데 실패했습니다')
+      toast.error('주소를 불러오는데 실패했습니다')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  }, []);
+  }, [])
 
   // Create a new address
   const createAddress = useCallback(async (addressData: AddressFormData) => {
@@ -63,22 +63,22 @@ export function useAddresses() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(addressData),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error('Failed to create address');
+        throw new Error('Failed to create address')
       }
 
-      const newAddress = await response.json();
-      setAddresses((prev) => [newAddress, ...prev]);
-      toast.success('주소가 추가되었습니다');
-      return newAddress;
+      const newAddress = await response.json()
+      setAddresses((prev) => [newAddress, ...prev])
+      toast.success('주소가 추가되었습니다')
+      return newAddress
     } catch (err) {
-      console.error('Error creating address:', err);
-      toast.error('주소 추가에 실패했습니다');
-      throw err;
+      console.error('Error creating address:', err)
+      toast.error('주소 추가에 실패했습니다')
+      throw err
     }
-  }, []);
+  }, [])
 
   // Update an existing address
   const updateAddress = useCallback(
@@ -90,57 +90,57 @@ export function useAddresses() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(addressData),
-        });
+        })
 
         if (!response.ok) {
-          throw new Error('Failed to update address');
+          throw new Error('Failed to update address')
         }
 
-        const updatedAddress = await response.json();
-        setAddresses((prev) => prev.map((addr) => (addr.id === addressId ? updatedAddress : addr)));
-        toast.success('주소가 수정되었습니다');
-        return updatedAddress;
+        const updatedAddress = await response.json()
+        setAddresses((prev) => prev.map((addr) => (addr.id === addressId ? updatedAddress : addr)))
+        toast.success('주소가 수정되었습니다')
+        return updatedAddress
       } catch (err) {
-        console.error('Error updating address:', err);
-        toast.error('주소 수정에 실패했습니다');
-        throw err;
+        console.error('Error updating address:', err)
+        toast.error('주소 수정에 실패했습니다')
+        throw err
       }
     },
     []
-  );
+  )
 
   // Delete an address
   const deleteAddress = useCallback(async (addressId: string) => {
     try {
       const response = await fetch(`/api/customer/addresses/${addressId}`, {
         method: 'DELETE',
-      });
+      })
 
       if (!response.ok) {
-        throw new Error('Failed to delete address');
+        throw new Error('Failed to delete address')
       }
 
-      setAddresses((prev) => prev.filter((addr) => addr.id !== addressId));
-      toast.success('주소가 삭제되었습니다');
+      setAddresses((prev) => prev.filter((addr) => addr.id !== addressId))
+      toast.success('주소가 삭제되었습니다')
     } catch (err) {
-      console.error('Error deleting address:', err);
-      toast.error('주소 삭제에 실패했습니다');
-      throw err;
+      console.error('Error deleting address:', err)
+      toast.error('주소 삭제에 실패했습니다')
+      throw err
     }
-  }, []);
+  }, [])
 
   // Set an address as default
   const setDefaultAddress = useCallback(async (addressId: string) => {
     try {
       const response = await fetch(`/api/customer/addresses/${addressId}/default`, {
         method: 'PUT',
-      });
+      })
 
       if (!response.ok) {
-        throw new Error('Failed to set default address');
+        throw new Error('Failed to set default address')
       }
 
-      const updatedAddress = await response.json();
+      const updatedAddress = await response.json()
 
       // Update local state to reflect the change
       setAddresses((prev) =>
@@ -148,21 +148,21 @@ export function useAddresses() {
           ...addr,
           isDefault: addr.id === addressId,
         }))
-      );
+      )
 
-      toast.success('기본 주소가 설정되었습니다');
-      return updatedAddress;
+      toast.success('기본 주소가 설정되었습니다')
+      return updatedAddress
     } catch (err) {
-      console.error('Error setting default address:', err);
-      toast.error('기본 주소 설정에 실패했습니다');
-      throw err;
+      console.error('Error setting default address:', err)
+      toast.error('기본 주소 설정에 실패했습니다')
+      throw err
     }
-  }, []);
+  }, [])
 
   // Fetch addresses on mount
   useEffect(() => {
-    fetchAddresses();
-  }, [fetchAddresses]);
+    fetchAddresses()
+  }, [fetchAddresses])
 
   return {
     addresses,
@@ -173,5 +173,5 @@ export function useAddresses() {
     updateAddress,
     deleteAddress,
     setDefaultAddress,
-  };
+  }
 }

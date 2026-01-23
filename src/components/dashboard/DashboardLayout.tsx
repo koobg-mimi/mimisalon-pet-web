@@ -1,24 +1,24 @@
-'use client';
+'use client'
 
-import React from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession, authClient } from '@/lib/auth-client';
-import { Home, LogOut, PawPrint, Scissors, Shield, Sparkles } from 'lucide-react';
+import React from 'react'
+import { useRouter } from 'next/navigation'
+import { useSession, authClient } from '@/lib/auth-client'
+import { Home, LogOut, PawPrint, Scissors, Shield, Sparkles } from 'lucide-react'
 
-import { AppSidebar } from '../app-sidebar';
-import { Button } from '../ui/button';
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '../ui/sidebar';
-import { useWebViewBridge } from '@/hooks/use-webview-bridge';
+import { AppSidebar } from '../app-sidebar'
+import { Button } from '../ui/button'
+import { SidebarInset, SidebarProvider, SidebarTrigger } from '../ui/sidebar'
+import { useWebViewBridge } from '@/hooks/use-webview-bridge'
 
 interface DashboardLayoutProps {
-  children: React.ReactNode;
-  onBackToLanding?: () => void;
+  children: React.ReactNode
+  onBackToLanding?: () => void
 }
 
 export function DashboardLayout({ children, onBackToLanding }: DashboardLayoutProps) {
-  const router = useRouter();
-  const { data: session, isPending } = useSession();
-  const { isWebView, sendUserLogout } = useWebViewBridge();
+  const router = useRouter()
+  const { data: session, isPending } = useSession()
+  const { isWebView, sendUserLogout } = useWebViewBridge()
 
   // Note: ExponentPushToken is now handled via HTTP API in React Native
   // WebView bridge automatically sends user data when session is available
@@ -28,39 +28,39 @@ export function DashboardLayout({ children, onBackToLanding }: DashboardLayoutPr
     try {
       // Send logout message to React Native WebView
       if (isWebView) {
-        sendUserLogout();
+        sendUserLogout()
       }
 
-      await authClient.signOut();
-      router.push('/auth/signin');
+      await authClient.signOut()
+      router.push('/auth/signin')
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('Logout failed:', error)
     }
-  };
+  }
 
   // Handle back to landing
   const handleBackToLanding = () => {
     if (onBackToLanding) {
-      onBackToLanding();
+      onBackToLanding()
     } else if (session?.user?.role) {
       // Use role-specific back to landing handlers
       switch (session.user.role) {
         case 'CUSTOMER':
-          router.push('/customer/dashboard/overview');
-          break;
+          router.push('/customer/dashboard/overview')
+          break
         case 'GROOMER':
-          router.push('/groomer/dashboard/overview');
-          break;
+          router.push('/groomer/dashboard/overview')
+          break
         case 'ADMIN':
-          router.push('/admin/dashboard/overview');
-          break;
+          router.push('/admin/dashboard/overview')
+          break
         default:
-          router.push('/');
+          router.push('/')
       }
     } else {
-      router.push('/');
+      router.push('/')
     }
-  };
+  }
 
   // Loading state
   if (isPending) {
@@ -71,7 +71,7 @@ export function DashboardLayout({ children, onBackToLanding }: DashboardLayoutPr
           <p className="text-muted-foreground">로딩 중...</p>
         </div>
       </div>
-    );
+    )
   }
 
   // Unauthenticated state
@@ -86,38 +86,38 @@ export function DashboardLayout({ children, onBackToLanding }: DashboardLayoutPr
           </Button>
         </div>
       </div>
-    );
+    )
   }
 
-  const user = session.user;
+  const user = session.user
 
   // Get role-specific icon
   const getRoleIcon = () => {
     switch (user.role) {
       case 'CUSTOMER':
-        return <PawPrint className="text-primary h-6 w-6" />;
+        return <PawPrint className="text-primary h-6 w-6" />
       case 'GROOMER':
-        return <Scissors className="text-primary h-6 w-6" />;
+        return <Scissors className="text-primary h-6 w-6" />
       case 'ADMIN':
-        return <Shield className="text-primary h-6 w-6" />;
+        return <Shield className="text-primary h-6 w-6" />
       default:
-        return <Sparkles className="text-primary h-6 w-6" />;
+        return <Sparkles className="text-primary h-6 w-6" />
     }
-  };
+  }
 
   // Get role-specific title
   const getRoleTitle = () => {
     switch (user.role) {
       case 'CUSTOMER':
-        return '고객';
+        return '고객'
       case 'GROOMER':
-        return '미용사';
+        return '미용사'
       case 'ADMIN':
-        return '관리자';
+        return '관리자'
       default:
-        return '사용자';
+        return '사용자'
     }
-  };
+  }
 
   // Get role-specific data attributes
   const getRoleDataAttr = () => {
@@ -126,21 +126,21 @@ export function DashboardLayout({ children, onBackToLanding }: DashboardLayoutPr
         return {
           'data-testid': 'customer-dashboard',
           'data-role': 'customer-dashboard',
-        };
+        }
       case 'GROOMER':
         return {
           'data-testid': 'groomer-dashboard',
           'data-role': 'groomer-dashboard',
-        };
+        }
       case 'ADMIN':
         return {
           'data-testid': 'admin-dashboard',
           'data-role': 'admin-dashboard',
-        };
+        }
       default:
-        return { 'data-testid': 'dashboard', 'data-role': 'dashboard' };
+        return { 'data-testid': 'dashboard', 'data-role': 'dashboard' }
     }
-  };
+  }
 
   return (
     <SidebarProvider>
@@ -198,5 +198,5 @@ export function DashboardLayout({ children, onBackToLanding }: DashboardLayoutPr
         </div>
       </SidebarInset>
     </SidebarProvider>
-  );
+  )
 }

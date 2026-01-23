@@ -1,4 +1,4 @@
-import { prisma } from '@mimisalon/shared';
+import { prisma } from '@mimisalon/shared'
 
 /**
  * 서비스의 평균 평점을 계산합니다.
@@ -29,22 +29,22 @@ export async function calculateServiceAverageRating(serviceId: string): Promise<
       select: {
         rating: true,
       },
-    });
+    })
 
     // 리뷰가 없으면 null 반환
     if (reviews.length === 0) {
-      return null;
+      return null
     }
 
     // 평균 계산
-    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
-    const averageRating = totalRating / reviews.length;
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0)
+    const averageRating = totalRating / reviews.length
 
     // 소수점 첫째 자리까지 반올림
-    return Math.round(averageRating * 10) / 10;
+    return Math.round(averageRating * 10) / 10
   } catch (error) {
-    console.error(`Error calculating average rating for service ${serviceId}:`, error);
-    return null;
+    console.error(`Error calculating average rating for service ${serviceId}:`, error)
+    return null
   }
 }
 
@@ -57,7 +57,7 @@ export async function calculateServiceAverageRating(serviceId: string): Promise<
 export async function calculateMultipleServiceRatings(
   serviceIds: string[]
 ): Promise<Map<string, number | null>> {
-  const ratingsMap = new Map<string, number | null>();
+  const ratingsMap = new Map<string, number | null>()
 
   try {
     // 모든 서비스의 리뷰를 한 번에 가져오기 (성능 최적화)
@@ -93,41 +93,41 @@ export async function calculateMultipleServiceRatings(
           },
         },
       },
-    });
+    })
 
     // 서비스별로 평점 그룹화
-    const ratingsByService = new Map<string, number[]>();
+    const ratingsByService = new Map<string, number[]>()
 
     for (const review of reviews) {
       for (const bookingPet of review.booking.bookingPets) {
         for (const bookingService of bookingPet.services) {
-          const serviceId = bookingService.serviceId;
+          const serviceId = bookingService.serviceId
           if (!ratingsByService.has(serviceId)) {
-            ratingsByService.set(serviceId, []);
+            ratingsByService.set(serviceId, [])
           }
-          ratingsByService.get(serviceId)!.push(review.rating);
+          ratingsByService.get(serviceId)!.push(review.rating)
         }
       }
     }
 
     // 각 서비스의 평균 계산
     for (const serviceId of serviceIds) {
-      const ratings = ratingsByService.get(serviceId);
+      const ratings = ratingsByService.get(serviceId)
       if (ratings && ratings.length > 0) {
-        const average = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
-        ratingsMap.set(serviceId, Math.round(average * 10) / 10);
+        const average = ratings.reduce((sum, r) => sum + r, 0) / ratings.length
+        ratingsMap.set(serviceId, Math.round(average * 10) / 10)
       } else {
-        ratingsMap.set(serviceId, null);
+        ratingsMap.set(serviceId, null)
       }
     }
 
-    return ratingsMap;
+    return ratingsMap
   } catch (error) {
-    console.error('Error calculating multiple service ratings:', error);
+    console.error('Error calculating multiple service ratings:', error)
     // 에러 발생 시 모든 서비스에 null 반환
     for (const serviceId of serviceIds) {
-      ratingsMap.set(serviceId, null);
+      ratingsMap.set(serviceId, null)
     }
-    return ratingsMap;
+    return ratingsMap
   }
 }

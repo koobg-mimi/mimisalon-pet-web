@@ -1,54 +1,54 @@
-'use client';
+'use client'
 
-import Image from 'next/image';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { StarIcon, CalendarIcon, UserIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
+import Image from 'next/image'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { StarIcon, CalendarIcon, UserIcon } from 'lucide-react'
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
+import { cn } from '@/lib/utils'
 
 interface ReviewImage {
-  id: string;
-  url: string;
-  order: number;
+  id: string
+  url: string
+  order: number
 }
 
 interface ReviewResponse {
-  id: string;
-  content: string;
-  createdAt: string;
+  id: string
+  content: string
+  createdAt: string
 }
 
 interface Review {
-  id: string;
-  rating: number;
-  comment: string | null;
-  createdAt: string;
-  images: ReviewImage[];
-  response: ReviewResponse | null;
+  id: string
+  rating: number
+  comment: string | null
+  createdAt: string
+  images: ReviewImage[]
+  response: ReviewResponse | null
   customer: {
-    id: string;
-    name: string | null;
-    image: string | null;
-  };
+    id: string
+    name: string | null
+    image: string | null
+  }
   booking: {
-    id: string;
-    serviceDate: string;
-    serviceType: string;
+    id: string
+    serviceDate: string
+    serviceType: string
     bookingPets?: Array<{
       pet: {
-        name: string;
-        breed: string | null;
-      };
-    }>;
-  };
+        name: string
+        breed: string | null
+      }
+    }>
+  }
 }
 
 interface ReviewCardProps {
-  review: Review;
-  className?: string;
+  review: Review
+  className?: string
 }
 
 export function ReviewCard({ review, className }: ReviewCardProps) {
@@ -158,5 +158,5 @@ export function ReviewCard({ review, className }: ReviewCardProps) {
         )}
       </CardContent>
     </Card>
-  );
+  )
 }

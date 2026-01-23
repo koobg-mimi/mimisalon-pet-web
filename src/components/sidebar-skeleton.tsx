@@ -1,12 +1,12 @@
-import * as React from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
+import * as React from 'react'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from '@/components/ui/sidebar';
+} from '@/components/ui/sidebar'
 
 export function SidebarSkeleton({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -42,5 +42,5 @@ export function SidebarSkeleton({ ...props }: React.ComponentProps<typeof Sideba
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  );
+  )
 }

@@ -1,35 +1,35 @@
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { Button } from '@/components/ui/button';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
+import { Button } from '@/components/ui/button'
 
 interface BookingCardProps {
   booking: {
-    id: string;
-    status: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
-    date: string;
-    time: string;
-    amount: number;
+    id: string
+    status: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'
+    date: string
+    time: string
+    amount: number
     service: {
-      name: string;
-      duration: number;
-    };
+      name: string
+      duration: number
+    }
     pet: {
-      name: string;
-      breed: string;
-    };
+      name: string
+      breed: string
+    }
     groomer: {
-      name: string;
-      rating: number;
-    };
+      name: string
+      rating: number
+    }
     location: {
-      name: string;
-      address: string;
-    };
-  };
-  onViewDetails?: () => void;
-  onCancel?: () => void;
-  onReview?: () => void;
-  showActions?: boolean;
+      name: string
+      address: string
+    }
+  }
+  onViewDetails?: () => void
+  onCancel?: () => void
+  onReview?: () => void
+  showActions?: boolean
 }
 
 export function BookingCard({
@@ -42,36 +42,36 @@ export function BookingCard({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'PENDING':
-        return 'bg-yellow-100 text-yellow-700';
+        return 'bg-yellow-100 text-yellow-700'
       case 'CONFIRMED':
-        return 'bg-blue-100 text-blue-700';
+        return 'bg-blue-100 text-blue-700'
       case 'COMPLETED':
-        return 'bg-green-100 text-green-700';
+        return 'bg-green-100 text-green-700'
       case 'CANCELLED':
-        return 'bg-red-100 text-red-700';
+        return 'bg-red-100 text-red-700'
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-100 text-gray-700'
     }
-  };
+  }
 
   const getStatusText = (status: string) => {
     switch (status) {
       case 'PENDING':
-        return '예약 대기';
+        return '예약 대기'
       case 'CONFIRMED':
-        return '예약 확정';
+        return '예약 확정'
       case 'COMPLETED':
-        return '서비스 완료';
+        return '서비스 완료'
       case 'CANCELLED':
-        return '예약 취소';
+        return '예약 취소'
       default:
-        return status;
+        return status
     }
-  };
+  }
 
   const formatDate = (dateString: string) => {
-    return format(new Date(dateString), 'yyyy-MM-dd', { locale: ko });
-  };
+    return format(new Date(dateString), 'yyyy-MM-dd', { locale: ko })
+  }
 
   const renderStars = (rating: number) => {
     return (
@@ -88,8 +88,8 @@ export function BookingCard({
         ))}
         <span className="text-muted-foreground ml-1 text-xs">({rating.toFixed(1)})</span>
       </div>
-    );
-  };
+    )
+  }
 
   return (
     <div className="border-border bg-card rounded-lg border p-6 transition-shadow hover:shadow-md">
@@ -223,5 +223,5 @@ export function BookingCard({
         </div>
       )}
     </div>
-  );
+  )
 }

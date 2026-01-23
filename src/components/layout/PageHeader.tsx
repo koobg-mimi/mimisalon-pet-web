@@ -1,11 +1,11 @@
-import { ReactNode } from 'react';
-import { cn } from '@/lib/utils';
+import { ReactNode } from 'react'
+import { cn } from '@/lib/utils'
 
 interface PageHeaderProps {
-  title: string;
-  description?: string;
-  children?: ReactNode;
-  className?: string;
+  title: string
+  description?: string
+  children?: ReactNode
+  className?: string
 }
 
 /**
@@ -33,5 +33,5 @@ export function PageHeader({ title, description, children, className }: PageHead
         </div>
       )}
     </div>
-  );
+  )
 }

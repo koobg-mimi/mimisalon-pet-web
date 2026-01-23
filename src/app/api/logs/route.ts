@@ -7,54 +7,54 @@
  * @route POST /api/logs
  */
 
-import {NextRequest, NextResponse} from 'next/server';
-import {z} from 'zod';
-import {logNetworkError} from '@/lib/logger';
-import {type NetworkErrorLog, sanitizeLog, validateLog} from '@/lib/logger-utils';
+import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { logNetworkError } from '@/lib/logger'
+import { type NetworkErrorLog, sanitizeLog, validateLog } from '@/lib/logger-utils'
 
 // ============================================================================
 // Rate Limiting
 // ============================================================================
 
 // In-memory rate limit store (use Redis in production)
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT_MAX = 100; // 100 logs per hour
-const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour in milliseconds
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
+const RATE_LIMIT_MAX = 100 // 100 logs per hour
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000 // 1 hour in milliseconds
 
 /**
  * Check rate limit for client
  */
 function checkRateLimit(identifier: string): {
-  allowed: boolean;
-  remaining: number;
-  resetTime: number;
+  allowed: boolean
+  remaining: number
+  resetTime: number
 } {
-  const now = Date.now();
-  const windowStart = now - RATE_LIMIT_WINDOW;
+  const now = Date.now()
+  const windowStart = now - RATE_LIMIT_WINDOW
 
-  let entry = rateLimitStore.get(identifier);
+  let entry = rateLimitStore.get(identifier)
 
   // Clean expired entries
   if (entry && entry.resetTime < now) {
-    entry = undefined;
-    rateLimitStore.delete(identifier);
+    entry = undefined
+    rateLimitStore.delete(identifier)
   }
 
   if (!entry) {
-    entry = {count: 0, resetTime: now + RATE_LIMIT_WINDOW};
-    rateLimitStore.set(identifier, entry);
+    entry = { count: 0, resetTime: now + RATE_LIMIT_WINDOW }
+    rateLimitStore.set(identifier, entry)
   }
 
-  const allowed = entry.count < RATE_LIMIT_MAX;
+  const allowed = entry.count < RATE_LIMIT_MAX
   if (allowed) {
-    entry.count += 1;
+    entry.count += 1
   }
 
   return {
     allowed,
     remaining: Math.max(0, RATE_LIMIT_MAX - entry.count),
     resetTime: entry.resetTime,
-  };
+  }
 }
 
 // ============================================================================
@@ -62,23 +62,23 @@ function checkRateLimit(identifier: string): {
 // ============================================================================
 
 export interface LogBatchResponse {
-  success: boolean;
-  processed: number;
-  skipped: number;
-  message: string;
+  success: boolean
+  processed: number
+  skipped: number
+  message: string
 }
 
 export interface LogRateLimitResponse {
-  remaining: number;
-  resetTime: number;
-  limit: number;
+  remaining: number
+  resetTime: number
+  limit: number
 }
 
 export interface LogErrorResponse {
-  success: false;
-  error: string;
-  details?: unknown;
-  message?: string;
+  success: false
+  error: string
+  details?: unknown
+  message?: string
 }
 
 // ============================================================================
@@ -106,16 +106,16 @@ export const logEntrySchema = z.object({
   pathname: z.string().optional(),
   pageUrl: z.string().optional(),
   referrer: z.string().optional(),
-});
+})
 
 /**
  * Batch request schema
  */
 export const logBatchSchema = z.object({
   logs: z.array(logEntrySchema).min(1).max(50), // Max 50 logs per batch
-});
+})
 
-export type LogBatchRequest = z.infer<typeof logBatchSchema>;
+export type LogBatchRequest = z.infer<typeof logBatchSchema>
 
 // ============================================================================
 // API Handler
@@ -130,9 +130,10 @@ export async function POST(
 ): Promise<NextResponse<LogBatchResponse | LogErrorResponse>> {
   try {
     // Rate limiting
-    const clientIp = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
-    const rateLimitKey = `logs:${clientIp}`;
-    const rateLimit = checkRateLimit(rateLimitKey);
+    const clientIp =
+      request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const rateLimitKey = `logs:${clientIp}`
+    const rateLimit = checkRateLimit(rateLimitKey)
 
     if (!rateLimit.allowed) {
       return NextResponse.json<LogErrorResponse>(
@@ -148,14 +149,14 @@ export async function POST(
             'X-RateLimit-Reset': rateLimit.resetTime.toString(),
           },
         }
-      );
+      )
     }
 
     // Parse request body
-    const body = await request.json();
+    const body = await request.json()
 
     // Validate request
-    const validationResult = logBatchSchema.safeParse(body);
+    const validationResult = logBatchSchema.safeParse(body)
     if (!validationResult.success) {
       return NextResponse.json<LogErrorResponse>(
         {
@@ -164,24 +165,24 @@ export async function POST(
           details: validationResult.error.issues,
         },
         { status: 400 }
-      );
+      )
     }
 
-    const {logs} = validationResult.data;
+    const { logs } = validationResult.data
 
     // Process each log entry
-    let processedCount = 0;
-    let skippedCount = 0;
+    let processedCount = 0
+    let skippedCount = 0
 
     for (const log of logs) {
       // Validate log structure
       if (!validateLog(log as Partial<NetworkErrorLog>)) {
-        skippedCount++;
-        continue;
+        skippedCount++
+        continue
       }
 
       // Sanitize log (remove sensitive data)
-      const sanitized = sanitizeLog(log as NetworkErrorLog);
+      const sanitized = sanitizeLog(log as NetworkErrorLog)
 
       // Log to Winston
       logNetworkError({
@@ -202,8 +203,8 @@ export async function POST(
         requestBody: sanitized.requestBody,
         responseBody: sanitized.responseBody,
         duration: sanitized.duration,
-      });
-      processedCount++;
+      })
+      processedCount++
     }
 
     // Success response
@@ -222,9 +223,9 @@ export async function POST(
           'X-RateLimit-Reset': rateLimit.resetTime.toString(),
         },
       }
-    );
+    )
   } catch (error) {
-    console.error('[LogAPI] Failed to process logs:', error);
+    console.error('[LogAPI] Failed to process logs:', error)
 
     return NextResponse.json<LogErrorResponse>(
       {
@@ -233,7 +234,7 @@ export async function POST(
         message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -245,17 +246,18 @@ export async function GET(
   request: NextRequest
 ): Promise<NextResponse<LogRateLimitResponse | LogErrorResponse>> {
   try {
-    const clientIp = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
-    const rateLimitKey = `logs:${clientIp}`;
-    const rateLimit = checkRateLimit(rateLimitKey);
+    const clientIp =
+      request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const rateLimitKey = `logs:${clientIp}`
+    const rateLimit = checkRateLimit(rateLimitKey)
 
     return NextResponse.json<LogRateLimitResponse>({
       remaining: rateLimit.remaining,
       resetTime: rateLimit.resetTime,
       limit: RATE_LIMIT_MAX,
-    });
+    })
   } catch (error) {
-    console.error('[LogAPI] Failed to get rate limit info:', error);
+    console.error('[LogAPI] Failed to get rate limit info:', error)
 
     return NextResponse.json<LogErrorResponse>(
       {
@@ -263,6 +265,6 @@ export async function GET(
         error: 'Failed to get rate limit info',
       },
       { status: 500 }
-    );
+    )
   }
 }

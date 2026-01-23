@@ -1,22 +1,22 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { useAdminUserDetails } from '@/hooks/useAdminUsers';
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { useAdminUserDetails } from '@/hooks/useAdminUsers'
 
 interface UserDetailModalProps {
-  userId: string | null;
-  isOpen: boolean;
-  onClose: () => void;
+  userId: string | null
+  isOpen: boolean
+  onClose: () => void
   onUserAction: (
     userId: string,
     action: 'activate' | 'deactivate' | 'delete' | 'promote' | 'demote'
-  ) => void;
-  isUpdating?: boolean;
-  formatDate?: (date: string) => string;
+  ) => void
+  isUpdating?: boolean
+  formatDate?: (date: string) => string
 }
 
 export function UserDetailModal({
@@ -27,9 +27,9 @@ export function UserDetailModal({
   isUpdating = false,
   formatDate = (date) => format(new Date(date), 'yyyy-MM-dd', { locale: ko }),
 }: UserDetailModalProps) {
-  const { user, isLoading, isError, error } = useAdminUserDetails(userId);
+  const { user, isLoading, isError, error } = useAdminUserDetails(userId)
 
-  if (!isOpen || !userId) return null;
+  if (!isOpen || !userId) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -165,5 +165,5 @@ export function UserDetailModal({
         )}
       </div>
     </div>
-  );
+  )
 }

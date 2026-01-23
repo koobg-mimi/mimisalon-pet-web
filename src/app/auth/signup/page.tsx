@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { PhoneInput } from '@/components/ui/phone-input';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { Checkbox } from '@/components/ui/checkbox';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { PhoneInput } from '@/components/ui/phone-input'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Form,
   FormControl,
@@ -18,16 +18,16 @@ import {
   FormLabel,
   FormMessage,
   FormDescription,
-} from '@/components/ui/form';
-import { signUpSchema, type SignUpInput } from '@/lib/validations/auth';
-import { EyeIcon, EyeOffIcon, AlertCircleIcon } from 'lucide-react';
+} from '@/components/ui/form'
+import { signUpSchema, type SignUpInput } from '@/lib/validations/auth'
+import { EyeIcon, EyeOffIcon, AlertCircleIcon } from 'lucide-react'
 
 export default function SignUpPage() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [authError, setAuthError] = useState('');
-  const [passwordStrength, setPasswordStrength] = useState(0);
-  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [authError, setAuthError] = useState('')
+  const [passwordStrength, setPasswordStrength] = useState(0)
+  const router = useRouter()
 
   const form = useForm<SignUpInput>({
     resolver: zodResolver(signUpSchema),
@@ -42,54 +42,54 @@ export default function SignUpPage() {
       agreeToMarketing: false,
     },
     mode: 'onChange',
-  });
+  })
 
   // 비밀번호 강도 검사
   const checkPasswordStrength = (password: string) => {
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (/[a-z]/.test(password)) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/\d/.test(password)) strength++;
-    if (/[^\w\s]/.test(password)) strength++;
-    return strength;
-  };
+    let strength = 0
+    if (password.length >= 8) strength++
+    if (/[a-z]/.test(password)) strength++
+    if (/[A-Z]/.test(password)) strength++
+    if (/\d/.test(password)) strength++
+    if (/[^\w\s]/.test(password)) strength++
+    return strength
+  }
 
   const getPasswordStrengthText = (strength: number) => {
     switch (strength) {
       case 0:
       case 1:
-        return '매우 약함';
+        return '매우 약함'
       case 2:
-        return '약함';
+        return '약함'
       case 3:
-        return '보통';
+        return '보통'
       case 4:
-        return '강함';
+        return '강함'
       case 5:
-        return '매우 강함';
+        return '매우 강함'
       default:
-        return '';
+        return ''
     }
-  };
+  }
 
   const getPasswordStrengthColor = (strength: number) => {
     switch (strength) {
       case 0:
       case 1:
-        return 'text-red-500';
+        return 'text-red-500'
       case 2:
-        return 'text-orange-500';
+        return 'text-orange-500'
       case 3:
-        return 'text-yellow-500';
+        return 'text-yellow-500'
       case 4:
-        return 'text-green-500';
+        return 'text-green-500'
       case 5:
-        return 'text-green-600';
+        return 'text-green-600'
       default:
-        return 'text-muted-foreground';
+        return 'text-muted-foreground'
     }
-  };
+  }
 
   const signupMutation = useMutation({
     mutationFn: async (data: SignUpInput) => {
@@ -105,52 +105,52 @@ export default function SignUpPage() {
           phone: data.phone,
           agreeToMarketing: data.agreeToMarketing,
         }),
-      });
+      })
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (!response.ok) {
-        throw result;
+        throw result
       }
 
-      return result;
+      return result
     },
     onSuccess: (result) => {
       if (result.requiresPhoneVerification && result.user.phone) {
         // Redirect to phone verification page
         router.push(
           `/auth/verify-phone?phone=${encodeURIComponent(result.user.phone)}&returnTo=/auth/signin?message=회원가입이 완료되었습니다.`
-        );
+        )
       } else {
         // No phone verification needed, go to signin
         router.push(
           '/auth/signin?message=회원가입이 완료되었습니다. 이메일을 확인하여 계정을 인증해주세요.'
-        );
+        )
       }
     },
     onError: (error: any) => {
       if (error.code === 'EMAIL_ALREADY_EXISTS') {
-        setAuthError('이미 가입된 이메일입니다.');
+        setAuthError('이미 가입된 이메일입니다.')
         form.setError('email', {
           type: 'manual',
           message: '이미 가입된 이메일입니다.',
-        });
+        })
       } else if (error.code === 'WEAK_PASSWORD') {
-        setAuthError('더 강한 비밀번호를 사용해주세요.');
+        setAuthError('더 강한 비밀번호를 사용해주세요.')
         form.setError('password', {
           type: 'manual',
           message: '더 강한 비밀번호를 사용해주세요.',
-        });
+        })
       } else {
-        setAuthError(error.message || '회원가입 중 오류가 발생했습니다.');
+        setAuthError(error.message || '회원가입 중 오류가 발생했습니다.')
       }
     },
-  });
+  })
 
   const onSubmit = (data: SignUpInput) => {
-    setAuthError('');
-    signupMutation.mutate(data);
-  };
+    setAuthError('')
+    signupMutation.mutate(data)
+  }
 
   return (
     <div className="bg-muted/50 flex min-h-screen items-center justify-center">
@@ -225,8 +225,8 @@ export default function SignUpPage() {
                           className="pr-10"
                           {...field}
                           onChange={(e) => {
-                            field.onChange(e);
-                            setPasswordStrength(checkPasswordStrength(e.target.value));
+                            field.onChange(e)
+                            setPasswordStrength(checkPasswordStrength(e.target.value))
                           }}
                         />
                         <button
@@ -410,5 +410,5 @@ export default function SignUpPage() {
         </Form>
       </div>
     </div>
-  );
+  )
 }

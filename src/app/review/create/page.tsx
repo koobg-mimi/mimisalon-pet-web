@@ -1,48 +1,48 @@
-'use client';
+'use client'
 
-import { useSession } from '@/lib/auth-client';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useSession } from '@/lib/auth-client'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 interface BookingInfo {
-  id: string;
+  id: string
   service: {
-    name: string;
-    price: number;
-  };
+    name: string
+    price: number
+  }
   pet: {
-    name: string;
-    breed: string; // API returns breed name as string
-  };
+    name: string
+    breed: string // API returns breed name as string
+  }
   groomer: {
-    id: string;
-    name: string;
-  };
+    id: string
+    name: string
+  }
   location: {
-    name: string;
-  };
-  date: string;
-  time: string;
-  status: string;
+    name: string
+  }
+  date: string
+  time: string
+  status: string
 }
 
 interface ReviewForm {
-  rating: number;
-  content: string;
-  serviceQuality: number;
-  communication: number;
-  timeliness: number;
-  cleanliness: number;
+  rating: number
+  content: string
+  serviceQuality: number
+  communication: number
+  timeliness: number
+  cleanliness: number
 }
 
 export default function CreateReviewPage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const bookingId = searchParams.get('bookingId');
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const bookingId = searchParams.get('bookingId')
   const [formData, setFormData] = useState<ReviewForm>({
     rating: 0,
     content: '',
@@ -50,57 +50,57 @@ export default function CreateReviewPage() {
     communication: 0,
     timeliness: 0,
     cleanliness: 0,
-  });
+  })
 
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
     if (session?.user?.role && session.user.role !== 'CUSTOMER') {
-      router.push('/dashboard');
+      router.push('/dashboard')
     }
-  }, [session, router]);
+  }, [session, router])
 
   // Fetch booking details using React Query
   const { data: booking, isLoading } = useQuery<BookingInfo>({
     queryKey: ['booking', bookingId],
     queryFn: async () => {
-      const response = await fetch(`/api/bookings/${bookingId}`);
+      const response = await fetch(`/api/bookings/${bookingId}`)
       if (!response.ok) {
-        throw new Error('Failed to fetch booking');
+        throw new Error('Failed to fetch booking')
       }
-      const data = await response.json();
+      const data = await response.json()
 
       if (data.status !== 'COMPLETED') {
-        router.push('/customer/bookings');
-        throw new Error('Booking not completed');
+        router.push('/customer/bookings')
+        throw new Error('Booking not completed')
       }
 
-      return data;
+      return data
     },
     enabled: !!bookingId && !!session?.user && session.user.role === 'CUSTOMER',
     retry: false,
-  });
+  })
 
   useEffect(() => {
     if (!bookingId) {
-      router.push('/customer/bookings');
+      router.push('/customer/bookings')
     }
-  }, [bookingId, router]);
+  }, [bookingId, router])
 
   const handleRatingChange = (field: keyof ReviewForm, rating: number) => {
     setFormData((prev) => ({
       ...prev,
       [field]: rating,
-    }));
-  };
+    }))
+  }
 
   const handleContentChange = (content: string) => {
     setFormData((prev) => ({
       ...prev,
       content,
-    }));
-  };
+    }))
+  }
 
   // Submit review using React Query mutation
   const submitReviewMutation = useMutation({
@@ -120,46 +120,46 @@ export default function CreateReviewPage() {
           timeliness: formData.timeliness,
           cleanliness: formData.cleanliness,
         }),
-      });
+      })
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || '리뷰 작성 중 오류가 발생했습니다.');
+        const error = await response.json()
+        throw new Error(error.message || '리뷰 작성 중 오류가 발생했습니다.')
       }
 
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      router.push('/customer/dashboard/reviews?success=true');
+      router.push('/customer/dashboard/reviews?success=true')
     },
     onError: (error: Error) => {
-      console.error('Failed to create review:', error);
-      alert(error.message);
+      console.error('Failed to create review:', error)
+      alert(error.message)
     },
-  });
+  })
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (formData.rating === 0) {
-      alert('별점을 선택해주세요.');
-      return;
+      alert('별점을 선택해주세요.')
+      return
     }
 
     if (formData.content.trim().length < 10) {
-      alert('리뷰 내용을 10자 이상 입력해주세요.');
-      return;
+      alert('리뷰 내용을 10자 이상 입력해주세요.')
+      return
     }
 
-    submitReviewMutation.mutate();
-  };
+    submitReviewMutation.mutate()
+  }
 
   const renderStars = (
     rating: number,
     onRatingChange?: (rating: number) => void,
     size: 'sm' | 'lg' = 'sm'
   ) => {
-    const starSize = size === 'lg' ? 'w-8 h-8' : 'w-5 h-5';
+    const starSize = size === 'lg' ? 'w-8 h-8' : 'w-5 h-5'
 
     return (
       <div className="flex items-center gap-1">
@@ -179,36 +179,36 @@ export default function CreateReviewPage() {
           </button>
         ))}
       </div>
-    );
-  };
+    )
+  }
 
   const getRatingText = (rating: number) => {
     switch (rating) {
       case 1:
-        return '매우 불만족';
+        return '매우 불만족'
       case 2:
-        return '불만족';
+        return '불만족'
       case 3:
-        return '보통';
+        return '보통'
       case 4:
-        return '만족';
+        return '만족'
       case 5:
-        return '매우 만족';
+        return '매우 만족'
       default:
-        return '평가해주세요';
+        return '평가해주세요'
     }
-  };
+  }
 
   if (isPending || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   if (!session || session.user?.role !== 'CUSTOMER' || !booking) {
-    return null;
+    return null
   }
 
   return (
@@ -374,5 +374,5 @@ export default function CreateReviewPage() {
         </div>
       </main>
     </div>
-  );
+  )
 }

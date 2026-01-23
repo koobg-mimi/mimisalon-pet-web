@@ -1,18 +1,18 @@
-import { NextResponse } from 'next/server';
-import { env } from '@/lib/env';
+import { NextResponse } from 'next/server'
+import { env } from '@/lib/env'
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface HealthResponse {
-  status: string | number;
-  timestamp: string;
-  service?: string;
-  version?: string;
-  environment?: string;
-  uptime?: number;
-  error?: string;
+  status: string | number
+  timestamp: string
+  service?: string
+  version?: string
+  environment?: string
+  uptime?: number
+  error?: string
 }
 
 /**
@@ -28,9 +28,9 @@ export async function GET(): Promise<NextResponse<HealthResponse>> {
       version: env.npm_package_version,
       environment: env.NODE_ENV,
       uptime: process.uptime(),
-    };
+    }
 
-    return NextResponse.json(healthStatus, { status: 200 });
+    return NextResponse.json(healthStatus, { status: 200 })
   } catch {
     return NextResponse.json(
       {
@@ -39,11 +39,11 @@ export async function GET(): Promise<NextResponse<HealthResponse>> {
         error: 'Health check failed',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
 // Support HEAD requests for basic connectivity checks
 export async function HEAD() {
-  return new NextResponse(null, { status: 200 });
+  return new NextResponse(null, { status: 200 })
 }

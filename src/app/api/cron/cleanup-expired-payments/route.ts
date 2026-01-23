@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@mimisalon/shared';
-import { env } from '@/lib/env';
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@mimisalon/shared'
+import { env } from '@/lib/env'
 
 // This API route is designed to be called by a cron job service
 // Configure your cron service to call this endpoint every 10 minutes
@@ -11,15 +11,15 @@ import { env } from '@/lib/env';
 // ============================================================================
 
 export interface CleanupExpiredPaymentsResponse {
-  success: true;
-  message: string;
-  expiredPayments: number;
-  timestamp: string;
+  success: true
+  message: string
+  expiredPayments: number
+  timestamp: string
 }
 
 export interface CleanupPaymentsErrorResponse {
-  success?: false;
-  error: string;
+  success?: false
+  error: string
 }
 
 // ============================================================================
@@ -38,18 +38,18 @@ export async function GET(
 ): Promise<NextResponse<CleanupExpiredPaymentsResponse | CleanupPaymentsErrorResponse>> {
   try {
     // Verify the request is from the cron service (optional security)
-    const cronSecret = env.CRON_SECRET;
-    const authHeader = request.headers.get('authorization');
+    const cronSecret = env.CRON_SECRET
+    const authHeader = request.headers.get('authorization')
 
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json<CleanupPaymentsErrorResponse>(
         { error: 'Unauthorized' },
         { status: 401 }
-      );
+      )
     }
 
     // Calculate the timeout threshold (30 minutes ago)
-    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000)
 
     // Update expired PENDING payments
     const result = await prisma.payment.updateMany({
@@ -63,7 +63,7 @@ export async function GET(
         status: 'EXPIRED',
         updatedAt: new Date(),
       },
-    });
+    })
 
     // Optionally, update associated bookings if they're still in payment pending state
     const expiredPayments = await prisma.payment.findMany({
@@ -79,7 +79,7 @@ export async function GET(
       include: {
         booking: true,
       },
-    });
+    })
 
     // Update bookings that were waiting for these payments
     for (const payment of expiredPayments) {
@@ -95,24 +95,24 @@ export async function GET(
             updatedAt: new Date(),
             notes: `Payment expired at ${new Date().toISOString()}`,
           },
-        });
+        })
       }
     }
 
-    console.log(`[Cron] Cleaned up ${result.count} expired payments`);
+    console.log(`[Cron] Cleaned up ${result.count} expired payments`)
 
     return NextResponse.json<CleanupExpiredPaymentsResponse>({
       success: true,
       message: `Updated ${result.count} expired payments`,
       expiredPayments: result.count,
       timestamp: new Date().toISOString(),
-    });
+    })
   } catch (error) {
-    console.error('[Cron] Error cleaning up expired payments:', error);
+    console.error('[Cron] Error cleaning up expired payments:', error)
     return NextResponse.json<CleanupPaymentsErrorResponse>(
       { error: 'Failed to clean up expired payments' },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -122,5 +122,5 @@ export async function GET(
  * Also support POST for flexibility in cron services.
  */
 export async function POST(request: NextRequest) {
-  return GET(request);
+  return GET(request)
 }

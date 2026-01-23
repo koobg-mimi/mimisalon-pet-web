@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { XIcon } from 'lucide-react';
+import * as React from 'react'
+import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { XIcon } from 'lucide-react'
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils'
 
-const Dialog = DialogPrimitive.Root;
+const Dialog = DialogPrimitive.Root
 
-const DialogTrigger = DialogPrimitive.Trigger;
+const DialogTrigger = DialogPrimitive.Trigger
 
-const DialogPortal = DialogPrimitive.Portal;
+const DialogPortal = DialogPrimitive.Portal
 
 function DialogClose({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Close>) {
   return (
@@ -25,7 +25,7 @@ function DialogClose({ className, ...props }: React.ComponentProps<typeof Dialog
       <XIcon className="h-5 w-5 sm:h-4 sm:w-4" />
       <span className="sr-only">Close</span>
     </DialogPrimitive.Close>
-  );
+  )
 }
 
 function DialogOverlay({
@@ -40,7 +40,7 @@ function DialogOverlay({
       )}
       {...props}
     />
-  );
+  )
 }
 
 function DialogContent({
@@ -76,7 +76,7 @@ function DialogContent({
         <DialogClose />
       </DialogPrimitive.Content>
     </DialogPortal>
-  );
+  )
 }
 
 function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
@@ -85,7 +85,7 @@ function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
       className={cn('flex flex-col space-y-1.5 text-center sm:text-left', className)}
       {...props}
     />
-  );
+  )
 }
 
 function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
@@ -98,7 +98,7 @@ function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
       )}
       {...props}
     />
-  );
+  )
 }
 
 function DialogTitle({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>) {
@@ -107,7 +107,7 @@ function DialogTitle({ className, ...props }: React.ComponentProps<typeof Dialog
       className={cn('text-lg leading-none font-semibold tracking-tight', className)}
       {...props}
     />
-  );
+  )
 }
 
 function DialogDescription({
@@ -119,7 +119,7 @@ function DialogDescription({
       className={cn('text-muted-foreground text-sm', className)}
       {...props}
     />
-  );
+  )
 }
 
 export {
@@ -133,4 +133,4 @@ export {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-};
+}

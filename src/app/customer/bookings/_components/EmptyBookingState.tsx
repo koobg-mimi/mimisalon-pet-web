@@ -1,10 +1,10 @@
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { FilterType } from '../_constants/booking-filters';
-import { getFilterLabel } from '../_utils/booking-status.utils';
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { FilterType } from '../_constants/booking-filters'
+import { getFilterLabel } from '../_utils/booking-status.utils'
 
 interface EmptyBookingStateProps {
-  filter: FilterType;
+  filter: FilterType
 }
 
 /**
@@ -36,5 +36,5 @@ export function EmptyBookingState({ filter }: EmptyBookingStateProps) {
         <Link href="/booking/new">예약하기</Link>
       </Button>
     </div>
-  );
+  )
 }

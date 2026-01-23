@@ -1,53 +1,53 @@
-'use client';
+'use client'
 
-import { useSession } from '@/lib/auth-client';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { PageHeader } from '@/components/layout/PageHeader';
-import { StatsCard } from '@/components/stats/card';
-import { StatsGrid } from '@/components/stats/grid';
-import { EnhancedPagination } from '@/components/ui/pagination-enhanced';
-import Link from 'next/link';
-import { PaymentCard } from './_components/PaymentCard';
-import { PaymentFilterButtons } from './_components/PaymentFilterButtons';
-import { EmptyPaymentState } from './_components/EmptyPaymentState';
-import { FilterType, FILTER_STATUS_MAP } from './_constants/payment-filters';
-import { PaymentsResponse } from './_types/payment.types';
+import { useSession } from '@/lib/auth-client'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { PageHeader } from '@/components/layout/PageHeader'
+import { StatsCard } from '@/components/stats/card'
+import { StatsGrid } from '@/components/stats/grid'
+import { EnhancedPagination } from '@/components/ui/pagination-enhanced'
+import Link from 'next/link'
+import { PaymentCard } from './_components/PaymentCard'
+import { PaymentFilterButtons } from './_components/PaymentFilterButtons'
+import { EmptyPaymentState } from './_components/EmptyPaymentState'
+import { FilterType, FILTER_STATUS_MAP } from './_constants/payment-filters'
+import { PaymentsResponse } from './_types/payment.types'
 
 export default function CustomerPaymentsPage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
   // URL 쿼리 파라미터에서 초기값 읽기
   const [filter, setFilter] = useState<FilterType>(
     (searchParams.get('filter') as FilterType) || 'ALL'
-  );
-  const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
-  const [limit, setLimit] = useState(Number(searchParams.get('limit')) || 10);
+  )
+  const [page, setPage] = useState(Number(searchParams.get('page')) || 1)
+  const [limit, setLimit] = useState(Number(searchParams.get('limit')) || 10)
 
   // URL 업데이트 함수
   const updateURL = (newPage: number, newLimit: number, newFilter: FilterType) => {
-    const params = new URLSearchParams();
-    params.set('page', newPage.toString());
-    params.set('limit', newLimit.toString());
+    const params = new URLSearchParams()
+    params.set('page', newPage.toString())
+    params.set('limit', newLimit.toString())
     if (newFilter !== 'ALL') {
-      params.set('filter', newFilter);
+      params.set('filter', newFilter)
     }
-    router.push(`?${params.toString()}`, { scroll: false });
-  };
+    router.push(`?${params.toString()}`, { scroll: false })
+  }
 
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
     if (session?.user?.role && session.user.role !== 'CUSTOMER') {
-      router.push('/dashboard');
+      router.push('/dashboard')
     }
-  }, [session, router]);
+  }, [session, router])
 
   const { data, isLoading } = useQuery<PaymentsResponse>({
     queryKey: ['customer', 'payments', page, filter, limit],
@@ -55,62 +55,62 @@ export default function CustomerPaymentsPage() {
       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
-      });
+      })
 
       // 서버 사이드 필터링 지원 - 여러 상태를 쉼표로 구분하여 전달
       if (filter !== 'ALL') {
-        const statuses = FILTER_STATUS_MAP[filter];
+        const statuses = FILTER_STATUS_MAP[filter]
         if (statuses) {
-          params.append('status', statuses.join(','));
+          params.append('status', statuses.join(','))
         }
       }
 
-      const response = await fetch(`/api/customer/payments?${params.toString()}`);
+      const response = await fetch(`/api/customer/payments?${params.toString()}`)
       if (!response.ok) {
-        throw new Error('Failed to fetch payments');
+        throw new Error('Failed to fetch payments')
       }
-      return response.json();
+      return response.json()
     },
     enabled: !!session?.user && session.user.role === 'CUSTOMER',
-  });
+  })
 
-  const payments = data?.payments || [];
-  const totalPages = data?.totalPages || 1;
+  const payments = data?.payments || []
+  const totalPages = data?.totalPages || 1
 
   const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-    updateURL(newPage, limit, filter);
+    setPage(newPage)
+    updateURL(newPage, limit, filter)
     // 페이지 변경 시 스크롤을 상단으로
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const handlePageSizeChange = (newSize: number) => {
-    setLimit(newSize);
-    setPage(1); // 페이지 크기 변경 시 첫 페이지로
-    updateURL(1, newSize, filter);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+    setLimit(newSize)
+    setPage(1) // 페이지 크기 변경 시 첫 페이지로
+    updateURL(1, newSize, filter)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const handleFilterChange = (newFilter: FilterType) => {
-    setFilter(newFilter);
-    setPage(1); // 필터 변경 시 첫 페이지로
-    updateURL(1, limit, newFilter);
-  };
+    setFilter(newFilter)
+    setPage(1) // 필터 변경 시 첫 페이지로
+    updateURL(1, limit, newFilter)
+  }
 
   const totalAmount = payments
     .filter((payment) => payment.status === 'PAID' || payment.status === 'COMPLETED')
-    .reduce((sum, payment) => sum + payment.amount, 0);
+    .reduce((sum, payment) => sum + payment.amount, 0)
 
   if (isPending || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   if (!session || session.user?.role !== 'CUSTOMER') {
-    return null;
+    return null
   }
 
   return (
@@ -230,5 +230,5 @@ export default function CustomerPaymentsPage() {
         )}
       </main>
     </div>
-  );
+  )
 }

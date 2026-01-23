@@ -1,5 +1,5 @@
-import { Home, Scissors, Timer } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Home, Scissors, Timer } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 
 export function ServiceFeatures() {
   const features = [
@@ -18,7 +18,7 @@ export function ServiceFeatures() {
       title: '간편 예약',
       description: '온라인으로 간편하게 예약하고, 원하는 시간에 미용 서비스를 받으실 수 있습니다.',
     },
-  ];
+  ]
 
   return (
     <section data-cy="service-features" className="container mx-auto px-4 py-16">
@@ -38,5 +38,5 @@ export function ServiceFeatures() {
         ))}
       </div>
     </section>
-  );
+  )
 }

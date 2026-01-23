@@ -1,118 +1,118 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { useSession } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState, use } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import Link from 'next/link';
+import { useSession } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState, use } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import Link from 'next/link'
 
 interface AdditionalService {
-  name: string;
-  description: string;
-  price: number;
-  quantity: number;
+  name: string
+  description: string
+  price: number
+  quantity: number
 }
 
 interface BookingInfo {
-  id: string;
-  status: string;
-  basePrice: number;
-  serviceDate: string;
-  serviceTime: string;
+  id: string
+  status: string
+  basePrice: number
+  serviceDate: string
+  serviceTime: string
   customer: {
-    name: string;
-    phone?: string;
-  };
+    name: string
+    phone?: string
+  }
   pets: Array<{
-    name: string;
-    breed: string;
+    name: string
+    breed: string
     services: Array<{
-      name: string;
-      price: number;
-    }>;
-  }>;
+      name: string
+      price: number
+    }>
+  }>
 }
 
 export default function GroomerQuotePage({ params }: { params: Promise<{ id: string }> }) {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const resolvedParams = use(params);
-  const bookingId = resolvedParams.id;
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const resolvedParams = use(params)
+  const bookingId = resolvedParams.id
 
   const [additionalServices, setAdditionalServices] = useState<AdditionalService[]>([
     { name: '', description: '', price: 0, quantity: 1 },
-  ]);
-  const [reason, setReason] = useState('');
-  const [estimatedTime, setEstimatedTime] = useState<number>(0);
+  ])
+  const [reason, setReason] = useState('')
+  const [estimatedTime, setEstimatedTime] = useState<number>(0)
 
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
     if (session?.user?.role && session.user.role !== 'GROOMER') {
-      router.push('/dashboard');
+      router.push('/dashboard')
     }
-  }, [session, router]);
+  }, [session, router])
 
   const { data, isLoading } = useQuery({
     queryKey: ['groomer', 'bookings', bookingId, 'quote'],
     queryFn: async () => {
-      const response = await fetch(`/api/groomer/bookings/${bookingId}/quote`);
+      const response = await fetch(`/api/groomer/bookings/${bookingId}/quote`)
       if (!response.ok) {
-        throw new Error('Failed to fetch booking');
+        throw new Error('Failed to fetch booking')
       }
-      return response.json();
+      return response.json()
     },
     enabled: !!session?.user && session.user.role === 'GROOMER' && !!bookingId,
-  });
+  })
 
-  const booking = data?.booking || null;
+  const booking = data?.booking || null
 
   useEffect(() => {
     if (data?.additionalServices?.length > 0) {
-      setAdditionalServices(data.additionalServices);
+      setAdditionalServices(data.additionalServices)
     }
-  }, [data]);
+  }, [data])
 
   const addService = () => {
     setAdditionalServices([
       ...additionalServices,
       { name: '', description: '', price: 0, quantity: 1 },
-    ]);
-  };
+    ])
+  }
 
   const removeService = (index: number) => {
     if (additionalServices.length > 1) {
-      setAdditionalServices(additionalServices.filter((_, i) => i !== index));
+      setAdditionalServices(additionalServices.filter((_, i) => i !== index))
     }
-  };
+  }
 
   const updateService = (index: number, field: keyof AdditionalService, value: string | number) => {
-    const updated = [...additionalServices];
-    updated[index] = { ...updated[index], [field]: value };
-    setAdditionalServices(updated);
-  };
+    const updated = [...additionalServices]
+    updated[index] = { ...updated[index], [field]: value }
+    setAdditionalServices(updated)
+  }
 
   const getTotalAdditionalAmount = () => {
     return additionalServices.reduce((total, service) => {
-      return total + service.price * service.quantity;
-    }, 0);
-  };
+      return total + service.price * service.quantity
+    }, 0)
+  }
 
   const submitQuoteMutation = useMutation({
     mutationFn: async () => {
       const validServices = additionalServices.filter(
         (service) => service.name.trim() && service.price > 0
-      );
+      )
 
       if (validServices.length === 0) {
-        throw new Error('최소 하나 이상의 추가 서비스를 입력해주세요.');
+        throw new Error('최소 하나 이상의 추가 서비스를 입력해주세요.')
       }
 
       const response = await fetch(`/api/groomer/bookings/${bookingId}/quote`, {
@@ -126,41 +126,41 @@ export default function GroomerQuotePage({ params }: { params: Promise<{ id: str
           reason: reason.trim(),
           estimatedTime,
         }),
-      });
+      })
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || '견적 요청에 실패했습니다.');
+        const error = await response.json()
+        throw new Error(error.error || '견적 요청에 실패했습니다.')
       }
 
-      return response.json();
+      return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['groomer', 'bookings', bookingId] });
-      queryClient.invalidateQueries({ queryKey: ['groomer', 'bookings'] });
-      router.push(`/groomer/dashboard/bookings/${bookingId}?tab=quote`);
+      queryClient.invalidateQueries({ queryKey: ['groomer', 'bookings', bookingId] })
+      queryClient.invalidateQueries({ queryKey: ['groomer', 'bookings'] })
+      router.push(`/groomer/dashboard/bookings/${bookingId}?tab=quote`)
     },
     onError: (error: Error) => {
-      console.error('Quote submission failed:', error);
-      alert(error.message || '견적 요청 중 오류가 발생했습니다.');
+      console.error('Quote submission failed:', error)
+      alert(error.message || '견적 요청 중 오류가 발생했습니다.')
     },
-  });
+  })
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    submitQuoteMutation.mutate();
-  };
+    e.preventDefault()
+    submitQuoteMutation.mutate()
+  }
 
   if (isPending || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   if (!session || session.user?.role !== 'GROOMER' || !booking) {
-    return null;
+    return null
   }
 
   return (
@@ -405,5 +405,5 @@ export default function GroomerQuotePage({ params }: { params: Promise<{ id: str
         </div>
       </main>
     </div>
-  );
+  )
 }

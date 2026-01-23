@@ -3,7 +3,7 @@
  * Centralized configuration for customer support contact details
  */
 
-import { env } from '../env';
+import { env } from '../env'
 
 export const CUSTOMER_SERVICE = {
   // Phone number for customer service
@@ -18,9 +18,9 @@ export const CUSTOMER_SERVICE = {
 
   // URLs for direct contact
   get PHONE_URL() {
-    return `tel:${this.PHONE.replace(/-/g, '')}`;
+    return `tel:${this.PHONE.replace(/-/g, '')}`
   },
   get EMAIL_URL() {
-    return `mailto:${this.EMAIL}`;
+    return `mailto:${this.EMAIL}`
   },
-} as const;
+} as const

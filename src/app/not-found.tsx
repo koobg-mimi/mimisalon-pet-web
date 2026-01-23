@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Home } from 'lucide-react';
-import { CUSTOMER_SERVICE } from '@/lib/constants/customer-service';
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { ArrowLeft, Home } from 'lucide-react'
+import { CUSTOMER_SERVICE } from '@/lib/constants/customer-service'
 
 export default function NotFound() {
   return (
@@ -48,5 +48,5 @@ export default function NotFound() {
         </div>
       </div>
     </div>
-  );
+  )
 }

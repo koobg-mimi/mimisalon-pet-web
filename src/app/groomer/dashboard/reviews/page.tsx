@@ -1,54 +1,54 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageSquareIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
-import { ReviewCard } from '@/components/card/review-card';
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { MessageSquareIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
+import { ReviewCard } from '@/components/card/review-card'
 
 interface ReviewImage {
-  id: string;
-  url: string;
-  order: number;
+  id: string
+  url: string
+  order: number
 }
 
 interface ReviewResponse {
-  id: string;
-  content: string;
-  createdAt: string;
+  id: string
+  content: string
+  createdAt: string
 }
 
 interface Review {
-  id: string;
-  rating: number;
-  comment: string | null;
-  createdAt: string;
-  images: ReviewImage[];
-  response: ReviewResponse | null;
+  id: string
+  rating: number
+  comment: string | null
+  createdAt: string
+  images: ReviewImage[]
+  response: ReviewResponse | null
   customer: {
-    id: string;
-    name: string | null;
-    image: string | null;
-  };
+    id: string
+    name: string | null
+    image: string | null
+  }
   booking: {
-    id: string;
-    serviceDate: string;
-    serviceType: string;
+    id: string
+    serviceDate: string
+    serviceType: string
     bookingPets?: Array<{
       pet: {
-        name: string;
-        breed: string | null;
-      };
-    }>;
-  };
+        name: string
+        breed: string | null
+      }
+    }>
+  }
 }
 
 export default function GroomerReviewsPage() {
-  const [activeTab, setActiveTab] = useState('all');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [activeTab, setActiveTab] = useState('all')
+  const [currentPage, setCurrentPage] = useState(1)
 
   const { data, isLoading } = useQuery({
     queryKey: ['groomer', 'reviews', activeTab, currentPage],
@@ -57,26 +57,26 @@ export default function GroomerReviewsPage() {
         page: currentPage.toString(),
         limit: '10',
         filter: activeTab,
-      });
+      })
 
-      const response = await fetch(`/api/groomer/reviews?${params}`);
+      const response = await fetch(`/api/groomer/reviews?${params}`)
       if (!response.ok) {
-        throw new Error('Failed to fetch reviews');
+        throw new Error('Failed to fetch reviews')
       }
 
-      return response.json();
+      return response.json()
     },
-  });
+  })
 
-  const reviews = data?.reviews || [];
-  const totalPages = data?.totalPages || 1;
+  const reviews = data?.reviews || []
+  const totalPages = data?.totalPages || 1
 
   const filteredReviews = reviews.filter((review: Review) => {
-    if (activeTab === 'all') return true;
-    if (activeTab === 'with-photos') return review.images.length > 0;
-    if (activeTab === 'low-rating') return review.rating <= 3;
-    return true;
-  });
+    if (activeTab === 'all') return true
+    if (activeTab === 'with-photos') return review.images.length > 0
+    if (activeTab === 'low-rating') return review.rating <= 3
+    return true
+  })
 
   if (isLoading) {
     return (
@@ -90,7 +90,7 @@ export default function GroomerReviewsPage() {
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   return (
@@ -186,7 +186,7 @@ export default function GroomerReviewsPage() {
               <ChevronLeftIcon className="h-4 w-4" />
             </Button>
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              const pageNum = i + 1;
+              const pageNum = i + 1
               return (
                 <Button
                   key={pageNum}
@@ -196,7 +196,7 @@ export default function GroomerReviewsPage() {
                 >
                   {pageNum}
                 </Button>
-              );
+              )
             })}
             {totalPages > 5 && (
               <>
@@ -222,5 +222,5 @@ export default function GroomerReviewsPage() {
         </div>
       )}
     </div>
-  );
+  )
 }

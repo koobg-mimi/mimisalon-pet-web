@@ -1,57 +1,57 @@
-'use client';
+'use client'
 
-import { ko } from 'date-fns/locale';
-import { parseISO, format } from 'date-fns';
+import { ko } from 'date-fns/locale'
+import { parseISO, format } from 'date-fns'
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { CUSTOMER_SERVICE } from '@/lib/constants/customer-service';
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { CUSTOMER_SERVICE } from '@/lib/constants/customer-service'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+} from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import {
   ArrowLeftIcon,
   AlertCircleIcon,
   InfoIcon,
   BanknoteIcon,
   CheckCircleIcon,
-} from 'lucide-react';
-import { refundRequestSchema, type RefundRequestInput } from '@/lib/validations/payment';
-import { cn } from '@/lib/utils';
+} from 'lucide-react'
+import { refundRequestSchema, type RefundRequestInput } from '@/lib/validations/payment'
+import { cn } from '@/lib/utils'
 
 interface BookingDetails {
-  id: string;
-  totalAmount: number;
-  paidAmount: number;
+  id: string
+  totalAmount: number
+  paidAmount: number
   services: Array<{
-    id: string;
-    name: string;
-    price: number;
-    status: string;
-  }>;
-  scheduledDate: string;
-  scheduledTime: string;
-  status: string;
+    id: string
+    name: string
+    price: number
+    status: string
+  }>
+  scheduledDate: string
+  scheduledTime: string
+  status: string
 }
 
 interface RefundRequestFormProps {
-  booking: BookingDetails;
-  onSubmit: (data: RefundRequestInput) => Promise<void>;
-  onCancel: () => void;
-  className?: string;
+  booking: BookingDetails
+  onSubmit: (data: RefundRequestInput) => Promise<void>
+  onCancel: () => void
+  className?: string
 }
 
 const REFUND_REASONS = [
@@ -80,7 +80,7 @@ const REFUND_REASONS = [
     label: '기타',
     description: '기타 사유',
   },
-] as const;
+] as const
 
 const BANK_CODES = [
   { value: '004', label: 'KB국민은행' },
@@ -93,7 +93,7 @@ const BANK_CODES = [
   { value: '007', label: '수협은행' },
   { value: '023', label: 'SC제일은행' },
   { value: '039', label: '경남은행' },
-] as const;
+] as const
 
 export function RefundRequestForm({
   booking,
@@ -101,7 +101,7 @@ export function RefundRequestForm({
   onCancel,
   className,
 }: RefundRequestFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const {
     register,
@@ -116,43 +116,43 @@ export function RefundRequestForm({
       refundAmount: booking.paidAmount,
     },
     mode: 'onChange',
-  });
+  })
 
-  const selectedReason = watch('reason');
+  const selectedReason = watch('reason')
 
   const calculateRefundFee = () => {
-    const now = new Date();
-    const scheduledDateTime = parseISO(`${booking.scheduledDate} ${booking.scheduledTime}`);
-    const hoursUntilScheduled = (scheduledDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+    const now = new Date()
+    const scheduledDateTime = parseISO(`${booking.scheduledDate} ${booking.scheduledTime}`)
+    const hoursUntilScheduled = (scheduledDateTime.getTime() - now.getTime()) / (1000 * 60 * 60)
 
     // 취소 수수료 계산 로직
     if (hoursUntilScheduled >= 24) {
-      return 0; // 24시간 전 취소: 수수료 없음
+      return 0 // 24시간 전 취소: 수수료 없음
     } else if (hoursUntilScheduled >= 12) {
-      return booking.paidAmount * 0.1; // 12시간 전 취소: 10% 수수료
+      return booking.paidAmount * 0.1 // 12시간 전 취소: 10% 수수료
     } else if (hoursUntilScheduled >= 2) {
-      return booking.paidAmount * 0.2; // 2시간 전 취소: 20% 수수료
+      return booking.paidAmount * 0.2 // 2시간 전 취소: 20% 수수료
     } else {
-      return booking.paidAmount * 0.5; // 2시간 이내 취소: 50% 수수료
+      return booking.paidAmount * 0.5 // 2시간 이내 취소: 50% 수수료
     }
-  };
+  }
 
-  const refundFee = calculateRefundFee();
-  const actualRefundAmount = Math.max(0, booking.paidAmount - refundFee);
+  const refundFee = calculateRefundFee()
+  const actualRefundAmount = Math.max(0, booking.paidAmount - refundFee)
 
   const onFormSubmit = async (data: RefundRequestInput) => {
-    setIsSubmitting(true);
+    setIsSubmitting(true)
     try {
       await onSubmit({
         ...data,
         refundAmount: actualRefundAmount,
-      });
+      })
     } catch (error) {
-      console.error('Refund request error:', error);
+      console.error('Refund request error:', error)
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <div className={cn('space-y-6', className)}>
@@ -379,5 +379,5 @@ export function RefundRequestForm({
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

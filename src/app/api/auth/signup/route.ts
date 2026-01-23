@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@mimisalon/shared';
-import bcrypt from 'bcryptjs';
-import { z } from 'zod';
+import { NextRequest, NextResponse } from 'next/server'
+import { PrismaClient } from '@mimisalon/shared'
+import bcrypt from 'bcryptjs'
+import { z } from 'zod'
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 /**
  * Request schema for user signup
@@ -17,31 +17,31 @@ export const signupSchema = z.object({
     message: 'Role must be CUSTOMER, GROOMER, or ADMIN',
   }),
   phoneVerified: z.boolean(),
-});
+})
 
 /**
  * Request body type for signup
  */
-export type SignupRequest = z.infer<typeof signupSchema>;
+export type SignupRequest = z.infer<typeof signupSchema>
 
 /**
  * Response type for successful signup
  */
 export type SignupResponse = {
-  success: true;
-  message: string;
-  userId: string;
-};
+  success: true
+  message: string
+  userId: string
+}
 
 /**
  * Error response type
  */
 export type SignupErrorResponse = {
-  error: string;
-  code?: 'PHONE_NOT_VERIFIED' | 'EMAIL_ALREADY_EXISTS';
-  message?: string;
-  details?: z.ZodIssue[];
-};
+  error: string
+  code?: 'PHONE_NOT_VERIFIED' | 'EMAIL_ALREADY_EXISTS'
+  message?: string
+  details?: z.ZodIssue[]
+}
 
 /**
  * User signup endpoint
@@ -53,34 +53,34 @@ export async function POST(
   request: NextRequest
 ): Promise<NextResponse<SignupResponse | SignupErrorResponse>> {
   try {
-    const body: unknown = await request.json();
+    const body: unknown = await request.json()
 
     // Validate request body
-    const validatedData = signupSchema.parse(body);
-    const { name, email, phone, password, role, phoneVerified } = validatedData;
+    const validatedData = signupSchema.parse(body)
+    const { name, email, phone, password, role, phoneVerified } = validatedData
 
     // Phone verification is required for signup via /auth/signin
     if (!phoneVerified) {
       return NextResponse.json<SignupErrorResponse>(
         { error: 'Phone verification required', code: 'PHONE_NOT_VERIFIED' },
         { status: 400 }
-      );
+      )
     }
 
     // Check if email already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
-    });
+    })
 
     if (existingUser) {
       return NextResponse.json<SignupErrorResponse>(
         { error: 'Email already registered', code: 'EMAIL_ALREADY_EXISTS' },
         { status: 400 }
-      );
+      )
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10)
 
     // Create user (phone verification is guaranteed at this point)
     const user = await prisma.user.create({
@@ -93,7 +93,7 @@ export async function POST(
         role,
         image: null,
       },
-    });
+    })
 
     // Create account record for password
     await prisma.account.create({
@@ -103,7 +103,7 @@ export async function POST(
         providerId: 'credential',
         password: hashedPassword,
       },
-    });
+    })
 
     return NextResponse.json<SignupResponse>(
       {
@@ -112,9 +112,9 @@ export async function POST(
         userId: user.id,
       },
       { status: 201 }
-    );
+    )
   } catch (error) {
-    console.error('Signup error:', error);
+    console.error('Signup error:', error)
 
     // Handle Zod validation errors
     if (error instanceof z.ZodError) {
@@ -124,12 +124,12 @@ export async function POST(
           details: error.issues,
         },
         { status: 400 }
-      );
+      )
     }
 
     return NextResponse.json<SignupErrorResponse>(
       { error: 'Failed to create user', message: String(error) },
       { status: 500 }
-    );
+    )
   }
 }

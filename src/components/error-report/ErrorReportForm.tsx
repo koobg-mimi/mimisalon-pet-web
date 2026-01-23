@@ -1,26 +1,26 @@
-'use client';
+'use client'
 
-import React, { useCallback, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
-import { toast } from 'sonner';
-import { ImageUploadPreview } from './ImageUploadPreview';
-import { errorReportFormSchema, getBrowserInfo } from '@/lib/validations/error-report';
+import React, { useCallback, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Progress } from '@/components/ui/progress'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Loader2, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react'
+import { toast } from 'sonner'
+import { ImageUploadPreview } from './ImageUploadPreview'
+import { errorReportFormSchema, getBrowserInfo } from '@/lib/validations/error-report'
 import {
   ErrorReportFormData,
   ErrorReportFormProps,
   ErrorReportResult,
   ImagePreview,
   UploadProgress,
-} from '@/types/error-report';
-import { cn } from '@/lib/utils';
+} from '@/types/error-report'
+import { cn } from '@/lib/utils'
 
 export function ErrorReportForm({
   onSubmit,
@@ -28,13 +28,13 @@ export function ErrorReportForm({
   disabled = false,
   className,
 }: ErrorReportFormProps) {
-  const [images, setImages] = useState<ImagePreview[]>([]);
+  const [images, setImages] = useState<ImagePreview[]>([])
   const [uploadProgress, setUploadProgress] = useState<UploadProgress>({
     isUploading: false,
     progress: 0,
     stage: 'idle',
-  });
-  const [result, setResult] = useState<ErrorReportResult | null>(null);
+  })
+  const [result, setResult] = useState<ErrorReportResult | null>(null)
 
   const form = useForm<ErrorReportFormData>({
     resolver: zodResolver(errorReportFormSchema),
@@ -42,7 +42,7 @@ export function ErrorReportForm({
     defaultValues: {
       description: initialData?.description || '',
     },
-  });
+  })
 
   const {
     register,
@@ -51,13 +51,13 @@ export function ErrorReportForm({
     reset,
     watch,
     formState: { errors },
-  } = form;
+  } = form
 
-  const description = watch('description');
+  const description = watch('description')
 
   // Debug: Check button state
   const isButtonDisabled =
-    !description || description.length < 10 || disabled || uploadProgress.isUploading;
+    !description || description.length < 10 || disabled || uploadProgress.isUploading
 
   console.log('Form state:', {
     description: description?.length || 0,
@@ -65,20 +65,20 @@ export function ErrorReportForm({
     isUploading: uploadProgress.isUploading,
     isButtonDisabled,
     errors,
-  });
+  })
 
   // Handle image changes
   const handleImagesChange = useCallback((newImages: ImagePreview[]) => {
-    setImages(newImages);
-  }, []);
+    setImages(newImages)
+  }, [])
 
   const handleRemoveImage = useCallback((imageId: string) => {
-    setImages((prev) => prev.filter((img) => img.id !== imageId));
-  }, []);
+    setImages((prev) => prev.filter((img) => img.id !== imageId))
+  }, [])
 
   // Form submission
   const onFormSubmit = async (data: ErrorReportFormData) => {
-    if (uploadProgress.isUploading) return;
+    if (uploadProgress.isUploading) return
 
     try {
       setUploadProgress({
@@ -86,41 +86,41 @@ export function ErrorReportForm({
         progress: 20,
         stage: 'creating-issue',
         message: 'Jira 이슈를 생성하는 중...',
-      });
+      })
 
       // Create FormData for submission
-      const formData = new FormData();
+      const formData = new FormData()
 
       // Add description
-      formData.append('description', data.description);
+      formData.append('description', data.description)
 
       // Add metadata
-      formData.append('browserInfo', getBrowserInfo());
-      formData.append('timestamp', new Date().toISOString());
-      formData.append('url', window.location.href);
+      formData.append('browserInfo', getBrowserInfo())
+      formData.append('timestamp', new Date().toISOString())
+      formData.append('url', window.location.href)
 
       // Add images
       images.forEach((image) => {
-        formData.append('images', image.file);
-      });
+        formData.append('images', image.file)
+      })
 
       setUploadProgress({
         isUploading: true,
         progress: images.length > 0 ? 60 : 80,
         stage: images.length > 0 ? 'uploading-images' : 'completed',
         message: images.length > 0 ? '이미지를 업로드하는 중...' : '완료 중...',
-      });
+      })
 
       // Submit to API
       const response = await fetch('/api/error-report', {
         method: 'POST',
         body: formData,
-      });
+      })
 
-      const responseData = await response.json();
+      const responseData = await response.json()
 
       if (!response.ok) {
-        throw new Error(responseData.error || 'Failed to submit error report');
+        throw new Error(responseData.error || 'Failed to submit error report')
       }
 
       setUploadProgress({
@@ -128,68 +128,68 @@ export function ErrorReportForm({
         progress: 90,
         stage: 'completed',
         message: '완료 중...',
-      });
+      })
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500))
 
       setUploadProgress({
         isUploading: false,
         progress: 100,
         stage: 'completed',
         message: '성공적으로 제출되었습니다!',
-      });
+      })
 
       const successResult: ErrorReportResult = {
         success: true,
         issue: responseData.issue,
         attachmentIds: responseData.attachmentIds,
         message: responseData.message,
-      };
+      }
 
-      setResult(successResult);
+      setResult(successResult)
 
       toast.success('에러 신고가 성공적으로 접수되었습니다!', {
         description: `이슈 번호: ${responseData.issue.key}`,
-      });
+      })
 
       // Call parent callback
-      onSubmit?.(successResult);
+      onSubmit?.(successResult)
     } catch (error) {
-      console.error('Error report submission failed:', error);
+      console.error('Error report submission failed:', error)
 
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
 
       setUploadProgress({
         isUploading: false,
         progress: 0,
         stage: 'error',
         message: errorMessage,
-      });
+      })
 
       const errorResult: ErrorReportResult = {
         success: false,
         error: errorMessage,
         message: '에러 신고 제출에 실패했습니다',
-      };
+      }
 
-      setResult(errorResult);
+      setResult(errorResult)
 
       toast.error('에러 신고 제출에 실패했습니다', {
         description: errorMessage,
-      });
+      })
 
-      onSubmit?.(errorResult);
+      onSubmit?.(errorResult)
     }
-  };
+  }
 
   const handleRetry = useCallback(() => {
-    setResult(null);
+    setResult(null)
     setUploadProgress({
       isUploading: false,
       progress: 0,
       stage: 'idle',
-    });
-  }, []);
+    })
+  }, [])
 
   // Show success state
   if (result?.success) {
@@ -222,7 +222,7 @@ export function ErrorReportForm({
           </div>
         </CardContent>
       </Card>
-    );
+    )
   }
 
   return (
@@ -306,8 +306,8 @@ export function ErrorReportForm({
               type="button"
               variant="outline"
               onClick={() => {
-                reset();
-                setImages([]);
+                reset()
+                setImages([])
               }}
               disabled={disabled || uploadProgress.isUploading}
             >
@@ -335,5 +335,5 @@ export function ErrorReportForm({
         </CardContent>
       </Card>
     </form>
-  );
+  )
 }

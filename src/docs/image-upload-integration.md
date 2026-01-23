@@ -38,18 +38,18 @@ React Native App (iOS/Android)
 ### 1. Next.js 컴포넌트에서 사용
 
 ```tsx
-import { ImageInput } from '@/components/ui/image-input';
+import { ImageInput } from '@/components/ui/image-input'
 
 function MyComponent() {
   const handleImageSelect = (file: File | string) => {
     // 모바일에서는 string (base64), 웹에서는 File 객체
-    console.log('Selected image:', file);
-  };
+    console.log('Selected image:', file)
+  }
 
   const handleImageUpload = (url: string) => {
     // 서버에 업로드된 이미지 URL
-    console.log('Uploaded URL:', url);
-  };
+    console.log('Uploaded URL:', url)
+  }
 
   return (
     <ImageInput
@@ -58,7 +58,7 @@ function MyComponent() {
       uploadUrl="/api/upload" // 선택사항: 서버 업로드 URL
       placeholder="이미지를 선택하세요"
     />
-  );
+  )
 }
 ```
 
@@ -112,8 +112,8 @@ npm start
 ```typescript
 // pages/api/upload.ts 또는 app/api/upload/route.ts
 export async function POST(request: Request) {
-  const formData = await request.formData();
-  const file = formData.get('file') as File;
+  const formData = await request.formData()
+  const file = formData.get('file') as File
 
   // 파일 업로드 로직 구현
   // S3, Cloudinary, 로컬 저장소 등
@@ -121,7 +121,7 @@ export async function POST(request: Request) {
   return Response.json({
     success: true,
     url: 'https://example.com/uploaded-image.jpg',
-  });
+  })
 }
 ```
 

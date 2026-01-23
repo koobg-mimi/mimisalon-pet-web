@@ -1,24 +1,24 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import { CalendarDays } from 'lucide-react';
-import { format, isToday, isSameDay } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import * as React from 'react'
+import { CalendarDays } from 'lucide-react'
+import { format, isToday, isSameDay } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 interface DatePickerProps {
-  date?: Date;
-  onDateChange?: (date: Date | undefined) => void;
-  placeholder?: string;
-  disabled?: boolean;
-  minDate?: Date;
-  maxDate?: Date;
-  className?: string;
-  availableDates?: Date[]; // Optional: specific dates that are available
+  date?: Date
+  onDateChange?: (date: Date | undefined) => void
+  placeholder?: string
+  disabled?: boolean
+  minDate?: Date
+  maxDate?: Date
+  className?: string
+  availableDates?: Date[] // Optional: specific dates that are available
 }
 
 export function DatePicker({
@@ -31,28 +31,28 @@ export function DatePicker({
   className,
   availableDates,
 }: DatePickerProps) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(false)
 
   const isDateDisabled = (dateToCheck: Date) => {
     // Basic min/max date restrictions
     if (dateToCheck < minDate || dateToCheck > maxDate) {
-      return true;
+      return true
     }
 
     // If availableDates is provided, only allow those dates
     if (availableDates && availableDates.length > 0) {
-      return !availableDates.some((availableDate) => isSameDay(dateToCheck, availableDate));
+      return !availableDates.some((availableDate) => isSameDay(dateToCheck, availableDate))
     }
 
-    return false;
-  };
+    return false
+  }
 
   const formatSelectedDate = (selectedDate: Date) => {
     if (isToday(selectedDate)) {
-      return `${format(selectedDate, 'yyyy년 M월 d일', { locale: ko })} (오늘)`;
+      return `${format(selectedDate, 'yyyy년 M월 d일', { locale: ko })} (오늘)`
     }
-    return format(selectedDate, 'yyyy년 M월 d일 (EEEE)', { locale: ko });
-  };
+    return format(selectedDate, 'yyyy년 M월 d일 (EEEE)', { locale: ko })
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -80,8 +80,8 @@ export function DatePicker({
           mode="single"
           selected={date}
           onSelect={(selectedDate) => {
-            onDateChange?.(selectedDate);
-            setOpen(false);
+            onDateChange?.(selectedDate)
+            setOpen(false)
           }}
           disabled={isDateDisabled}
           initialFocus
@@ -106,5 +106,5 @@ export function DatePicker({
         </div>
       </PopoverContent>
     </Popover>
-  );
+  )
 }

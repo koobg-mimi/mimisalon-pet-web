@@ -1,19 +1,19 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import { Mail, Smartphone, Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import * as React from 'react'
+import { Mail, Smartphone, Check } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-export type VerificationMethod = 'email' | 'sms';
+export type VerificationMethod = 'email' | 'sms'
 
 export interface VerificationMethodSelectorProps {
-  onSelect: (method: VerificationMethod) => void;
-  emailAddress?: string;
-  phoneNumber?: string;
-  defaultMethod?: VerificationMethod;
-  className?: string;
+  onSelect: (method: VerificationMethod) => void
+  emailAddress?: string
+  phoneNumber?: string
+  defaultMethod?: VerificationMethod
+  className?: string
 }
 
 /**
@@ -28,12 +28,12 @@ export function VerificationMethodSelector({
   defaultMethod,
   className,
 }: VerificationMethodSelectorProps) {
-  const [selected, setSelected] = React.useState<VerificationMethod | null>(defaultMethod || null);
+  const [selected, setSelected] = React.useState<VerificationMethod | null>(defaultMethod || null)
 
   const handleSelect = (method: VerificationMethod) => {
-    setSelected(method);
-    onSelect(method);
-  };
+    setSelected(method)
+    onSelect(method)
+  }
 
   return (
     <div className={cn('space-y-4', className)}>
@@ -137,7 +137,7 @@ export function VerificationMethodSelector({
         </Card>
       )}
     </div>
-  );
+  )
 }
 
 /**
@@ -150,12 +150,12 @@ export function VerificationMethodSelectorCompact({
   defaultMethod,
   className,
 }: VerificationMethodSelectorProps) {
-  const [selected, setSelected] = React.useState<VerificationMethod | null>(defaultMethod || null);
+  const [selected, setSelected] = React.useState<VerificationMethod | null>(defaultMethod || null)
 
   const handleSelect = (method: VerificationMethod) => {
-    setSelected(method);
-    onSelect(method);
-  };
+    setSelected(method)
+    onSelect(method)
+  }
 
   return (
     <div className={cn('space-y-3', className)}>
@@ -187,5 +187,5 @@ export function VerificationMethodSelectorCompact({
         )}
       </div>
     </div>
-  );
+  )
 }

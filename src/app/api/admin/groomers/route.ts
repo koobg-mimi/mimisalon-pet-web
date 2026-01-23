@@ -1,97 +1,99 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import auth from '@/lib/auth';
-import { prisma } from '@mimisalon/shared';
-import { Prisma } from '@mimisalon/shared';
+import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import auth from '@/lib/auth'
+import { prisma } from '@mimisalon/shared'
+import { Prisma } from '@mimisalon/shared'
 
 // Response types
 interface GroomerUserInfo {
-  id: string;
-  email: string;
-  name: string;
-  phoneNumber: string | null;
-  isActive: boolean;
-  createdAt: string;
-  lastLoginAt: null;
+  id: string
+  email: string
+  name: string
+  phoneNumber: string | null
+  isActive: boolean
+  createdAt: string
+  lastLoginAt: null
 }
 
 interface CommissionGradeInfo {
-  id: string;
-  name: string;
-  commissionRate: number;
+  id: string
+  name: string
+  commissionRate: number
 }
 
 interface WorkAreaInfo {
-  id: string;
-  name: string;
-  address: string;
-  description: string;
-  centerLat: number;
-  centerLng: number;
-  radiusKm: number;
-  isActive: boolean;
+  id: string
+  name: string
+  address: string
+  description: string
+  centerLat: number
+  centerLng: number
+  radiusKm: number
+  isActive: boolean
 }
 
 interface BankAccountInfo {
-  bankName: string;
-  accountNumber: string;
-  accountHolder: string;
+  bankName: string
+  accountNumber: string
+  accountHolder: string
 }
 
 export interface AdminGroomerInfo {
-  id: string;
-  userId: string;
-  user: GroomerUserInfo;
-  bio: null;
-  experience: number;
-  certifications: unknown[];
-  isActive: boolean;
-  rating: number;
-  totalReviews: number;
-  totalBookings: number;
-  monthlyRevenue: number;
-  profileImage: string | null;
-  portfolio: unknown[];
-  birthDate: string | null;
-  availableLocations: WorkAreaInfo[];
-  services: unknown[];
-  bankAccount: BankAccountInfo | null;
-  commissionGrade: CommissionGradeInfo | null;
-  lastActivityAt: string | null;
+  id: string
+  userId: string
+  user: GroomerUserInfo
+  bio: null
+  experience: number
+  certifications: unknown[]
+  isActive: boolean
+  rating: number
+  totalReviews: number
+  totalBookings: number
+  monthlyRevenue: number
+  profileImage: string | null
+  portfolio: unknown[]
+  birthDate: string | null
+  availableLocations: WorkAreaInfo[]
+  services: unknown[]
+  bankAccount: BankAccountInfo | null
+  commissionGrade: CommissionGradeInfo | null
+  lastActivityAt: string | null
 }
 
 export interface AdminGroomersGetResponse {
-  groomers: AdminGroomerInfo[];
-  totalCount: number;
-  totalPages: number;
-  currentPage: number;
+  groomers: AdminGroomerInfo[]
+  totalCount: number
+  totalPages: number
+  currentPage: number
 }
 
 interface ErrorResponse {
-  error: string;
+  error: string
 }
 
-export async function GET(request: NextRequest): Promise<NextResponse<AdminGroomersGetResponse | ErrorResponse>> {
+export async function GET(
+  request: NextRequest
+): Promise<NextResponse<AdminGroomersGetResponse | ErrorResponse>> {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session || session.user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const search = searchParams.get('search') || '';
-    const status = searchParams.get('status') || 'ALL';
-    const location = searchParams.get('location') || 'ALL';
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '20')
+    const search = searchParams.get('search') || ''
+    const status = searchParams.get('status') || 'ALL'
+    const location = searchParams.get('location') || 'ALL'
 
-    const skip = (page - 1) * limit;
+    const skip = (page - 1) * limit
 
     // Build where conditions
     const whereConditions: Prisma.UserWhereInput = {
       role: 'GROOMER',
-    };
+    }
 
     // Add search filter
     if (search) {
@@ -99,14 +101,14 @@ export async function GET(request: NextRequest): Promise<NextResponse<AdminGroom
         { name: { contains: search, mode: 'insensitive' } },
         { email: { contains: search, mode: 'insensitive' } },
         { phoneNumber: { contains: search, mode: 'insensitive' } },
-      ];
+      ]
     }
 
     // Add status filter for GroomerProfile
     if (status !== 'ALL') {
       whereConditions.groomerProfile = {
         isActive: status === 'ACTIVE',
-      };
+      }
     }
 
     // Add location filter
@@ -115,7 +117,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<AdminGroom
         some: {
           id: location,
         },
-      };
+      }
     }
 
     // Get groomers with related data
@@ -159,23 +161,23 @@ export async function GET(request: NextRequest): Promise<NextResponse<AdminGroom
       prisma.user.count({
         where: whereConditions,
       }),
-    ]);
+    ])
 
     // Process groomer data
     const processedGroomers = groomers.map((groomer) => {
       // Calculate average rating
-      const ratings = groomer.reviews.map((r) => r.rating);
+      const ratings = groomer.reviews.map((r) => r.rating)
       const averageRating =
-        ratings.length > 0 ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length : 0;
+        ratings.length > 0 ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length : 0
 
       // Calculate monthly revenue (last 30 days)
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const thirtyDaysAgo = new Date()
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
       const monthlyBookings = groomer.groomerBookings.filter(
         (booking) => new Date(booking.createdAt) >= thirtyDaysAgo
-      );
-      const monthlyRevenue = monthlyBookings.reduce((sum, booking) => sum + booking.totalPrice, 0);
+      )
+      const monthlyRevenue = monthlyBookings.reduce((sum, booking) => sum + booking.totalPrice, 0)
 
       // Get last activity from bookings
       const lastActivityAt =
@@ -183,7 +185,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<AdminGroom
           ? groomer.groomerBookings.sort(
               (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             )[0].createdAt
-          : null;
+          : null
 
       return {
         id: groomer.id,
@@ -236,21 +238,21 @@ export async function GET(request: NextRequest): Promise<NextResponse<AdminGroom
             }
           : null,
         lastActivityAt: lastActivityAt ? new Date(lastActivityAt).toISOString() : null,
-      };
-    });
+      }
+    })
 
-    const filteredGroomers = processedGroomers;
+    const filteredGroomers = processedGroomers
 
-    const totalPages = Math.ceil(totalCount / limit);
+    const totalPages = Math.ceil(totalCount / limit)
 
     return NextResponse.json({
       groomers: filteredGroomers,
       totalCount,
       totalPages,
       currentPage: page,
-    });
+    })
   } catch (error) {
-    console.error('Error fetching groomers:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error fetching groomers:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

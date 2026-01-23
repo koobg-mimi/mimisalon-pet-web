@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { ChevronsUpDown, LogOut } from 'lucide-react';
-import { authClient } from '@/lib/auth-client';
-import { useState } from 'react';
+import { ChevronsUpDown, LogOut } from 'lucide-react'
+import { authClient } from '@/lib/auth-client'
+import { useState } from 'react'
 
 import {
   DropdownMenu,
@@ -11,37 +11,37 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu'
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from '@/components/ui/sidebar';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+} from '@/components/ui/sidebar'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 export function NavUser({
   user,
 }: {
   user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
+    name: string
+    email: string
+    avatar: string
+  }
 }) {
-  const { isMobile } = useSidebar();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { isMobile } = useSidebar()
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   const handleLogout = async () => {
-    setIsLoggingOut(true);
+    setIsLoggingOut(true)
     try {
-      await authClient.signOut();
-      window.location.href = '/auth/signin';
+      await authClient.signOut()
+      window.location.href = '/auth/signin'
     } catch (error) {
-      console.error('Logout failed:', error);
-      setIsLoggingOut(false);
+      console.error('Logout failed:', error)
+      setIsLoggingOut(false)
     }
-  };
+  }
 
   return (
     <SidebarMenu>
@@ -95,5 +95,5 @@ export function NavUser({
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  );
+  )
 }

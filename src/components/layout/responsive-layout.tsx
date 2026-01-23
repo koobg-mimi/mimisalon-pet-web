@@ -1,29 +1,29 @@
-'use client';
+'use client'
 
-import { ReactNode } from 'react';
-import Image from 'next/image';
-import { MobileNavigation } from './mobile-navigation';
-import { BottomNavigation } from './bottom-navigation';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { BellIcon, MessageCircleIcon, UserIcon, SearchIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ReactNode } from 'react'
+import Image from 'next/image'
+import { MobileNavigation } from './mobile-navigation'
+import { BottomNavigation } from './bottom-navigation'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { BellIcon, MessageCircleIcon, UserIcon, SearchIcon } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface ResponsiveLayoutProps {
-  children: ReactNode;
-  userRole: 'CUSTOMER' | 'GROOMER' | 'ADMIN';
+  children: ReactNode
+  userRole: 'CUSTOMER' | 'GROOMER' | 'ADMIN'
   user?: {
-    name: string;
-    avatar?: string;
-    role: string;
-  };
-  unreadNotifications?: number;
-  unreadMessages?: number;
-  showSearch?: boolean;
-  title?: string;
-  subtitle?: string;
-  headerActions?: ReactNode;
-  className?: string;
+    name: string
+    avatar?: string
+    role: string
+  }
+  unreadNotifications?: number
+  unreadMessages?: number
+  showSearch?: boolean
+  title?: string
+  subtitle?: string
+  headerActions?: ReactNode
+  className?: string
 }
 
 export function ResponsiveLayout({
@@ -237,5 +237,5 @@ export function ResponsiveLayout({
         unreadMessages={unreadMessages}
       />
     </div>
-  );
+  )
 }

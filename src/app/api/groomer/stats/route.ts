@@ -1,13 +1,13 @@
-import { NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import auth from '@/lib/auth';
+import { NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import auth from '@/lib/auth'
 
 export async function GET() {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session || session.user?.role !== 'GROOMER') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Mock data for groomer stats
@@ -18,11 +18,11 @@ export async function GET() {
       monthlyRevenue: 850000,
       averageRating: 4.8,
       totalReviews: 47,
-    };
+    }
 
-    return NextResponse.json(stats);
+    return NextResponse.json(stats)
   } catch (error) {
-    console.error('Failed to fetch groomer stats:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Failed to fetch groomer stats:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

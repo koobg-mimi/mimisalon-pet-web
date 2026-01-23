@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -18,10 +18,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { AlertCircle, CheckCircle, Lock, PawPrint, Sparkles } from 'lucide-react';
-import { toast } from 'sonner';
-import { authClient } from '@/lib/auth-client';
+} from '@/components/ui/form'
+import { AlertCircle, CheckCircle, Lock, PawPrint, Sparkles } from 'lucide-react'
+import { toast } from 'sonner'
+import { authClient } from '@/lib/auth-client'
 
 // Password validation schema
 const passwordSchema = z
@@ -37,9 +37,9 @@ const passwordSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: '비밀번호가 일치하지 않습니다',
     path: ['confirmPassword'],
-  });
+  })
 
-type PasswordInput = z.infer<typeof passwordSchema>;
+type PasswordInput = z.infer<typeof passwordSchema>
 
 /**
  * Reset Password Page
@@ -54,12 +54,12 @@ type PasswordInput = z.infer<typeof passwordSchema>;
  * 4. Redirect to sign-in on success
  */
 export default function ResetPasswordPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [token, setToken] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Form for password reset
   const form = useForm<PasswordInput>({
@@ -68,61 +68,61 @@ export default function ResetPasswordPage() {
       password: '',
       confirmPassword: '',
     },
-  });
+  })
 
   // Extract token from URL on mount
   useEffect(() => {
-    const tokenParam = searchParams.get('token');
-    const errorParam = searchParams.get('error');
+    const tokenParam = searchParams.get('token')
+    const errorParam = searchParams.get('error')
 
     if (errorParam === 'INVALID_TOKEN') {
-      setError('유효하지 않거나 만료된 링크입니다. 비밀번호 재설정을 다시 요청해주세요.');
+      setError('유효하지 않거나 만료된 링크입니다. 비밀번호 재설정을 다시 요청해주세요.')
     } else if (tokenParam) {
-      setToken(tokenParam);
+      setToken(tokenParam)
     } else {
-      setError('유효한 재설정 링크가 아닙니다.');
+      setError('유효한 재설정 링크가 아닙니다.')
     }
-  }, [searchParams]);
+  }, [searchParams])
 
   /**
    * Handle password reset submission
    */
   const handleSubmit = async (data: PasswordInput) => {
     if (!token) {
-      toast.error('유효한 토큰이 없습니다');
-      return;
+      toast.error('유효한 토큰이 없습니다')
+      return
     }
 
-    setIsLoading(true);
+    setIsLoading(true)
 
     try {
       // Use better-auth native resetPassword method
       const { data: result, error: resetError } = await authClient.resetPassword({
         newPassword: data.password,
         token,
-      });
+      })
 
       if (resetError) {
-        console.error('Password reset error:', resetError);
-        toast.error(resetError.message || '비밀번호 재설정에 실패했습니다');
-        setIsLoading(false);
-        return;
+        console.error('Password reset error:', resetError)
+        toast.error(resetError.message || '비밀번호 재설정에 실패했습니다')
+        setIsLoading(false)
+        return
       }
 
       // Success!
-      setSuccess(true);
-      toast.success('비밀번호가 성공적으로 변경되었습니다');
+      setSuccess(true)
+      toast.success('비밀번호가 성공적으로 변경되었습니다')
 
       // Redirect to sign-in after 2 seconds
       setTimeout(() => {
-        router.push('/auth/signin');
-      }, 2000);
+        router.push('/auth/signin')
+      }, 2000)
     } catch (error) {
-      console.error('Password reset error:', error);
-      toast.error('비밀번호 재설정 중 오류가 발생했습니다');
-      setIsLoading(false);
+      console.error('Password reset error:', error)
+      toast.error('비밀번호 재설정 중 오류가 발생했습니다')
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className="bg-background flex min-h-screen items-center justify-center p-4">
@@ -259,5 +259,5 @@ export default function ResetPasswordPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

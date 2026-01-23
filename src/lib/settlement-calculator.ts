@@ -1,69 +1,69 @@
-import { prisma } from '@mimisalon/shared';
+import { prisma } from '@mimisalon/shared'
 
 // Types for settlement calculations
 export interface SettlementBooking {
-  id: string;
-  bookingNumber: string;
-  totalPrice: number;
-  completedAt: Date | null;
+  id: string
+  bookingNumber: string
+  totalPrice: number
+  completedAt: Date | null
   payments: Array<{
-    id: string;
-    paymentId?: string;
-    status: string;
-    amount: number;
-    paidAt: Date | null;
-  }>;
+    id: string
+    paymentId?: string
+    status: string
+    amount: number
+    paidAt: Date | null
+  }>
 }
 
 export interface GroomerWithProfile {
-  id: string;
-  name: string | null;
-  email: string | null;
+  id: string
+  name: string | null
+  email: string | null
   groomerProfile: {
-    id: string;
-    groomerId: string;
-    commissionGradeId: string | null;
-    taxRate: number;
-    portonePartnerId: string | null;
-    portoneContractId: string | null;
+    id: string
+    groomerId: string
+    commissionGradeId: string | null
+    taxRate: number
+    portonePartnerId: string | null
+    portoneContractId: string | null
     commissionGrade: {
-      id: string;
-      name: string;
-      commissionRate: number;
-    } | null;
-  } | null;
+      id: string
+      name: string
+      commissionRate: number
+    } | null
+  } | null
 }
 
 export interface SettlementCalculation {
-  totalRevenue: number;
-  commissionRate: number;
-  platformCommission: number;
-  netSettlementAmount: number;
-  taxAmount: number;
-  bookingCount: number;
+  totalRevenue: number
+  commissionRate: number
+  platformCommission: number
+  netSettlementAmount: number
+  taxAmount: number
+  bookingCount: number
 }
 
 export interface SettlementValidation {
-  isValid: boolean;
-  reason?: string;
-  details?: string;
+  isValid: boolean
+  reason?: string
+  details?: string
 }
 
 export interface BatchSettlementOptions {
-  skipExisting?: boolean;
-  minAmount?: number;
-  dryRun?: boolean;
-  onProgress?: (progress: { completed: number; total: number; current?: string }) => void;
+  skipExisting?: boolean
+  minAmount?: number
+  dryRun?: boolean
+  onProgress?: (progress: { completed: number; total: number; current?: string }) => void
 }
 
 export interface SettlementResult {
-  groomerId: string;
-  groomerName: string;
-  status: 'success' | 'failed' | 'skipped';
-  reason?: string;
-  error?: string;
-  settlementId?: string;
-  calculation?: SettlementCalculation;
+  groomerId: string
+  groomerName: string
+  status: 'success' | 'failed' | 'skipped'
+  reason?: string
+  error?: string
+  settlementId?: string
+  calculation?: SettlementCalculation
 }
 
 /**
@@ -79,7 +79,7 @@ export class SettlementCalculator {
         isValid: false,
         reason: 'no_profile',
         details: '미용사 프로필이 없습니다',
-      };
+      }
     }
 
     if (!groomer.groomerProfile.commissionGrade) {
@@ -87,7 +87,7 @@ export class SettlementCalculator {
         isValid: false,
         reason: 'no_commission_grade',
         details: '수수료 등급이 설정되지 않았습니다',
-      };
+      }
     }
 
     if (!groomer.groomerProfile.commissionGrade.commissionRate) {
@@ -95,10 +95,10 @@ export class SettlementCalculator {
         isValid: false,
         reason: 'no_commission_rate',
         details: '수수료율이 설정되지 않았습니다',
-      };
+      }
     }
 
-    return { isValid: true };
+    return { isValid: true }
   }
 
   /**
@@ -117,13 +117,13 @@ export class SettlementCalculator {
         netSettlementAmount: 0,
         taxAmount: 0,
         bookingCount: 0,
-      };
+      }
     }
 
-    const totalRevenue = bookings.reduce((sum, booking) => sum + booking.totalPrice, 0);
-    const platformCommission = totalRevenue * (commissionRate / 100);
-    const taxAmount = taxRate > 0 ? totalRevenue * (taxRate / 100) : 0;
-    const netSettlementAmount = totalRevenue - platformCommission - taxAmount;
+    const totalRevenue = bookings.reduce((sum, booking) => sum + booking.totalPrice, 0)
+    const platformCommission = totalRevenue * (commissionRate / 100)
+    const taxAmount = taxRate > 0 ? totalRevenue * (taxRate / 100) : 0
+    const netSettlementAmount = totalRevenue - platformCommission - taxAmount
 
     return {
       totalRevenue,
@@ -132,7 +132,7 @@ export class SettlementCalculator {
       netSettlementAmount,
       taxAmount,
       bookingCount: bookings.length,
-    };
+    }
   }
 
   /**
@@ -169,9 +169,9 @@ export class SettlementCalculator {
           },
         },
       },
-    });
+    })
 
-    return groomers;
+    return groomers
   }
 
   /**
@@ -210,25 +210,25 @@ export class SettlementCalculator {
           },
         },
       },
-    });
+    })
 
     // Group bookings by groomer ID
-    const bookingsByGroomer = new Map<string, SettlementBooking[]>();
+    const bookingsByGroomer = new Map<string, SettlementBooking[]>()
 
     for (const booking of bookings) {
-      const { groomerId, ...bookingData } = booking;
+      const { groomerId, ...bookingData } = booking
       // Skip bookings without groomerId
       if (!groomerId) {
-        console.warn(`Booking ${booking.id} has no groomerId, skipping`);
-        continue;
+        console.warn(`Booking ${booking.id} has no groomerId, skipping`)
+        continue
       }
       if (!bookingsByGroomer.has(groomerId)) {
-        bookingsByGroomer.set(groomerId, []);
+        bookingsByGroomer.set(groomerId, [])
       }
-      bookingsByGroomer.get(groomerId)!.push(bookingData);
+      bookingsByGroomer.get(groomerId)!.push(bookingData)
     }
 
-    return bookingsByGroomer;
+    return bookingsByGroomer
   }
 
   /**
@@ -248,9 +248,9 @@ export class SettlementCalculator {
       select: {
         groomerId: true,
       },
-    });
+    })
 
-    return new Set(existing.map((s) => s.groomerId));
+    return new Set(existing.map((s) => s.groomerId))
   }
 
   /**
@@ -283,16 +283,16 @@ export class SettlementCalculator {
           notes: notes || '자동 정산',
           processedAt: new Date(),
         },
-      });
+      })
 
       // Create settlement details for each booking
       for (const booking of bookings) {
-        const bookingPlatformCommission = booking.totalPrice * (calculation.commissionRate / 100);
+        const bookingPlatformCommission = booking.totalPrice * (calculation.commissionRate / 100)
         const bookingTaxAmount =
           calculation.taxAmount > 0
             ? booking.totalPrice * (calculation.taxAmount / calculation.totalRevenue)
-            : 0;
-        const bookingNetAmount = booking.totalPrice - bookingPlatformCommission - bookingTaxAmount;
+            : 0
+        const bookingNetAmount = booking.totalPrice - bookingPlatformCommission - bookingTaxAmount
 
         await tx.groomerSettlementDetail.create({
           data: {
@@ -306,11 +306,11 @@ export class SettlementCalculator {
             taxAmount: bookingTaxAmount,
             netAmount: bookingNetAmount,
           },
-        });
+        })
       }
 
-      return settlement.id;
-    });
+      return settlement.id
+    })
   }
 
   /**
@@ -321,44 +321,44 @@ export class SettlementCalculator {
     periodEnd: Date,
     options: BatchSettlementOptions = {}
   ): Promise<{
-    results: SettlementResult[];
+    results: SettlementResult[]
     summary: {
-      total: number;
-      successful: number;
-      failed: number;
-      skipped: number;
-      totalAmount: number;
-    };
+      total: number
+      successful: number
+      failed: number
+      skipped: number
+      totalAmount: number
+    }
   }> {
-    const { skipExisting = true, dryRun = false, onProgress } = options;
+    const { skipExisting = true, dryRun = false, onProgress } = options
 
     // Step 1: Fetch all active groomers
-    const groomers = await this.fetchActiveGroomers();
-    const results: SettlementResult[] = [];
-    let totalAmount = 0;
+    const groomers = await this.fetchActiveGroomers()
+    const results: SettlementResult[] = []
+    let totalAmount = 0
 
-    onProgress?.({ completed: 0, total: groomers.length, current: 'Fetching groomer data...' });
+    onProgress?.({ completed: 0, total: groomers.length, current: 'Fetching groomer data...' })
 
     // Step 2: Batch check existing settlements
-    const groomerIds = groomers.map((g) => g.id);
+    const groomerIds = groomers.map((g) => g.id)
     const existingSettlements = skipExisting
       ? await this.checkExistingSettlements(groomerIds, periodStart, periodEnd)
-      : new Set<string>();
+      : new Set<string>()
 
     // Step 3: Batch fetch all bookings
-    const allBookings = await this.fetchBookingsForGroomers(groomerIds, periodStart, periodEnd);
+    const allBookings = await this.fetchBookingsForGroomers(groomerIds, periodStart, periodEnd)
 
-    onProgress?.({ completed: 0, total: groomers.length, current: 'Processing settlements...' });
+    onProgress?.({ completed: 0, total: groomers.length, current: 'Processing settlements...' })
 
     // Step 4: Process each groomer
-    let completed = 0;
+    let completed = 0
     for (const groomer of groomers) {
       try {
         onProgress?.({
           completed,
           total: groomers.length,
           current: `Processing ${groomer.name || groomer.email}...`,
-        });
+        })
 
         // Check if already exists
         if (existingSettlements.has(groomer.id)) {
@@ -367,13 +367,13 @@ export class SettlementCalculator {
             groomerName: groomer.name || '알 수 없음',
             status: 'skipped',
             reason: 'already_exists',
-          });
-          completed++;
-          continue;
+          })
+          completed++
+          continue
         }
 
         // Validate groomer
-        const validation = this.validateGroomer(groomer);
+        const validation = this.validateGroomer(groomer)
         if (!validation.isValid) {
           results.push({
             groomerId: groomer.id,
@@ -381,22 +381,22 @@ export class SettlementCalculator {
             status: 'skipped',
             reason: validation.reason,
             error: validation.details,
-          });
-          completed++;
-          continue;
+          })
+          completed++
+          continue
         }
 
         // Get bookings for this groomer
-        const groomerBookings = allBookings.get(groomer.id) || [];
+        const groomerBookings = allBookings.get(groomer.id) || []
         if (groomerBookings.length === 0) {
           results.push({
             groomerId: groomer.id,
             groomerName: groomer.name || '알 수 없음',
             status: 'skipped',
             reason: 'no_bookings',
-          });
-          completed++;
-          continue;
+          })
+          completed++
+          continue
         }
 
         // Calculate settlement
@@ -404,10 +404,10 @@ export class SettlementCalculator {
           groomerBookings,
           groomer.groomerProfile!.commissionGrade!.commissionRate,
           groomer.groomerProfile!.taxRate
-        );
+        )
 
         // Create settlement (unless dry run)
-        let settlementId: string | undefined;
+        let settlementId: string | undefined
         if (!dryRun) {
           settlementId = await this.createSettlement(
             groomer,
@@ -416,7 +416,7 @@ export class SettlementCalculator {
             periodStart,
             periodEnd,
             '배치 자동 정산'
-          );
+          )
         }
 
         results.push({
@@ -425,22 +425,22 @@ export class SettlementCalculator {
           status: 'success',
           settlementId,
           calculation,
-        });
+        })
 
-        totalAmount += calculation.netSettlementAmount;
+        totalAmount += calculation.netSettlementAmount
       } catch (error) {
         results.push({
           groomerId: groomer.id,
           groomerName: groomer.name || '알 수 없음',
           status: 'failed',
           error: error instanceof Error ? error.message : '알 수 없는 오류',
-        });
+        })
       }
 
-      completed++;
+      completed++
     }
 
-    onProgress?.({ completed, total: groomers.length, current: 'Complete!' });
+    onProgress?.({ completed, total: groomers.length, current: 'Complete!' })
 
     // Calculate summary
     const summary = {
@@ -449,8 +449,8 @@ export class SettlementCalculator {
       failed: results.filter((r) => r.status === 'failed').length,
       skipped: results.filter((r) => r.status === 'skipped').length,
       totalAmount,
-    };
+    }
 
-    return { results, summary };
+    return { results, summary }
   }
 }

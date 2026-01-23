@@ -1,70 +1,70 @@
-'use client';
+'use client'
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { X, Plus } from 'lucide-react';
+} from '@/components/ui/dialog'
+import { X, Plus } from 'lucide-react'
 
 interface AdditionalService {
-  name: string;
-  description: string;
-  price: number;
-  quantity: number;
+  name: string
+  description: string
+  price: number
+  quantity: number
 }
 
 interface QuoteModalProps {
-  bookingId: string;
-  trigger: React.ReactNode;
-  onQuoteSubmitted?: () => void;
+  bookingId: string
+  trigger: React.ReactNode
+  onQuoteSubmitted?: () => void
 }
 
 export function QuoteModal({ bookingId, trigger, onQuoteSubmitted }: QuoteModalProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [additionalServices, setAdditionalServices] = useState<AdditionalService[]>([
     { name: '', description: '', price: 0, quantity: 1 },
-  ]);
-  const [reason, setReason] = useState('');
-  const [estimatedTime, setEstimatedTime] = useState<number>(0);
+  ])
+  const [reason, setReason] = useState('')
+  const [estimatedTime, setEstimatedTime] = useState<number>(0)
 
   const updateService = (index: number, field: keyof AdditionalService, value: any) => {
-    const updated = [...additionalServices];
-    updated[index] = { ...updated[index], [field]: value };
-    setAdditionalServices(updated);
-  };
+    const updated = [...additionalServices]
+    updated[index] = { ...updated[index], [field]: value }
+    setAdditionalServices(updated)
+  }
 
   const addService = () => {
     setAdditionalServices([
       ...additionalServices,
       { name: '', description: '', price: 0, quantity: 1 },
-    ]);
-  };
+    ])
+  }
 
   const removeService = (index: number) => {
     if (additionalServices.length > 1) {
-      setAdditionalServices(additionalServices.filter((_, i) => i !== index));
+      setAdditionalServices(additionalServices.filter((_, i) => i !== index))
     }
-  };
+  }
 
   const calculateTotal = () => {
     return additionalServices.reduce((total, service) => {
-      return total + service.price * service.quantity;
-    }, 0);
-  };
+      return total + service.price * service.quantity
+    }, 0)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+    e.preventDefault()
+    setIsSubmitting(true)
 
     try {
       const response = await fetch(`/api/groomer/bookings/${bookingId}/quote`, {
@@ -80,26 +80,26 @@ export function QuoteModal({ bookingId, trigger, onQuoteSubmitted }: QuoteModalP
           estimatedTime,
           totalAdditionalAmount: calculateTotal(),
         }),
-      });
+      })
 
       if (response.ok) {
-        setIsOpen(false);
-        setAdditionalServices([{ name: '', description: '', price: 0, quantity: 1 }]);
-        setReason('');
-        setEstimatedTime(0);
-        onQuoteSubmitted?.();
-        alert('견적이 성공적으로 전송되었습니다!');
+        setIsOpen(false)
+        setAdditionalServices([{ name: '', description: '', price: 0, quantity: 1 }])
+        setReason('')
+        setEstimatedTime(0)
+        onQuoteSubmitted?.()
+        alert('견적이 성공적으로 전송되었습니다!')
       } else {
-        const error = await response.json();
-        alert(error.message || '견적 전송에 실패했습니다.');
+        const error = await response.json()
+        alert(error.message || '견적 전송에 실패했습니다.')
       }
     } catch (error) {
-      console.error('Quote submission error:', error);
-      alert('견적 전송 중 오류가 발생했습니다.');
+      console.error('Quote submission error:', error)
+      alert('견적 전송 중 오류가 발생했습니다.')
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -277,5 +277,5 @@ export function QuoteModal({ bookingId, trigger, onQuoteSubmitted }: QuoteModalP
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

@@ -1,5 +1,5 @@
-import { Star } from 'lucide-react';
-import { Card, CardContent } from '../ui/card';
+import { Star } from 'lucide-react'
+import { Card, CardContent } from '../ui/card'
 
 export function CustomerReviews() {
   const reviews = [
@@ -23,7 +23,7 @@ export function CustomerReviews() {
         '온라인으로 쉽게 예약할 수 있고, 결과도 너무 만족스러워요. 다음에도 이용할 예정입니다!',
       rating: 5,
     },
-  ];
+  ]
 
   return (
     <section data-cy="customer-reviews" className="container mx-auto px-4 py-16">
@@ -57,5 +57,5 @@ export function CustomerReviews() {
         ))}
       </div>
     </section>
-  );
+  )
 }

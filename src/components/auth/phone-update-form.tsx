@@ -1,23 +1,23 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import { useState } from 'react';
-import { AlertTriangleIcon, CheckCircleIcon, PhoneIcon, XCircleIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { usePhoneUpdate } from '@/hooks/usePhoneUpdate';
-import { cn } from '@/lib/utils';
+import * as React from 'react'
+import { useState } from 'react'
+import { AlertTriangleIcon, CheckCircleIcon, PhoneIcon, XCircleIcon } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { usePhoneUpdate } from '@/hooks/usePhoneUpdate'
+import { cn } from '@/lib/utils'
 
 export interface PhoneUpdateFormProps {
   /** Show as card or inline */
-  variant?: 'card' | 'inline';
+  variant?: 'card' | 'inline'
   /** Additional CSS classes */
-  className?: string;
+  className?: string
   /** Callback after successful verification */
-  onSuccess?: () => void;
+  onSuccess?: () => void
 }
 
 /**
@@ -38,34 +38,33 @@ export interface PhoneUpdateFormProps {
  * ```
  */
 export function PhoneUpdateForm({ variant = 'card', className, onSuccess }: PhoneUpdateFormProps) {
-  const { phoneNumber, phoneNumberVerified, isLoading, sendOtp, verifyAndUpdate } =
-    usePhoneUpdate();
+  const { phoneNumber, phoneNumberVerified, isLoading, sendOtp, verifyAndUpdate } = usePhoneUpdate()
 
-  const [step, setStep] = useState<'status' | 'input' | 'verify'>('status');
-  const [phoneInput, setPhoneInput] = useState(phoneNumber || ''); // Pre-fill with existing phone
-  const [otpInput, setOtpInput] = useState('');
+  const [step, setStep] = useState<'status' | 'input' | 'verify'>('status')
+  const [phoneInput, setPhoneInput] = useState(phoneNumber || '') // Pre-fill with existing phone
+  const [otpInput, setOtpInput] = useState('')
 
   const handleSendOtp = async () => {
-    const success = await sendOtp(phoneInput);
+    const success = await sendOtp(phoneInput)
     if (success) {
-      setStep('verify');
+      setStep('verify')
     }
-  };
+  }
 
   const handleVerify = async () => {
-    const success = await verifyAndUpdate(phoneInput, otpInput);
+    const success = await verifyAndUpdate(phoneInput, otpInput)
     if (success) {
-      setStep('status');
-      setPhoneInput('');
-      setOtpInput('');
-      onSuccess?.();
+      setStep('status')
+      setPhoneInput('')
+      setOtpInput('')
+      onSuccess?.()
     }
-  };
+  }
 
   const formatPhoneForDisplay = (phoneNumber: string | null | undefined) => {
     // Display E.164 format as-is for consistency
-    return phoneNumber || '';
-  };
+    return phoneNumber || ''
+  }
 
   // Status view: Show current verification status
   if (step === 'status') {
@@ -90,7 +89,7 @@ export function PhoneUpdateForm({ variant = 'card', className, onSuccess }: Phon
             추가
           </Button>
         </div>
-      );
+      )
     }
 
     if (phoneNumberVerified) {
@@ -117,7 +116,7 @@ export function PhoneUpdateForm({ variant = 'card', className, onSuccess }: Phon
             변경
           </Button>
         </div>
-      );
+      )
     }
 
     return (
@@ -141,15 +140,15 @@ export function PhoneUpdateForm({ variant = 'card', className, onSuccess }: Phon
           <Button
             size="sm"
             onClick={() => {
-              setPhoneInput(phoneNumber || '');
-              setStep('input');
+              setPhoneInput(phoneNumber || '')
+              setStep('input')
             }}
           >
             인증
           </Button>
         </div>
       </div>
-    );
+    )
   }
 
   // Input view: Enter phone number
@@ -191,7 +190,7 @@ export function PhoneUpdateForm({ variant = 'card', className, onSuccess }: Phon
           </Button>
         </div>
       </div>
-    );
+    )
   }
 
   // Verify view: Enter OTP code
@@ -231,8 +230,8 @@ export function PhoneUpdateForm({ variant = 'card', className, onSuccess }: Phon
         <Button
           variant="outline"
           onClick={() => {
-            setStep('input');
-            setOtpInput('');
+            setStep('input')
+            setOtpInput('')
           }}
           disabled={isLoading}
         >
@@ -250,5 +249,5 @@ export function PhoneUpdateForm({ variant = 'card', className, onSuccess }: Phon
         인증 코드 재전송
       </Button>
     </div>
-  );
+  )
 }

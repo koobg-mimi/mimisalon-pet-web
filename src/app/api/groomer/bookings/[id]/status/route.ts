@@ -1,62 +1,62 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import auth from '@/lib/auth';
-import { prisma } from '@mimisalon/shared';
-import { z } from 'zod';
-import { BookingStatus, PaymentStatus } from '@mimisalon/shared';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { workerApiClient } from '@/lib/worker-api-client';
-import { cancelPayment } from '@/lib/portone-server';
+import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import auth from '@/lib/auth'
+import { prisma } from '@mimisalon/shared'
+import { z } from 'zod'
+import { BookingStatus, PaymentStatus } from '@mimisalon/shared'
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
+import { workerApiClient } from '@/lib/worker-api-client'
+import { cancelPayment } from '@/lib/portone-server'
 
 // Error response type
 export interface ErrorResponse {
-  error: string;
-  details?: unknown;
+  error: string
+  details?: unknown
 }
 
 // Request schema
 export const updateBookingStatusSchema = z.object({
   status: z.enum(BookingStatus),
   reason: z.string().optional(),
-});
+})
 
-export type UpdateBookingStatusRequest = z.infer<typeof updateBookingStatusSchema>;
+export type UpdateBookingStatusRequest = z.infer<typeof updateBookingStatusSchema>
 
 // Response types
 export type UpdateBookingStatusResponse = {
-  message: string;
+  message: string
   booking: {
-    id: string;
-    status: string;
-    confirmedAt: Date | null;
-    startedAt: Date | null;
-    completedAt: Date | null;
-    cancelledAt: Date | null;
-  };
+    id: string
+    status: string
+    confirmedAt: Date | null
+    startedAt: Date | null
+    completedAt: Date | null
+    cancelledAt: Date | null
+  }
   refundResults?: {
-    totalPayments: number;
-    successfulRefunds: number;
-    failedRefunds: number;
-    totalRefundAmount: number;
-    failedDetails?: Array<{ paymentId: string; error: string }>;
-  };
-};
+    totalPayments: number
+    successfulRefunds: number
+    failedRefunds: number
+    totalRefundAmount: number
+    failedDetails?: Array<{ paymentId: string; error: string }>
+  }
+}
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<UpdateBookingStatusResponse | ErrorResponse>> {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session?.user || session.user.role !== 'GROOMER') {
-      return NextResponse.json({ error: '미용사 권한이 필요합니다' }, { status: 403 });
+      return NextResponse.json({ error: '미용사 권한이 필요합니다' }, { status: 403 })
     }
 
-    const { id: bookingId } = await params;
-    const body: unknown = await request.json();
-    const { status, reason } = updateBookingStatusSchema.parse(body);
+    const { id: bookingId } = await params
+    const body: unknown = await request.json()
+    const { status, reason } = updateBookingStatusSchema.parse(body)
 
     // 예약 정보 조회 및 권한 확인
     const booking = await prisma.booking.findUnique({
@@ -82,59 +82,59 @@ export async function PUT(
           },
         },
       },
-    });
+    })
 
     if (!booking) {
-      return NextResponse.json({ error: '예약을 찾을 수 없습니다' }, { status: 404 });
+      return NextResponse.json({ error: '예약을 찾을 수 없습니다' }, { status: 404 })
     }
 
     if (booking.groomerId !== session.user.id) {
-      return NextResponse.json({ error: '해당 예약에 대한 권한이 없습니다' }, { status: 403 });
+      return NextResponse.json({ error: '해당 예약에 대한 권한이 없습니다' }, { status: 403 })
     }
 
     // 상태 변경 유효성 검사
-    const validTransitions = getValidStatusTransitions(booking.status);
+    const validTransitions = getValidStatusTransitions(booking.status)
     if (!validTransitions.includes(status)) {
       return NextResponse.json(
         {
           error: `현재 상태(${booking.status})에서 ${status}로 변경할 수 없습니다`,
         },
         { status: 400 }
-      );
+      )
     }
 
     // 상태 업데이트
     const updateData: {
-      status: BookingStatus;
-      updatedAt: Date;
-      confirmedAt?: Date;
-      startedAt?: Date;
-      completedAt?: Date;
-      cancelledAt?: Date;
-      cancellationReason?: string;
-      cancelledBy?: string;
-      paymentStatus?: PaymentStatus;
+      status: BookingStatus
+      updatedAt: Date
+      confirmedAt?: Date
+      startedAt?: Date
+      completedAt?: Date
+      cancelledAt?: Date
+      cancellationReason?: string
+      cancelledBy?: string
+      paymentStatus?: PaymentStatus
     } = {
       status: status as BookingStatus,
       updatedAt: new Date(),
-    };
+    }
 
     // 상태별 추가 데이터 설정
     switch (status) {
       case 'GROOMER_CONFIRM':
-        updateData.confirmedAt = new Date();
-        break;
+        updateData.confirmedAt = new Date()
+        break
       case 'WORK_IN_PROGRESS':
-        updateData.startedAt = new Date();
-        break;
+        updateData.startedAt = new Date()
+        break
       case 'SERVICE_COMPLETED':
-        updateData.completedAt = new Date();
-        break;
+        updateData.completedAt = new Date()
+        break
       case 'SERVICE_CANCELLED':
-        updateData.cancelledAt = new Date();
-        updateData.cancellationReason = reason || '미용사가 예약을 거절했습니다';
-        updateData.cancelledBy = session.user.id;
-        break;
+        updateData.cancelledAt = new Date()
+        updateData.cancellationReason = reason || '미용사가 예약을 거절했습니다'
+        updateData.cancelledBy = session.user.id
+        break
     }
 
     // SERVICE_CANCELLED의 경우 결제 취소 처리
@@ -142,38 +142,38 @@ export async function PUT(
       successful: [] as string[],
       failed: [] as { paymentId: string; error: string }[],
       totalRefundAmount: 0,
-    };
+    }
 
     if (status === 'SERVICE_CANCELLED' && booking.payments.length > 0) {
-      console.log(`[Groomer Reject] Processing refunds for booking ${booking.bookingNumber}`);
+      console.log(`[Groomer Reject] Processing refunds for booking ${booking.bookingNumber}`)
 
-      const cancelReason = `미용사 예약 거절 - 예약번호: ${booking.bookingNumber} (${reason || '미용사가 예약을 거절했습니다'})`;
+      const cancelReason = `미용사 예약 거절 - 예약번호: ${booking.bookingNumber} (${reason || '미용사가 예약을 거절했습니다'})`
 
       // 각 결제에 대해 PortOne 취소 API 호출
       for (const payment of booking.payments) {
         try {
           console.log(
             `[Groomer Reject] Processing payment cancellation for paymentId: ${payment.paymentId}`
-          );
+          )
 
           // PortOne API를 통한 결제 취소
-          await cancelPayment(payment.paymentId, cancelReason);
+          await cancelPayment(payment.paymentId, cancelReason)
 
-          refundResults.successful.push(payment.paymentId);
-          refundResults.totalRefundAmount += payment.amount;
-          console.log(`[Groomer Reject] Successfully cancelled payment: ${payment.paymentId}`);
+          refundResults.successful.push(payment.paymentId)
+          refundResults.totalRefundAmount += payment.amount
+          console.log(`[Groomer Reject] Successfully cancelled payment: ${payment.paymentId}`)
         } catch (error) {
-          console.error(`[Groomer Reject] Failed to cancel payment ${payment.paymentId}:`, error);
+          console.error(`[Groomer Reject] Failed to cancel payment ${payment.paymentId}:`, error)
 
           // 이미 취소된 결제는 성공으로 처리
           if (error instanceof Error && error.message.includes('already cancelled')) {
-            refundResults.successful.push(payment.paymentId);
-            refundResults.totalRefundAmount += payment.amount;
+            refundResults.successful.push(payment.paymentId)
+            refundResults.totalRefundAmount += payment.amount
           } else {
             refundResults.failed.push({
               paymentId: payment.paymentId,
               error: error instanceof Error ? error.message : 'Unknown error',
-            });
+            })
           }
         }
       }
@@ -196,10 +196,10 @@ export async function PUT(
             cancelReason: '미용사 예약 거절로 인한 자동 환불',
             cancelledAmount: booking.totalPrice,
           },
-        });
+        })
 
         // 예약의 결제 상태도 업데이트
-        updateData.paymentStatus = PaymentStatus.CANCELLED;
+        updateData.paymentStatus = PaymentStatus.CANCELLED
       }
 
       // 예약 상태 업데이트
@@ -221,8 +221,8 @@ export async function PUT(
           },
           payments: true,
         },
-      });
-    });
+      })
+    })
 
     // BullMQ를 통한 고객 알림 발송
     await sendNotificationViaQueue(
@@ -245,11 +245,11 @@ export async function PUT(
             : undefined,
       },
       status
-    );
+    )
 
     // 예약이 취소된 경우 스케줄된 알림들 제거
     if (status === 'SERVICE_CANCELLED') {
-      await workerApiClient.cancelBookingNotifications(bookingId);
+      await workerApiClient.cancelBookingNotifications(bookingId)
     }
 
     return NextResponse.json({
@@ -275,21 +275,21 @@ export async function PUT(
             ...(refundResults.failed.length > 0 && { failedDetails: refundResults.failed }),
           },
         }),
-    });
+    })
   } catch (error) {
-    console.error('Booking status update error:', error);
+    console.error('Booking status update error:', error)
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: '잘못된 요청 데이터입니다', details: error.issues },
         { status: 400 }
-      );
+      )
     }
 
     return NextResponse.json(
       { error: '예약 상태 업데이트 중 오류가 발생했습니다' },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -301,25 +301,25 @@ function getValidStatusTransitions(currentStatus: string): string[] {
     GROOMER_CONFIRM: ['WORK_IN_PROGRESS', 'SERVICE_CANCELLED'],
     ADDITIONAL_PAYMENT_COMPLETE: ['WORK_IN_PROGRESS', 'SERVICE_CANCELLED'],
     WORK_IN_PROGRESS: ['SERVICE_COMPLETED', 'SERVICE_CANCELLED'],
-  };
+  }
 
-  return transitions[currentStatus] || [];
+  return transitions[currentStatus] || []
 }
 
 // BullMQ를 통한 고객 알림 발송
 async function sendNotificationViaQueue(
   booking: {
-    id: string;
-    serviceDate: Date;
-    bookingNumber?: string;
-    cancellationReason?: string;
-    groomer: { name: string };
-    bookingPets: Array<{ pet: { name: string } }>;
+    id: string
+    serviceDate: Date
+    bookingNumber?: string
+    cancellationReason?: string
+    groomer: { name: string }
+    bookingPets: Array<{ pet: { name: string } }>
     refundInfo?: {
-      totalRefundAmount: number;
-      successfulRefunds: number;
-      failedRefunds: number;
-    };
+      totalRefundAmount: number
+      successfulRefunds: number
+      failedRefunds: number
+    }
   },
   newStatus: string
 ) {
@@ -344,10 +344,10 @@ async function sendNotificationViaQueue(
             ? `죄송합니다. 예약이 취소되었습니다. ${booking.refundInfo.totalRefundAmount.toLocaleString('ko-KR')}원이 자동으로 환불 처리되었습니다. ${booking.cancellationReason || ''}`
             : `죄송합니다. 예약이 취소되었습니다. ${booking.cancellationReason || '자세한 사항은 고객센터로 문의해주세요.'}`,
       },
-    };
+    }
 
-    const message = notificationMessages[newStatus as keyof typeof notificationMessages];
-    if (!message) return;
+    const message = notificationMessages[newStatus as keyof typeof notificationMessages]
+    if (!message) return
 
     // BullMQ를 통한 즉시 알림 발송
     await workerApiClient.sendImmediateNotification({
@@ -362,10 +362,10 @@ async function sendNotificationViaQueue(
         status: newStatus,
         bookingNumber: booking.bookingNumber,
       },
-    });
+    })
 
-    console.log(`Queued status update notification for booking ${booking.id}: ${newStatus}`);
+    console.log(`Queued status update notification for booking ${booking.id}: ${newStatus}`)
   } catch (error) {
-    console.error('Error queuing notification:', error);
+    console.error('Error queuing notification:', error)
   }
 }

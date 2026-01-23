@@ -1,12 +1,12 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import { cn } from '@/lib/utils';
-import { calculatePasswordStrength, type PasswordStrength } from '@/lib/validations/password';
+import * as React from 'react'
+import { cn } from '@/lib/utils'
+import { calculatePasswordStrength, type PasswordStrength } from '@/lib/validations/password'
 
 export interface PasswordStrengthIndicatorProps {
-  password: string;
-  className?: string;
+  password: string
+  className?: string
 }
 
 /**
@@ -27,14 +27,14 @@ export function PasswordStrengthIndicator({ password, className }: PasswordStren
         score: 0,
         level: 'weak',
         feedback: [],
-      };
+      }
     }
-    return calculatePasswordStrength(password);
-  }, [password]);
+    return calculatePasswordStrength(password)
+  }, [password])
 
   // Don't show indicator if password is empty
   if (!password) {
-    return null;
+    return null
   }
 
   const strengthConfig = {
@@ -62,9 +62,9 @@ export function PasswordStrengthIndicator({ password, className }: PasswordStren
       textColor: 'text-blue-600 dark:text-blue-500',
       progress: 100,
     },
-  };
+  }
 
-  const config = strengthConfig[strength.level];
+  const config = strengthConfig[strength.level]
 
   return (
     <div className={cn('space-y-2', className)}>
@@ -94,5 +94,5 @@ export function PasswordStrengthIndicator({ password, className }: PasswordStren
         </ul>
       )}
     </div>
-  );
+  )
 }

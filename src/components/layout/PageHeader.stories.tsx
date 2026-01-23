@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { fn } from 'storybook/test';
-import { Button } from '@/components/ui/button';
-import { PageHeader } from './PageHeader';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { fn } from 'storybook/test'
+import { Button } from '@/components/ui/button'
+import { PageHeader } from './PageHeader'
 
 /**
  * PageHeader component displays page title, description, and action buttons in a consistent layout.
@@ -42,10 +42,10 @@ const meta = {
       description: 'Additional CSS classes',
     },
   },
-} satisfies Meta<typeof PageHeader>;
+} satisfies Meta<typeof PageHeader>
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default meta
+type Story = StoryObj<typeof meta>
 
 /**
  * Default state: Simple header with title and description only
@@ -55,7 +55,7 @@ export const Default: Story = {
     title: 'Booking Management',
     description: 'View and manage your grooming appointments',
   },
-};
+}
 
 /**
  * With Actions: Header with action buttons (same as bookings page)
@@ -73,7 +73,7 @@ export const WithActions: Story = {
       </>
     ),
   },
-};
+}
 
 /**
  * Desktop Short Width: Narrow desktop window layout
@@ -111,7 +111,7 @@ export const DesktopShortWidth: Story = {
       },
     },
   },
-};
+}
 
 /**
  * Desktop Very Narrow: Extremely constrained desktop width
@@ -152,7 +152,7 @@ export const DesktopVeryNarrow: Story = {
       },
     },
   },
-};
+}
 
 /**
  * Mobile View: Layout on small screens
@@ -180,7 +180,7 @@ export const MobileView: Story = {
       },
     },
   },
-};
+}
 
 /**
  * Desktop Short Width with Long Content: Tests overflow handling
@@ -222,4 +222,4 @@ export const DesktopShortWidthLongContent: Story = {
       },
     },
   },
-};
+}

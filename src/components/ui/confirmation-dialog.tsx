@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import {
   AlertDialog,
@@ -9,24 +9,24 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { AlertTriangle, Info, CheckCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from '@/components/ui/alert-dialog'
+import { AlertTriangle, Info, CheckCircle } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
-export type ConfirmationDialogVariant = 'default' | 'destructive' | 'warning' | 'success' | 'info';
+export type ConfirmationDialogVariant = 'default' | 'destructive' | 'warning' | 'success' | 'info'
 
 interface ConfirmationDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  title: string;
-  description: string;
-  confirmText?: string;
-  cancelText?: string;
-  onConfirm: () => void | Promise<void>;
-  onCancel?: () => void;
-  variant?: ConfirmationDialogVariant;
-  showIcon?: boolean;
-  isLoading?: boolean;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  title: string
+  description: string
+  confirmText?: string
+  cancelText?: string
+  onConfirm: () => void | Promise<void>
+  onCancel?: () => void
+  variant?: ConfirmationDialogVariant
+  showIcon?: boolean
+  isLoading?: boolean
 }
 
 const variantStyles = {
@@ -60,7 +60,7 @@ const variantStyles = {
     bgClass: 'bg-blue-50',
     buttonClass: 'bg-blue-600 hover:bg-blue-700 text-white',
   },
-};
+}
 
 export function ConfirmationDialog({
   open,
@@ -75,18 +75,18 @@ export function ConfirmationDialog({
   showIcon = true,
   isLoading = false,
 }: ConfirmationDialogProps) {
-  const style = variantStyles[variant];
-  const Icon = style.icon;
+  const style = variantStyles[variant]
+  const Icon = style.icon
 
   const handleConfirm = async () => {
-    await onConfirm();
-    onOpenChange(false);
-  };
+    await onConfirm()
+    onOpenChange(false)
+  }
 
   const handleCancel = () => {
-    onCancel?.();
-    onOpenChange(false);
-  };
+    onCancel?.()
+    onOpenChange(false)
+  }
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -170,21 +170,21 @@ export function ConfirmationDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
+  )
 }
 
 // Hook for easier usage
-import { useState } from 'react';
+import { useState } from 'react'
 
 export function useConfirmationDialog() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
   const [dialogProps, setDialogProps] = useState<
     Omit<ConfirmationDialogProps, 'open' | 'onOpenChange'>
   >({
     title: '',
     description: '',
     onConfirm: () => {},
-  });
+  })
 
   const showConfirmation = (
     props: Omit<ConfirmationDialogProps, 'open' | 'onOpenChange'>
@@ -193,22 +193,22 @@ export function useConfirmationDialog() {
       setDialogProps({
         ...props,
         onConfirm: async () => {
-          await props.onConfirm();
-          resolve(true);
+          await props.onConfirm()
+          resolve(true)
         },
         onCancel: () => {
-          props.onCancel?.();
-          resolve(false);
+          props.onCancel?.()
+          resolve(false)
         },
-      });
-      setIsOpen(true);
-    });
-  };
+      })
+      setIsOpen(true)
+    })
+  }
 
   return {
     ConfirmationDialogComponent: (
       <ConfirmationDialog open={isOpen} onOpenChange={setIsOpen} {...dialogProps} />
     ),
     showConfirmation,
-  };
+  }
 }

@@ -56,9 +56,9 @@ export async function POST(
     const notificationData = {
       title,
       body: message,
-      data: (data ? Object.fromEntries(
-        Object.entries(data).map(([k, v]) => [k, String(v)])
-      ) : {}) as Record<string, string>,
+      data: (data
+        ? Object.fromEntries(Object.entries(data).map(([k, v]) => [k, String(v)]))
+        : {}) as Record<string, string>,
     }
 
     let result
@@ -102,7 +102,9 @@ export async function POST(
           )
         }
 
-        const tokens = await FCMTokenService.getTokensByRole(role as 'ADMIN' | 'CUSTOMER' | 'GROOMER')
+        const tokens = await FCMTokenService.getTokensByRole(
+          role as 'ADMIN' | 'CUSTOMER' | 'GROOMER'
+        )
         if (tokens.length === 0) {
           return NextResponse.json(
             { error: `No valid FCM tokens found for role: ${role}` },
