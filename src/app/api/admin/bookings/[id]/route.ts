@@ -1,7 +1,10 @@
+// src/app/api/admin/bookings/[id]/route.ts
+
 import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import auth from '@/lib/auth'
 import { prisma } from '@mimisalon/shared'
+import type { Prisma } from '@prisma/client'
 
 interface ErrorResponse {
   error: string
@@ -48,9 +51,12 @@ export async function DELETE({
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
     }
 
+    // payments 배열 원소 타입 안전하게 추론
+    type PaymentItem = (typeof booking.payments)[number]
+
     // 진행 중인 결제가 있는지 확인
     const hasActivePayments = booking.payments.some(
-      (payment) => payment.status === 'PAID' || payment.status === 'COMPLETED'
+      (payment: PaymentItem) => payment.status === 'PAID' || payment.status === 'COMPLETED'
     )
 
     if (hasActivePayments) {
@@ -64,7 +70,7 @@ export async function DELETE({
     }
 
     // 트랜잭션으로 관련 데이터 삭제
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // BookingService 삭제 (BookingPet에 cascade 설정되어 있음)
       // BookingPet 삭제 (Booking에 cascade 설정 필요할 수 있음)
       // 명시적으로 관련 데이터 삭제
