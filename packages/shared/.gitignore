@@ -1,0 +1,18 @@
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+*.tsbuildinfo
+
+# Prisma
+.env
+.env.local
+prisma/migrations/.migration_lock
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~

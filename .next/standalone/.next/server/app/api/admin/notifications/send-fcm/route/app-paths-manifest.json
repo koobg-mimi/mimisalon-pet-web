@@ -1,0 +1,3 @@
+{
+  "/api/admin/notifications/send-fcm/route": "app/api/admin/notifications/send-fcm/route.js"
+}

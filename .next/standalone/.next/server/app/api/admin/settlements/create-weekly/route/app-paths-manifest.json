@@ -1,0 +1,3 @@
+{
+  "/api/admin/settlements/create-weekly/route": "app/api/admin/settlements/create-weekly/route.js"
+}

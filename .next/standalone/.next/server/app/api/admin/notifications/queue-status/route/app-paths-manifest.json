@@ -1,0 +1,3 @@
+{
+  "/api/admin/notifications/queue-status/route": "app/api/admin/notifications/queue-status/route.js"
+}

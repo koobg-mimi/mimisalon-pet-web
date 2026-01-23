@@ -1,0 +1,115 @@
+[00:00:18.088] Server  LOG      ○ Compiling proxy ...
+[00:00:19.161] Server  LOG      ✓ Ready in 15.5s
+[00:00:43.620] Server  LOG      ○ Compiling / ...
+[00:00:49.434] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:49.581] Browser LOG     [FetchInterceptor] ✅ Global fetch interceptor installed
+[00:01:26.944] Server  ERROR   2026-01-15T07:35:00.622Z ERROR [Better Auth]: 
+Invalid `db[model].findFirst()` invocation in
+/Volumes/MacBook-Dev/package/mimisalon-pet-web/.next/dev/server/chunks/node_modules_better-auth_dist_8a45898b._.js:1153:44
+
+  1150 if (!db[model]) {
+  1151     throw new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$better$2d$auth$2f$core$2f$dist$2f$error$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["BetterAuthError"](`Model ${model} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`);
+  1152 }
+→ 1153 return await db[model].findFirst(
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[00:01:27.121] Server  ERROR   # SERVER_ERROR:  PrismaClientInitializationError: 
+Invalid `db[model].findFirst()` invocation in
+/Volumes/MacBook-Dev/package/mimisalon-pet-web/.next/dev/server/chunks/node_modules_better-auth_dist_8a45898b._.js:1153:44
+
+  1150 if (!db[model]) {
+  1151     throw new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$better$2d$auth$2f$core$2f$dist$2f$error$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["BetterAuthError"](`Model ${model} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`);
+  1152 }
+→ 1153 return await db[model].findFirst(
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[00:01:28.900] Server  ERROR   2026-01-15T07:35:02.578Z ERROR [Better Auth]: 
+Invalid `db[model].findFirst()` invocation in
+/Volumes/MacBook-Dev/package/mimisalon-pet-web/.next/dev/server/chunks/node_modules_better-auth_dist_8a45898b._.js:1153:44
+
+  1150 if (!db[model]) {
+  1151     throw new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$better$2d$auth$2f$core$2f$dist$2f$error$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["BetterAuthError"](`Model ${model} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`);
+  1152 }
+→ 1153 return await db[model].findFirst(
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[00:01:28.983] Server  ERROR   # SERVER_ERROR:  PrismaClientInitializationError: 
+Invalid `db[model].findFirst()` invocation in
+/Volumes/MacBook-Dev/package/mimisalon-pet-web/.next/dev/server/chunks/node_modules_better-auth_dist_8a45898b._.js:1153:44
+
+  1150 if (!db[model]) {
+  1151     throw new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$better$2d$auth$2f$core$2f$dist$2f$error$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["BetterAuthError"](`Model ${model} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`);
+  1152 }
+→ 1153 return await db[model].findFirst(
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[00:01:30.493] Server  ERROR   2026-01-15T07:35:04.170Z ERROR [Better Auth]: 
+Invalid `db[model].findFirst()` invocation in
+/Volumes/MacBook-Dev/package/mimisalon-pet-web/.next/dev/server/chunks/node_modules_better-auth_dist_8a45898b._.js:1153:44
+
+  1150 if (!db[model]) {
+  1151     throw new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$better$2d$auth$2f$core$2f$dist$2f$error$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["BetterAuthError"](`Model ${model} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`);
+  1152 }
+→ 1153 return await db[model].findFirst(
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[00:01:30.587] Server  ERROR   # SERVER_ERROR:  PrismaClientInitializationError: 
+Invalid `db[model].findFirst()` invocation in
+/Volumes/MacBook-Dev/package/mimisalon-pet-web/.next/dev/server/chunks/node_modules_better-auth_dist_8a45898b._.js:1153:44
+
+  1150 if (!db[model]) {
+  1151     throw new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$better$2d$auth$2f$core$2f$dist$2f$error$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["BetterAuthError"](`Model ${model} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`);
+  1152 }
+→ 1153 return await db[model].findFirst(
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[00:01:53.929] Server  ERROR   2026-01-15T07:35:27.607Z ERROR [Better Auth]: 
+Invalid `db[model].findFirst()` invocation in
+/Volumes/MacBook-Dev/package/mimisalon-pet-web/.next/dev/server/chunks/node_modules_better-auth_dist_8a45898b._.js:1153:44
+
+  1150 if (!db[model]) {
+  1151     throw new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$better$2d$auth$2f$core$2f$dist$2f$error$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["BetterAuthError"](`Model ${model} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`);
+  1152 }
+→ 1153 return await db[model].findFirst(
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[00:01:54.054] Server  ERROR   # SERVER_ERROR:  PrismaClientInitializationError: 
+Invalid `db[model].findFirst()` invocation in
+/Volumes/MacBook-Dev/package/mimisalon-pet-web/.next/dev/server/chunks/node_modules_better-auth_dist_8a45898b._.js:1153:44
+
+  1150 if (!db[model]) {
+  1151     throw new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$better$2d$auth$2f$core$2f$dist$2f$error$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["BetterAuthError"](`Model ${model} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`);
+  1152 }
+→ 1153 return await db[model].findFirst(
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[00:01:55.300] Server  ERROR   2026-01-15T07:35:28.977Z ERROR [Better Auth]: 
+Invalid `db[model].findFirst()` invocation in
+/Volumes/MacBook-Dev/package/mimisalon-pet-web/.next/dev/server/chunks/node_modules_better-auth_dist_8a45898b._.js:1153:44
+
+  1150 if (!db[model]) {
+  1151     throw new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$better$2d$auth$2f$core$2f$dist$2f$error$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["BetterAuthError"](`Model ${model} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`);
+  1152 }
+→ 1153 return await db[model].findFirst(
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[00:01:55.397] Server  ERROR   # SERVER_ERROR:  PrismaClientInitializationError: 
+Invalid `db[model].findFirst()` invocation in
+/Volumes/MacBook-Dev/package/mimisalon-pet-web/.next/dev/server/chunks/node_modules_better-auth_dist_8a45898b._.js:1153:44
+
+  1150 if (!db[model]) {
+  1151     throw new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$better$2d$auth$2f$core$2f$dist$2f$error$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["BetterAuthError"](`Model ${model} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`);
+  1152 }
+→ 1153 return await db[model].findFirst(
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.

@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/customer/layout,_N_T_/customer/pets/layout,_N_T_/customer/pets/page,_N_T_/customer/pets"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/customer/pets/__PAGE__",
+    "/customer/pets",
+    "/customer",
+    "/_index"
+  ]
+}

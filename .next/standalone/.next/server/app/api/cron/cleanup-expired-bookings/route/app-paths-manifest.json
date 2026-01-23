@@ -1,0 +1,3 @@
+{
+  "/api/cron/cleanup-expired-bookings/route": "app/api/cron/cleanup-expired-bookings/route.js"
+}

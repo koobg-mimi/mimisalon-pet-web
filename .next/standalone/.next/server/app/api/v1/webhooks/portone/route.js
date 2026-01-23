@@ -1,0 +1,20 @@
+var R = require('../../../../../chunks/[turbopack]_runtime.js')(
+  'server/app/api/v1/webhooks/portone/route.js'
+)
+R.c('server/chunks/[root-of-the-server]__ff1db1d8._.js')
+R.c('server/chunks/node_modules_next_dist_bfd7b269._.js')
+R.c('server/chunks/[root-of-the-server]__ce4ee3fe._.js')
+R.c('server/chunks/node_modules_date-fns_e6eef88b._.js')
+R.c('server/chunks/node_modules_0f478c9c._.js')
+R.c('server/chunks/node_modules_next_dist_esm_build_templates_app-route_86227902.js')
+R.c('server/chunks/[root-of-the-server]__c7f8f561._.js')
+R.c('server/chunks/[root-of-the-server]__09c3bdaf._.js')
+R.c('server/chunks/node_modules_zod_v4_classic_external_fa90cebf.js')
+R.c('server/chunks/node_modules_next_f2da0d3e._.js')
+R.c('server/chunks/src_lib_worker-api-client_ts_ee28cdab._.js')
+R.c('server/chunks/node_modules_mime-db_db_json_a85ad9f0._.js')
+R.c('server/chunks/[root-of-the-server]__aac29ac6._.js')
+R.c('server/chunks/node_modules_63c106d0._.js')
+R.c('server/chunks/_next-internal_server_app_api_v1_webhooks_portone_route_actions_093b45ba.js')
+R.m(123987)
+module.exports = R.m(123987).exports

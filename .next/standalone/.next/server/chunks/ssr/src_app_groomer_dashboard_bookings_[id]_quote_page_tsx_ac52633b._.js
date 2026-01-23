@@ -1,0 +1,518 @@
+module.exports = [
+  317979,
+  (a) => {
+    'use strict'
+    var b = a.i(187924),
+      c = a.i(256711),
+      d = a.i(302491),
+      e = a.i(529139),
+      f = a.i(50944),
+      g = a.i(572131),
+      h = a.i(433217),
+      i = a.i(370025),
+      j = a.i(937927),
+      k = a.i(699570),
+      l = a.i(205138),
+      m = a.i(238246)
+    function n({ params: a }) {
+      let { data: n, isPending: o } = (0, e.useSession)(),
+        p = (0, f.useRouter)(),
+        q = (0, j.useQueryClient)(),
+        r = (0, g.use)(a).id,
+        [s, t] = (0, g.useState)([{ name: '', description: '', price: 0, quantity: 1 }]),
+        [u, v] = (0, g.useState)(''),
+        [w, x] = (0, g.useState)(0)
+      ;(0, g.useEffect)(() => {
+        ;(n || p.push('/auth/signin'),
+          n?.user?.role && 'GROOMER' !== n.user.role && p.push('/dashboard'))
+      }, [n, p])
+      let { data: y, isLoading: z } = (0, h.useQuery)({
+          queryKey: ['groomer', 'bookings', r, 'quote'],
+          queryFn: async () => {
+            let a = await fetch(`/api/groomer/bookings/${r}/quote`)
+            if (!a.ok) throw Error('Failed to fetch booking')
+            return a.json()
+          },
+          enabled: !!n?.user && 'GROOMER' === n.user.role && !!r,
+        }),
+        A = y?.booking || null
+      ;(0, g.useEffect)(() => {
+        y?.additionalServices?.length > 0 && t(y.additionalServices)
+      }, [y])
+      let B = (a, b, c) => {
+          let d = [...s]
+          ;((d[a] = { ...d[a], [b]: c }), t(d))
+        },
+        C = () => s.reduce((a, b) => a + b.price * b.quantity, 0),
+        D = (0, i.useMutation)({
+          mutationFn: async () => {
+            let a = s.filter((a) => a.name.trim() && a.price > 0)
+            if (0 === a.length) throw Error('최소 하나 이상의 추가 서비스를 입력해주세요.')
+            let b = await fetch(`/api/groomer/bookings/${r}/quote`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                additionalServices: a,
+                totalAdditionalAmount: C(),
+                reason: u.trim(),
+                estimatedTime: w,
+              }),
+            })
+            if (!b.ok) throw Error((await b.json()).error || '견적 요청에 실패했습니다.')
+            return b.json()
+          },
+          onSuccess: () => {
+            ;(q.invalidateQueries({ queryKey: ['groomer', 'bookings', r] }),
+              q.invalidateQueries({ queryKey: ['groomer', 'bookings'] }),
+              p.push(`/groomer/dashboard/bookings/${r}?tab=quote`))
+          },
+          onError: (a) => {
+            ;(console.error('Quote submission failed:', a),
+              alert(a.message || '견적 요청 중 오류가 발생했습니다.'))
+          },
+        })
+      return o || z
+        ? (0, b.jsx)('div', {
+            className: 'flex min-h-screen items-center justify-center',
+            children: (0, b.jsx)(l.LoadingSpinner, { size: 'lg' }),
+          })
+        : n && n.user?.role === 'GROOMER' && A
+          ? (0, b.jsxs)('div', {
+              className: 'bg-background min-h-screen',
+              children: [
+                (0, b.jsx)('header', {
+                  className: 'border-border border-b',
+                  children: (0, b.jsxs)('div', {
+                    className: 'container mx-auto flex items-center justify-between px-4 py-4',
+                    children: [
+                      (0, b.jsxs)('div', {
+                        children: [
+                          (0, b.jsx)('h1', {
+                            className: 'text-foreground text-2xl font-bold',
+                            children: '추가 견적 작성',
+                          }),
+                          (0, b.jsx)('p', {
+                            className: 'text-muted-foreground text-sm',
+                            children: '추가 서비스에 대한 견적을 작성하여 고객에게 요청하세요',
+                          }),
+                        ],
+                      }),
+                      (0, b.jsx)('div', {
+                        className: 'flex items-center space-x-4',
+                        children: (0, b.jsx)(k.Button, {
+                          variant: 'outline',
+                          asChild: !0,
+                          children: (0, b.jsx)(m.default, {
+                            href: `/groomer/dashboard/bookings/${r}`,
+                            children: '돌아가기',
+                          }),
+                        }),
+                      }),
+                    ],
+                  }),
+                }),
+                (0, b.jsx)('main', {
+                  className: 'container mx-auto px-4 py-8',
+                  children: (0, b.jsxs)('div', {
+                    className: 'mx-auto grid max-w-4xl grid-cols-1 gap-8 lg:grid-cols-3',
+                    children: [
+                      (0, b.jsx)('div', {
+                        className: 'lg:col-span-2',
+                        children: (0, b.jsxs)('form', {
+                          onSubmit: (a) => {
+                            ;(a.preventDefault(), D.mutate())
+                          },
+                          className: 'space-y-6',
+                          children: [
+                            (0, b.jsxs)('div', {
+                              className: 'border-border bg-card rounded-lg border p-6',
+                              children: [
+                                (0, b.jsx)('h2', {
+                                  className: 'mb-4 text-xl font-semibold',
+                                  children: '추가 서비스 항목',
+                                }),
+                                (0, b.jsx)('div', {
+                                  className: 'space-y-4',
+                                  children: s.map((a, c) =>
+                                    (0, b.jsxs)(
+                                      'div',
+                                      {
+                                        className:
+                                          'border-border bg-muted/50 rounded-lg border p-4',
+                                        children: [
+                                          (0, b.jsxs)('div', {
+                                            className: 'mb-4 flex items-start justify-between',
+                                            children: [
+                                              (0, b.jsxs)('h3', {
+                                                className: 'font-medium',
+                                                children: ['서비스 ', c + 1],
+                                              }),
+                                              s.length > 1 &&
+                                                (0, b.jsx)(k.Button, {
+                                                  type: 'button',
+                                                  variant: 'outline',
+                                                  size: 'sm',
+                                                  onClick: () => {
+                                                    s.length > 1 && t(s.filter((a, b) => b !== c))
+                                                  },
+                                                  children: '삭제',
+                                                }),
+                                            ],
+                                          }),
+                                          (0, b.jsxs)('div', {
+                                            className: 'grid grid-cols-1 gap-4 md:grid-cols-2',
+                                            children: [
+                                              (0, b.jsxs)('div', {
+                                                children: [
+                                                  (0, b.jsx)('label', {
+                                                    className:
+                                                      'text-foreground mb-2 block text-sm font-medium',
+                                                    children: '서비스명 *',
+                                                  }),
+                                                  (0, b.jsx)('input', {
+                                                    type: 'text',
+                                                    required: !0,
+                                                    value: a.name,
+                                                    onChange: (a) => B(c, 'name', a.target.value),
+                                                    placeholder: '예: 털 엉킴 제거',
+                                                    className:
+                                                      'border-input bg-background focus:ring-ring w-full rounded-md border px-3 py-2 shadow-sm focus:border-transparent focus:ring-2 focus:outline-none',
+                                                  }),
+                                                ],
+                                              }),
+                                              (0, b.jsxs)('div', {
+                                                children: [
+                                                  (0, b.jsx)('label', {
+                                                    className:
+                                                      'text-foreground mb-2 block text-sm font-medium',
+                                                    children: '가격 (원) *',
+                                                  }),
+                                                  (0, b.jsx)('input', {
+                                                    type: 'number',
+                                                    required: !0,
+                                                    min: '0',
+                                                    step: '1000',
+                                                    value: a.price,
+                                                    onChange: (a) =>
+                                                      B(c, 'price', parseInt(a.target.value) || 0),
+                                                    placeholder: '10000',
+                                                    className:
+                                                      'border-input bg-background focus:ring-ring w-full rounded-md border px-3 py-2 shadow-sm focus:border-transparent focus:ring-2 focus:outline-none',
+                                                  }),
+                                                ],
+                                              }),
+                                              (0, b.jsxs)('div', {
+                                                children: [
+                                                  (0, b.jsx)('label', {
+                                                    className:
+                                                      'text-foreground mb-2 block text-sm font-medium',
+                                                    children: '수량',
+                                                  }),
+                                                  (0, b.jsx)('input', {
+                                                    type: 'number',
+                                                    min: '1',
+                                                    value: a.quantity,
+                                                    onChange: (a) =>
+                                                      B(
+                                                        c,
+                                                        'quantity',
+                                                        parseInt(a.target.value) || 1
+                                                      ),
+                                                    className:
+                                                      'border-input bg-background focus:ring-ring w-full rounded-md border px-3 py-2 shadow-sm focus:border-transparent focus:ring-2 focus:outline-none',
+                                                  }),
+                                                ],
+                                              }),
+                                              (0, b.jsxs)('div', {
+                                                children: [
+                                                  (0, b.jsx)('label', {
+                                                    className:
+                                                      'text-foreground mb-2 block text-sm font-medium',
+                                                    children: '소계',
+                                                  }),
+                                                  (0, b.jsxs)('div', {
+                                                    className: 'bg-muted rounded-md px-3 py-2',
+                                                    children: [
+                                                      (a.price * a.quantity).toLocaleString(),
+                                                      '원',
+                                                    ],
+                                                  }),
+                                                ],
+                                              }),
+                                              (0, b.jsxs)('div', {
+                                                className: 'md:col-span-2',
+                                                children: [
+                                                  (0, b.jsx)('label', {
+                                                    className:
+                                                      'text-foreground mb-2 block text-sm font-medium',
+                                                    children: '설명',
+                                                  }),
+                                                  (0, b.jsx)('textarea', {
+                                                    value: a.description,
+                                                    onChange: (a) =>
+                                                      B(c, 'description', a.target.value),
+                                                    placeholder:
+                                                      '서비스에 대한 자세한 설명을 입력하세요',
+                                                    rows: 3,
+                                                    className:
+                                                      'border-input bg-background focus:ring-ring w-full rounded-md border px-3 py-2 shadow-sm focus:border-transparent focus:ring-2 focus:outline-none',
+                                                  }),
+                                                ],
+                                              }),
+                                            ],
+                                          }),
+                                        ],
+                                      },
+                                      c
+                                    )
+                                  ),
+                                }),
+                                (0, b.jsx)(k.Button, {
+                                  type: 'button',
+                                  variant: 'outline',
+                                  onClick: () => {
+                                    t([...s, { name: '', description: '', price: 0, quantity: 1 }])
+                                  },
+                                  className: 'mt-4',
+                                  children: '+ 서비스 추가',
+                                }),
+                              ],
+                            }),
+                            (0, b.jsxs)('div', {
+                              className: 'border-border bg-card rounded-lg border p-6',
+                              children: [
+                                (0, b.jsx)('h2', {
+                                  className: 'mb-4 text-xl font-semibold',
+                                  children: '추가 정보',
+                                }),
+                                (0, b.jsxs)('div', {
+                                  className: 'space-y-4',
+                                  children: [
+                                    (0, b.jsxs)('div', {
+                                      children: [
+                                        (0, b.jsx)('label', {
+                                          className:
+                                            'text-foreground mb-2 block text-sm font-medium',
+                                          children: '추가 소요 시간 (분)',
+                                        }),
+                                        (0, b.jsx)('input', {
+                                          type: 'number',
+                                          min: '0',
+                                          step: '15',
+                                          value: w,
+                                          onChange: (a) => x(parseInt(a.target.value) || 0),
+                                          placeholder: '30',
+                                          className:
+                                            'border-input bg-background focus:ring-ring w-full rounded-md border px-3 py-2 shadow-sm focus:border-transparent focus:ring-2 focus:outline-none',
+                                        }),
+                                      ],
+                                    }),
+                                    (0, b.jsxs)('div', {
+                                      children: [
+                                        (0, b.jsx)('label', {
+                                          className:
+                                            'text-foreground mb-2 block text-sm font-medium',
+                                          children: '추가 견적 사유',
+                                        }),
+                                        (0, b.jsx)('textarea', {
+                                          value: u,
+                                          onChange: (a) => v(a.target.value),
+                                          placeholder:
+                                            '고객에게 전달할 추가 견적 사유를 입력하세요',
+                                          rows: 3,
+                                          className:
+                                            'border-input bg-background focus:ring-ring w-full rounded-md border px-3 py-2 shadow-sm focus:border-transparent focus:ring-2 focus:outline-none',
+                                        }),
+                                      ],
+                                    }),
+                                  ],
+                                }),
+                              ],
+                            }),
+                            (0, b.jsxs)(k.Button, {
+                              type: 'submit',
+                              className: 'w-full',
+                              disabled: D.isPending,
+                              children: [
+                                D.isPending
+                                  ? (0, b.jsx)(l.LoadingSpinner, { size: 'sm', className: 'mr-2' })
+                                  : null,
+                                '견적 요청하기 (',
+                                C().toLocaleString('ko-KR'),
+                                '원)',
+                              ],
+                            }),
+                          ],
+                        }),
+                      }),
+                      (0, b.jsx)('div', {
+                        className: 'lg:col-span-1',
+                        children: (0, b.jsxs)('div', {
+                          className: 'border-border bg-card sticky top-8 rounded-lg border p-6',
+                          children: [
+                            (0, b.jsx)('h2', {
+                              className: 'mb-4 text-lg font-semibold',
+                              children: '예약 정보',
+                            }),
+                            (0, b.jsxs)('div', {
+                              className: 'space-y-4',
+                              children: [
+                                (0, b.jsxs)('div', {
+                                  children: [
+                                    (0, b.jsxs)('p', {
+                                      className: 'text-sm',
+                                      children: [
+                                        (0, b.jsx)('span', {
+                                          className: 'font-medium',
+                                          children: '고객:',
+                                        }),
+                                        ' ',
+                                        A.customer.name,
+                                      ],
+                                    }),
+                                    (0, b.jsxs)('p', {
+                                      className: 'text-sm',
+                                      children: [
+                                        (0, b.jsx)('span', {
+                                          className: 'font-medium',
+                                          children: '연락처:',
+                                        }),
+                                        ' ',
+                                        A.customer.phone,
+                                      ],
+                                    }),
+                                  ],
+                                }),
+                                (0, b.jsxs)('div', {
+                                  children: [
+                                    (0, b.jsx)('p', {
+                                      className: 'text-sm',
+                                      children: (0, b.jsx)('span', {
+                                        className: 'font-medium',
+                                        children: '반려동물:',
+                                      }),
+                                    }),
+                                    A.pets.map((a, c) =>
+                                      (0, b.jsxs)(
+                                        'p',
+                                        {
+                                          className: 'text-muted-foreground text-sm',
+                                          children: [a.name, ' (', a.breed, ')'],
+                                        },
+                                        c
+                                      )
+                                    ),
+                                  ],
+                                }),
+                                (0, b.jsxs)('div', {
+                                  children: [
+                                    (0, b.jsx)('p', {
+                                      className: 'text-sm',
+                                      children: (0, b.jsx)('span', {
+                                        className: 'font-medium',
+                                        children: '예약일시:',
+                                      }),
+                                    }),
+                                    (0, b.jsxs)('p', {
+                                      className: 'text-muted-foreground text-sm',
+                                      children: [A.serviceDate, ' ', A.serviceTime],
+                                    }),
+                                  ],
+                                }),
+                                (0, b.jsxs)('div', {
+                                  children: [
+                                    (0, b.jsx)('p', {
+                                      className: 'text-sm',
+                                      children: (0, b.jsx)('span', {
+                                        className: 'font-medium',
+                                        children: '기본 서비스:',
+                                      }),
+                                    }),
+                                    A.pets.map((a) =>
+                                      a.services.map((a, c) =>
+                                        (0, b.jsxs)(
+                                          'p',
+                                          {
+                                            className: 'text-muted-foreground text-sm',
+                                            children: [
+                                              a.name,
+                                              ': ',
+                                              a.price.toLocaleString(),
+                                              '원',
+                                            ],
+                                          },
+                                          c
+                                        )
+                                      )
+                                    ),
+                                  ],
+                                }),
+                                (0, b.jsxs)('div', {
+                                  className: 'border-border border-t pt-4',
+                                  children: [
+                                    (0, b.jsxs)('div', {
+                                      className: 'flex items-center justify-between',
+                                      children: [
+                                        (0, b.jsx)('span', {
+                                          className: 'text-sm',
+                                          children: '기본 금액',
+                                        }),
+                                        (0, b.jsxs)('span', {
+                                          className: 'text-sm',
+                                          children: [A.basePrice.toLocaleString(), '원'],
+                                        }),
+                                      ],
+                                    }),
+                                    (0, b.jsxs)('div', {
+                                      className: 'mt-1 flex items-center justify-between',
+                                      children: [
+                                        (0, b.jsx)('span', {
+                                          className: 'text-sm',
+                                          children: '추가 금액',
+                                        }),
+                                        (0, b.jsxs)('span', {
+                                          className: 'text-sm',
+                                          children: [C().toLocaleString('ko-KR'), '원'],
+                                        }),
+                                      ],
+                                    }),
+                                    (0, b.jsxs)('div', {
+                                      className:
+                                        'border-border mt-4 flex items-center justify-between border-t pt-4',
+                                      children: [
+                                        (0, b.jsx)('span', {
+                                          className: 'text-lg font-semibold',
+                                          children: '총 예상 금액',
+                                        }),
+                                        (0, b.jsxs)('span', {
+                                          className: 'text-primary text-lg font-bold',
+                                          children: [
+                                            (0, c.format)(
+                                              A.basePrice + C(),
+                                              'yyyy-MM-dd HH:mm:ss',
+                                              { locale: d.ko }
+                                            ),
+                                            '원',
+                                          ],
+                                        }),
+                                      ],
+                                    }),
+                                  ],
+                                }),
+                              ],
+                            }),
+                          ],
+                        }),
+                      }),
+                    ],
+                  }),
+                }),
+              ],
+            })
+          : null
+    }
+    a.s(['default', () => n])
+  },
+]
+
+//# sourceMappingURL=src_app_groomer_dashboard_bookings_%5Bid%5D_quote_page_tsx_ac52633b._.js.map

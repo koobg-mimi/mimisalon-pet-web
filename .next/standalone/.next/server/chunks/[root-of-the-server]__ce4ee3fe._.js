@@ -1,0 +1,693 @@
+module.exports = [
+  57328,
+  (t, e, r) => {
+    e.exports = t.x('node:assert', () => require('node:assert'))
+  },
+  727028,
+  (t, e, r) => {
+    e.exports = t.x('node:zlib', () => require('node:zlib'))
+  },
+  874270,
+  (t, e, r) => {
+    function o(t, e) {
+      var r = !1,
+        o = this
+      return Promise.all(
+        t.map(function () {
+          var t = arguments
+          return o(function () {
+            if (!r)
+              return e.apply(void 0, t).catch(function (t) {
+                throw ((r = !0), t)
+              })
+          })
+        })
+      )
+    }
+    function i(t) {
+      return ((t.queue = 0), (t.map = o), t)
+    }
+    e.exports = function (t) {
+      return t
+        ? i(
+            (function (t) {
+              var e = 0,
+                r = []
+              function o() {
+                var o
+                --e < t &&
+                  ((o = r.shift()),
+                  (s.queue = r.length),
+                  o && i(o.fn).then(o.resolve).catch(o.reject))
+              }
+              function i(t) {
+                e++
+                try {
+                  return Promise.resolve(t()).then(
+                    function (t) {
+                      return (o(), t)
+                    },
+                    function (t) {
+                      throw (o(), t)
+                    }
+                  )
+                } catch (t) {
+                  return (o(), Promise.reject(t))
+                }
+              }
+              var s = function (o) {
+                return e >= t
+                  ? new Promise(function (t, e) {
+                      ;(r.push({ fn: o, resolve: t, reject: e }), (s.queue = r.length))
+                    })
+                  : i(o)
+              }
+              return s
+            })(t)
+          )
+        : i(function (t) {
+            return t()
+          })
+    }
+  },
+  643988,
+  (t, e, r) => {
+    'use strict'
+    function o(t, e) {
+      for (let r in e)
+        Object.defineProperty(t, r, { value: e[r], enumerable: !0, configurable: !0 })
+      return t
+    }
+    e.exports = function (t, e, r) {
+      if (!t || 'string' == typeof t) throw TypeError('Please pass an Error to err-code')
+      ;(r || (r = {}), 'object' == typeof e && ((r = e), (e = void 0)), null != e && (r.code = e))
+      try {
+        return o(t, r)
+      } catch (i) {
+        ;((r.message = t.message), (r.stack = t.stack))
+        let e = function () {}
+        return ((e.prototype = Object.create(Object.getPrototypeOf(t))), o(new e(), r))
+      }
+    }
+  },
+  958366,
+  (t, e, r) => {
+    function o(t, e) {
+      ;('boolean' == typeof e && (e = { forever: e }),
+        (this._originalTimeouts = JSON.parse(JSON.stringify(t))),
+        (this._timeouts = t),
+        (this._options = e || {}),
+        (this._maxRetryTime = (e && e.maxRetryTime) || 1 / 0),
+        (this._fn = null),
+        (this._errors = []),
+        (this._attempts = 1),
+        (this._operationTimeout = null),
+        (this._operationTimeoutCb = null),
+        (this._timeout = null),
+        (this._operationStart = null),
+        this._options.forever && (this._cachedTimeouts = this._timeouts.slice(0)))
+    }
+    ;((e.exports = o),
+      (o.prototype.reset = function () {
+        ;((this._attempts = 1), (this._timeouts = this._originalTimeouts))
+      }),
+      (o.prototype.stop = function () {
+        ;(this._timeout && clearTimeout(this._timeout),
+          (this._timeouts = []),
+          (this._cachedTimeouts = null))
+      }),
+      (o.prototype.retry = function (t) {
+        if ((this._timeout && clearTimeout(this._timeout), !t)) return !1
+        var e = new Date().getTime()
+        if (t && e - this._operationStart >= this._maxRetryTime)
+          return (this._errors.unshift(Error('RetryOperation timeout occurred')), !1)
+        this._errors.push(t)
+        var r = this._timeouts.shift()
+        if (void 0 === r)
+          if (!this._cachedTimeouts) return !1
+          else
+            (this._errors.splice(this._errors.length - 1, this._errors.length),
+              (this._timeouts = this._cachedTimeouts.slice(0)),
+              (r = this._timeouts.shift()))
+        var o = this,
+          i = setTimeout(function () {
+            ;(o._attempts++,
+              o._operationTimeoutCb &&
+                ((o._timeout = setTimeout(function () {
+                  o._operationTimeoutCb(o._attempts)
+                }, o._operationTimeout)),
+                o._options.unref && o._timeout.unref()),
+              o._fn(o._attempts))
+          }, r)
+        return (this._options.unref && i.unref(), !0)
+      }),
+      (o.prototype.attempt = function (t, e) {
+        ;((this._fn = t),
+          e &&
+            (e.timeout && (this._operationTimeout = e.timeout),
+            e.cb && (this._operationTimeoutCb = e.cb)))
+        var r = this
+        ;(this._operationTimeoutCb &&
+          (this._timeout = setTimeout(function () {
+            r._operationTimeoutCb()
+          }, r._operationTimeout)),
+          (this._operationStart = new Date().getTime()),
+          this._fn(this._attempts))
+      }),
+      (o.prototype.try = function (t) {
+        ;(console.log('Using RetryOperation.try() is deprecated'), this.attempt(t))
+      }),
+      (o.prototype.start = function (t) {
+        ;(console.log('Using RetryOperation.start() is deprecated'), this.attempt(t))
+      }),
+      (o.prototype.start = o.prototype.try),
+      (o.prototype.errors = function () {
+        return this._errors
+      }),
+      (o.prototype.attempts = function () {
+        return this._attempts
+      }),
+      (o.prototype.mainError = function () {
+        if (0 === this._errors.length) return null
+        for (var t = {}, e = null, r = 0, o = 0; o < this._errors.length; o++) {
+          var i = this._errors[o],
+            s = i.message,
+            n = (t[s] || 0) + 1
+          ;((t[s] = n), n >= r && ((e = i), (r = n)))
+        }
+        return e
+      }))
+  },
+  269195,
+  (t, e, r) => {
+    var o = t.r(958366)
+    ;((r.operation = function (t) {
+      return new o(r.timeouts(t), {
+        forever: t && t.forever,
+        unref: t && t.unref,
+        maxRetryTime: t && t.maxRetryTime,
+      })
+    }),
+      (r.timeouts = function (t) {
+        if (t instanceof Array) return [].concat(t)
+        var e = { retries: 10, factor: 2, minTimeout: 1e3, maxTimeout: 1 / 0, randomize: !1 }
+        for (var r in t) e[r] = t[r]
+        if (e.minTimeout > e.maxTimeout) throw Error('minTimeout is greater than maxTimeout')
+        for (var o = [], i = 0; i < e.retries; i++) o.push(this.createTimeout(i, e))
+        return (
+          t && t.forever && !o.length && o.push(this.createTimeout(i, e)),
+          o.sort(function (t, e) {
+            return t - e
+          }),
+          o
+        )
+      }),
+      (r.createTimeout = function (t, e) {
+        var r = Math.round(
+          (e.randomize ? Math.random() + 1 : 1) * e.minTimeout * Math.pow(e.factor, t)
+        )
+        return Math.min(r, e.maxTimeout)
+      }),
+      (r.wrap = function (t, e, o) {
+        if ((e instanceof Array && ((o = e), (e = null)), !o))
+          for (var i in ((o = []), t)) 'function' == typeof t[i] && o.push(i)
+        for (var s = 0; s < o.length; s++) {
+          var n = o[s],
+            u = t[n]
+          ;((t[n] = function (o) {
+            var i = r.operation(e),
+              s = Array.prototype.slice.call(arguments, 1),
+              n = s.pop()
+            ;(s.push(function (t) {
+              i.retry(t) || (t && (arguments[0] = i.mainError()), n.apply(this, arguments))
+            }),
+              i.attempt(function () {
+                o.apply(t, s)
+              }))
+          }.bind(t, u)),
+            (t[n].options = e))
+        }
+      }))
+  },
+  553710,
+  (t, e, r) => {
+    e.exports = t.r(269195)
+  },
+  585001,
+  (t, e, r) => {
+    'use strict'
+    var o = t.r(643988),
+      i = t.r(553710),
+      s = Object.prototype.hasOwnProperty
+    function n(t) {
+      return t && 'EPROMISERETRY' === t.code && s.call(t, 'retried')
+    }
+    e.exports = function (t, e) {
+      var r, s
+      return (
+        'object' == typeof t && 'function' == typeof e && ((r = e), (e = t), (t = r)),
+        (s = i.operation(e)),
+        new Promise(function (e, r) {
+          s.attempt(function (i) {
+            Promise.resolve()
+              .then(function () {
+                return t(function (t) {
+                  throw (
+                    n(t) && (t = t.retried),
+                    o(Error('Retrying'), 'EPROMISERETRY', { retried: t })
+                  )
+                }, i)
+              })
+              .then(e, function (t) {
+                ;(n(t) && ((t = t.retried), s.retry(t || Error()))) || r(t)
+              })
+          })
+        })
+      )
+    }
+  },
+  150789,
+  (t, e, r) => {
+    'use strict'
+    ;(Object.defineProperty(r, '__esModule', { value: !0 }),
+      (r.requestRetryMinTimeout =
+        r.defaultConcurrentRequestLimit =
+        r.pushNotificationReceiptChunkLimit =
+        r.pushNotificationChunkLimit =
+        r.getReceiptsApiUrl =
+        r.sendApiUrl =
+          void 0))
+    let o = process.env.EXPO_BASE_URL || 'https://exp.host'
+    ;((r.sendApiUrl = `${o}/--/api/v2/push/send`),
+      (r.getReceiptsApiUrl = `${o}/--/api/v2/push/getReceipts`),
+      (r.pushNotificationChunkLimit = 100),
+      (r.pushNotificationReceiptChunkLimit = 300),
+      (r.defaultConcurrentRequestLimit = 6),
+      (r.requestRetryMinTimeout = 1e3))
+  },
+  757521,
+  (t) => {
+    t.v({
+      name: 'expo-server-sdk',
+      version: '4.0.0',
+      description: 'Server-side library for working with Expo using Node.js',
+      main: 'build/ExpoClient.js',
+      types: 'build/ExpoClient.d.ts',
+      files: ['build'],
+      engines: { node: '>=20' },
+      scripts: {
+        build: 'yarn prepack',
+        lint: 'eslint',
+        prepack: 'tsc --project tsconfig.build.json',
+        test: 'jest',
+        tsc: 'tsc',
+        watch: 'tsc --watch',
+      },
+      jest: {
+        coverageDirectory: '<rootDir>/../coverage',
+        coverageThreshold: { global: { branches: 100, functions: 100, lines: 100, statements: 0 } },
+        preset: 'ts-jest',
+        rootDir: 'src',
+        testEnvironment: 'node',
+      },
+      repository: { type: 'git', url: 'git+https://github.com/expo/expo-server-sdk-node.git' },
+      keywords: ['expo', 'push-notifications'],
+      author: 'support@expo.dev',
+      license: 'MIT',
+      bugs: { url: 'https://github.com/expo/expo-server-sdk-node/issues' },
+      homepage: 'https://github.com/expo/expo-server-sdk-node#readme',
+      dependencies: {
+        'node-fetch': '^2.6.0',
+        'promise-limit': '^2.7.0',
+        'promise-retry': '^2.0.1',
+      },
+      devDependencies: {
+        '@tsconfig/node20': '20.1.6',
+        '@tsconfig/strictest': '2.0.5',
+        '@types/node': '22.17.2',
+        '@types/node-fetch': '2.6.12',
+        '@types/promise-retry': '1.1.6',
+        eslint: '9.33.0',
+        'eslint-config-universe': '15.0.3',
+        jest: '29.7.0',
+        jiti: '2.4.2',
+        msw: '2.10.5',
+        prettier: '3.6.2',
+        'ts-jest': '29.4.1',
+        typescript: '5.9.2',
+      },
+      packageManager: 'yarn@4.9.2',
+    })
+  },
+  273214,
+  (t, e, r) => {
+    'use strict'
+    var o,
+      i =
+        (t.e && t.e.__createBinding) ||
+        (Object.create
+          ? function (t, e, r, o) {
+              void 0 === o && (o = r)
+              var i = Object.getOwnPropertyDescriptor(e, r)
+              ;((!i || ('get' in i ? !e.__esModule : i.writable || i.configurable)) &&
+                (i = {
+                  enumerable: !0,
+                  get: function () {
+                    return e[r]
+                  },
+                }),
+                Object.defineProperty(t, o, i))
+            }
+          : function (t, e, r, o) {
+              ;(void 0 === o && (o = r), (t[o] = e[r]))
+            }),
+      s =
+        (t.e && t.e.__setModuleDefault) ||
+        (Object.create
+          ? function (t, e) {
+              Object.defineProperty(t, 'default', { enumerable: !0, value: e })
+            }
+          : function (t, e) {
+              t.default = e
+            }),
+      n =
+        (t.e && t.e.__importStar) ||
+        ((o = function (t) {
+          return (o =
+            Object.getOwnPropertyNames ||
+            function (t) {
+              var e = []
+              for (var r in t) Object.prototype.hasOwnProperty.call(t, r) && (e[e.length] = r)
+              return e
+            })(t)
+        }),
+        function (t) {
+          if (t && t.__esModule) return t
+          var e = {}
+          if (null != t)
+            for (var r = o(t), n = 0; n < r.length; n++) 'default' !== r[n] && i(e, t, r[n])
+          return (s(e, t), e)
+        }),
+      u =
+        (t.e && t.e.__importDefault) ||
+        function (t) {
+          return t && t.__esModule ? t : { default: t }
+        }
+    ;(Object.defineProperty(r, '__esModule', { value: !0 }), (r.Expo = void 0))
+    let a = n(t.r(456569)),
+      c = u(t.r(57328)),
+      p = t.r(727028),
+      h = u(t.r(874270)),
+      l = u(t.r(585001)),
+      f = t.r(150789)
+    class m {
+      static pushNotificationChunkSizeLimit = f.pushNotificationChunkLimit
+      static pushNotificationReceiptChunkSizeLimit = f.pushNotificationReceiptChunkLimit
+      httpAgent
+      limitConcurrentRequests
+      accessToken
+      useFcmV1
+      retryMinTimeout
+      constructor(t = {}) {
+        ;((this.httpAgent = t.httpAgent),
+          (this.limitConcurrentRequests = (0, h.default)(
+            t.maxConcurrentRequests ?? f.defaultConcurrentRequestLimit
+          )),
+          (this.retryMinTimeout = t.retryMinTimeout ?? f.requestRetryMinTimeout),
+          (this.accessToken = t.accessToken),
+          (this.useFcmV1 = t.useFcmV1))
+      }
+      static isExpoPushToken(t) {
+        return (
+          'string' == typeof t &&
+          (((t.startsWith('ExponentPushToken[') || t.startsWith('ExpoPushToken[')) &&
+            t.endsWith(']')) ||
+            /^[a-z\d]{8}-[a-z\d]{4}-[a-z\d]{4}-[a-z\d]{4}-[a-z\d]{12}$/i.test(t))
+        )
+      }
+      async sendPushNotificationsAsync(t) {
+        let e = new URL(f.sendApiUrl)
+        !1 === this.useFcmV1 && e.searchParams.append('useFcmV1', String(this.useFcmV1))
+        let r = m._getActualMessageCount(t),
+          o = await this.limitConcurrentRequests(
+            async () =>
+              await (0, l.default)(
+                async (r) => {
+                  try {
+                    return await this.requestAsync(e.toString(), {
+                      httpMethod: 'post',
+                      body: t,
+                      shouldCompress: (t) => t.length > 1024,
+                    })
+                  } catch (t) {
+                    if (429 === t.statusCode) return r(t)
+                    throw t
+                  }
+                },
+                { retries: 2, factor: 2, minTimeout: this.retryMinTimeout }
+              )
+          )
+        if (!Array.isArray(o) || o.length !== r) {
+          let t = Error(
+            `Expected Expo to respond with ${r} ${1 === r ? 'ticket' : 'tickets'} but got ${o.length}`
+          )
+          throw ((t.data = o), t)
+        }
+        return o
+      }
+      async getPushNotificationReceiptsAsync(t) {
+        let e = await this.requestAsync(f.getReceiptsApiUrl, {
+          httpMethod: 'post',
+          body: { ids: t },
+          shouldCompress: (t) => t.length > 1024,
+        })
+        if (!e || 'object' != typeof e || Array.isArray(e)) {
+          let t = Error(
+            'Expected Expo to respond with a map from receipt IDs to receipts but received data of another type'
+          )
+          throw ((t.data = e), t)
+        }
+        return e
+      }
+      chunkPushNotifications(t) {
+        let e = [],
+          r = [],
+          o = 0
+        for (let i of t) {
+          if (Array.isArray(i.to)) {
+            let t = []
+            for (let s of i.to)
+              (t.push(s),
+                ++o >= f.pushNotificationChunkLimit &&
+                  (r.push({ ...i, to: t }), e.push(r), (r = []), (o = 0), (t = [])))
+            t.length && r.push({ ...i, to: t })
+          } else (r.push(i), o++)
+          o >= f.pushNotificationChunkLimit && (e.push(r), (r = []), (o = 0))
+        }
+        return (o && e.push(r), e)
+      }
+      chunkPushNotificationReceiptIds(t) {
+        return this.chunkItems(t, f.pushNotificationReceiptChunkLimit)
+      }
+      chunkItems(t, e) {
+        let r = [],
+          o = []
+        for (let i of t) (o.push(i), o.length >= e && (r.push(o), (o = [])))
+        return (o.length && r.push(o), r)
+      }
+      async requestAsync(e, r) {
+        let o,
+          i,
+          s = t.r(757521).version,
+          n = new a.Headers({
+            Accept: 'application/json',
+            'Accept-Encoding': 'gzip, deflate',
+            'User-Agent': `expo-server-sdk-node/${s}`,
+          })
+        if (
+          (this.accessToken && n.set('Authorization', `Bearer ${this.accessToken}`), null != r.body)
+        ) {
+          let t = JSON.stringify(r.body)
+          ;((0, c.default)(null != t, 'JSON request body must not be null'),
+            r.shouldCompress(t)
+              ? ((o = (0, p.gzipSync)(Buffer.from(t))), n.set('Content-Encoding', 'gzip'))
+              : (o = t),
+            n.set('Content-Type', 'application/json'))
+        }
+        let u = await (0, a.default)(e, {
+          method: r.httpMethod,
+          body: o,
+          headers: n,
+          agent: this.httpAgent,
+        })
+        if (200 !== u.status) throw await this.parseErrorResponseAsync(u)
+        let h = await u.text()
+        try {
+          i = JSON.parse(h)
+        } catch {
+          throw await this.getTextResponseErrorAsync(u, h)
+        }
+        if (i.errors) throw this.getErrorFromResult(u, i)
+        return i.data
+      }
+      async parseErrorResponseAsync(t) {
+        let e,
+          r = await t.text()
+        try {
+          e = JSON.parse(r)
+        } catch {
+          return await this.getTextResponseErrorAsync(t, r)
+        }
+        if (!e.errors || !Array.isArray(e.errors) || !e.errors.length) {
+          let o = await this.getTextResponseErrorAsync(t, r)
+          return ((o.errorData = e), o)
+        }
+        return this.getErrorFromResult(t, e)
+      }
+      async getTextResponseErrorAsync(t, e) {
+        let r = Error(`Expo responded with an error with status code ${t.status}: ` + e)
+        return ((r.statusCode = t.status), (r.errorText = e), r)
+      }
+      getErrorFromResult(t, e) {
+        let r = 'Expected at least one error from Expo'
+        ;(0, c.default)(e.errors, r)
+        let [o, ...i] = e.errors
+        c.default.ok(o, r)
+        let s = this.getErrorFromResultError(o)
+        return (
+          i.length && (s.others = i.map((t) => this.getErrorFromResultError(t))),
+          (s.statusCode = t.status),
+          s
+        )
+      }
+      getErrorFromResultError(t) {
+        let e = Error(t.message)
+        return (
+          (e.code = t.code),
+          null != t.details && (e.details = t.details),
+          null != t.stack && (e.serverStack = t.stack),
+          e
+        )
+      }
+      static _getActualMessageCount(t) {
+        return t.reduce((t, e) => (Array.isArray(e.to) ? (t += e.to.length) : t++, t), 0)
+      }
+    }
+    ;((r.Expo = m), (r.default = m))
+  },
+  647373,
+  (t) => {
+    'use strict'
+    var e = t.i(273214)
+    class r {
+      static expo = new e.Expo({ accessToken: process.env.EXPO_ACCESS_TOKEN, useFcmV1: !0 })
+      static async sendToDevice(t, r) {
+        try {
+          if (!e.Expo.isExpoPushToken(t))
+            return { success: !1, error: 'Invalid ExponentPushToken format' }
+          let o = {
+              to: t,
+              sound: r.sound || 'default',
+              title: r.title,
+              body: r.body,
+              data: r.data || {},
+              badge: r.badge,
+              channelId: r.channelId || 'mimisalon_notifications',
+              priority: 'high',
+            },
+            i = (await this.expo.sendPushNotificationsAsync([o]))[0]
+          if ('error' === i.status)
+            return (
+              console.error('Error sending notification:', i.message),
+              { success: !1, error: i.message }
+            )
+          return (console.log('Successfully sent notification:', i.id), { success: !0, ticket: i })
+        } catch (t) {
+          return (
+            console.error('Error sending notification:', t),
+            { success: !1, error: t instanceof Error ? t.message : 'Unknown error' }
+          )
+        }
+      }
+      static async sendToMultipleDevices(t, r) {
+        try {
+          let o = t.filter((t) => e.Expo.isExpoPushToken(t)),
+            i = t.filter((t) => !e.Expo.isExpoPushToken(t))
+          if (
+            (i.length > 0 && console.warn(`Found ${i.length} invalid tokens:`, i), 0 === o.length)
+          )
+            return {
+              successCount: 0,
+              failureCount: t.length,
+              tickets: [],
+              errors: ['No valid ExponentPushTokens found'],
+            }
+          let s = o.map((t) => ({
+              to: t,
+              sound: r.sound || 'default',
+              title: r.title,
+              body: r.body,
+              data: r.data || {},
+              badge: r.badge,
+              channelId: r.channelId || 'mimisalon_notifications',
+              priority: 'high',
+            })),
+            n = this.expo.chunkPushNotifications(s),
+            u = [],
+            a = []
+          for (let t of n)
+            try {
+              let e = await this.expo.sendPushNotificationsAsync(t)
+              u.push(...e)
+            } catch (t) {
+              ;(console.error('Error sending chunk:', t),
+                a.push(t instanceof Error ? t.message : 'Unknown chunk error'))
+            }
+          let c = u.filter((t) => 'ok' === t.status).length,
+            p = u.filter((t) => 'error' === t.status).length + i.length
+          return (
+            console.log(`Sent notifications: ${c} success, ${p} failed`),
+            { successCount: c, failureCount: p, tickets: u, errors: a }
+          )
+        } catch (e) {
+          return (
+            console.error('Error sending multicast notification:', e),
+            {
+              successCount: 0,
+              failureCount: t.length,
+              tickets: [],
+              errors: [e instanceof Error ? e.message : 'Unknown error'],
+            }
+          )
+        }
+      }
+      static async getPushNotificationReceipts(t) {
+        try {
+          let e = this.expo.chunkPushNotificationReceiptIds(t),
+            r = [],
+            o = []
+          for (let t of e)
+            try {
+              let e = await this.expo.getPushNotificationReceiptsAsync(t)
+              r.push(...Object.values(e))
+            } catch (t) {
+              ;(console.error('Error fetching receipts:', t),
+                o.push(t instanceof Error ? t.message : 'Unknown receipt error'))
+            }
+          return { receipts: r, errors: o }
+        } catch (t) {
+          return (
+            console.error('Error getting push notification receipts:', t),
+            { receipts: [], errors: [t instanceof Error ? t.message : 'Unknown error'] }
+          )
+        }
+      }
+      static isValidExpoPushToken(t) {
+        return e.Expo.isExpoPushToken(t)
+      }
+    }
+    t.s(['ExpoNotificationService', () => r])
+  },
+]
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__ce4ee3fe._.js.map

@@ -1,0 +1,245 @@
+/* Excel-like Compact Table Styles */
+
+.excelTable {
+  font-size: 0.8125rem; /* 13px - Excel's default font size */
+  line-height: 1.2;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.excelTable th {
+  padding: 2px 4px;
+  font-weight: 600;
+  font-size: 0.6875rem; /* 11px */
+  text-transform: none;
+  white-space: nowrap;
+  background-color: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.excelTable td {
+  padding: 1px 4px;
+  border: 1px solid hsl(var(--border));
+  vertical-align: middle;
+  font-size: 0.75rem; /* 12px */
+}
+
+/* Compact row height */
+.excelTable tr {
+  height: 22px; /* Ultra-compact Excel-like row height */
+}
+
+/* Zebra striping */
+.excelTable tbody tr:nth-child(even) {
+  background-color: hsl(var(--muted) / 0.15);
+}
+
+.excelTable tbody tr:nth-child(odd) {
+  background-color: hsl(var(--background));
+}
+
+.excelTable tbody tr:hover {
+  background-color: hsl(var(--muted) / 0.4);
+  cursor: pointer;
+}
+
+/* Compact cell content */
+.cellContent {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 18px;
+}
+
+.cellAvatar {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+.cellAvatar svg {
+  width: 10px;
+  height: 10px;
+  color: hsl(var(--primary));
+}
+
+.cellText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.cellTextLong {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+.cellIcon {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Compact badges */
+.roleBadge {
+  font-size: 0.625rem; /* 10px */
+  padding: 1px 4px;
+  border-radius: 9999px;
+  white-space: nowrap;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  line-height: 1.2;
+}
+
+.statusBadge {
+  font-size: 0.625rem; /* 10px */
+  padding: 1px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* Compact action buttons */
+.actionButtons {
+  display: flex;
+  gap: 2px;
+  justify-content: flex-end;
+}
+
+.actionButtons button {
+  height: 20px;
+  padding: 0 6px;
+  font-size: 0.625rem; /* 10px */
+  min-width: auto;
+  line-height: 1;
+}
+
+/* Scrollable container */
+.scrollContainer {
+  max-height: calc(100vh - 280px);
+  overflow: auto;
+  scrollbar-gutter: stable;
+  border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+}
+
+/* Custom scrollbar styling */
+.scrollContainer::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.scrollContainer::-webkit-scrollbar-track {
+  background: hsl(var(--muted) / 0.3);
+  border-radius: 6px;
+}
+
+.scrollContainer::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 6px;
+  border: 2px solid hsl(var(--muted) / 0.3);
+}
+
+.scrollContainer::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Loading and empty states */
+.loadingTrigger {
+  padding: 12px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  border-top: 1px solid hsl(var(--border));
+}
+
+.emptyState {
+  padding: 48px 24px;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+}
+
+.emptyState p:first-child {
+  font-size: 0.875rem;
+  margin-bottom: 8px;
+}
+
+.emptyState p:last-child {
+  font-size: 0.75rem;
+}
+
+/* Prevent text selection for better Excel-like feel */
+.excelTable th {
+  user-select: none;
+}
+
+/* Fixed column widths for consistency */
+.colName {
+  width: 160px;
+  min-width: 160px;
+}
+
+.colEmail {
+  width: 200px;
+  min-width: 200px;
+}
+
+.colPhone {
+  width: 120px;
+  min-width: 120px;
+}
+
+.colRole {
+  width: 90px;
+  min-width: 90px;
+}
+
+.colStatus {
+  width: 80px;
+  min-width: 80px;
+}
+
+.colLastLogin {
+  width: 110px;
+  min-width: 110px;
+}
+
+.colCreated {
+  width: 110px;
+  min-width: 110px;
+}
+
+.colActions {
+  width: 80px;
+  min-width: 80px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .excelTable {
+    font-size: 0.75rem;
+  }
+
+  .excelTable td {
+    padding: 2px 4px;
+  }
+
+  .actionButtons button {
+    padding: 0 6px;
+    font-size: 0.625rem;
+  }
+}

@@ -1,0 +1,993 @@
+module.exports = [
+  270406,
+  (e, t, r) => {
+    t.exports = e.x('next/dist/compiled/@opentelemetry/api', () =>
+      require('next/dist/compiled/@opentelemetry/api')
+    )
+  },
+  918622,
+  (e, t, r) => {
+    t.exports = e.x('next/dist/compiled/next-server/app-page-turbo.runtime.prod.js', () =>
+      require('next/dist/compiled/next-server/app-page-turbo.runtime.prod.js')
+    )
+  },
+  556704,
+  (e, t, r) => {
+    t.exports = e.x('next/dist/server/app-render/work-async-storage.external.js', () =>
+      require('next/dist/server/app-render/work-async-storage.external.js')
+    )
+  },
+  832319,
+  (e, t, r) => {
+    t.exports = e.x('next/dist/server/app-render/work-unit-async-storage.external.js', () =>
+      require('next/dist/server/app-render/work-unit-async-storage.external.js')
+    )
+  },
+  324725,
+  (e, t, r) => {
+    t.exports = e.x('next/dist/server/app-render/after-task-async-storage.external.js', () =>
+      require('next/dist/server/app-render/after-task-async-storage.external.js')
+    )
+  },
+  193695,
+  (e, t, r) => {
+    t.exports = e.x('next/dist/shared/lib/no-fallback-error.external.js', () =>
+      require('next/dist/shared/lib/no-fallback-error.external.js')
+    )
+  },
+  442315,
+  (e, t, r) => {
+    'use strict'
+    t.exports = e.r(918622)
+  },
+  347540,
+  (e, t, r) => {
+    'use strict'
+    t.exports = e.r(442315).vendored['react-rsc'].React
+  },
+  819481,
+  (e, t, r) => {
+    'use strict'
+    var n = Object.defineProperty,
+      o = Object.getOwnPropertyDescriptor,
+      s = Object.getOwnPropertyNames,
+      i = Object.prototype.hasOwnProperty,
+      a = {},
+      l = {
+        RequestCookies: () => m,
+        ResponseCookies: () => g,
+        parseCookie: () => d,
+        parseSetCookie: () => p,
+        stringifyCookie: () => c,
+      }
+    for (var u in l) n(a, u, { get: l[u], enumerable: !0 })
+    function c(e) {
+      var t
+      let r = [
+          'path' in e && e.path && `Path=${e.path}`,
+          'expires' in e &&
+            (e.expires || 0 === e.expires) &&
+            `Expires=${('number' == typeof e.expires ? new Date(e.expires) : e.expires).toUTCString()}`,
+          'maxAge' in e && 'number' == typeof e.maxAge && `Max-Age=${e.maxAge}`,
+          'domain' in e && e.domain && `Domain=${e.domain}`,
+          'secure' in e && e.secure && 'Secure',
+          'httpOnly' in e && e.httpOnly && 'HttpOnly',
+          'sameSite' in e && e.sameSite && `SameSite=${e.sameSite}`,
+          'partitioned' in e && e.partitioned && 'Partitioned',
+          'priority' in e && e.priority && `Priority=${e.priority}`,
+        ].filter(Boolean),
+        n = `${e.name}=${encodeURIComponent(null != (t = e.value) ? t : '')}`
+      return 0 === r.length ? n : `${n}; ${r.join('; ')}`
+    }
+    function d(e) {
+      let t = new Map()
+      for (let r of e.split(/; */)) {
+        if (!r) continue
+        let e = r.indexOf('=')
+        if (-1 === e) {
+          t.set(r, 'true')
+          continue
+        }
+        let [n, o] = [r.slice(0, e), r.slice(e + 1)]
+        try {
+          t.set(n, decodeURIComponent(null != o ? o : 'true'))
+        } catch {}
+      }
+      return t
+    }
+    function p(e) {
+      if (!e) return
+      let [[t, r], ...n] = d(e),
+        {
+          domain: o,
+          expires: s,
+          httponly: i,
+          maxage: a,
+          path: l,
+          samesite: u,
+          secure: c,
+          partitioned: p,
+          priority: m,
+        } = Object.fromEntries(n.map(([e, t]) => [e.toLowerCase().replace(/-/g, ''), t]))
+      {
+        var g,
+          v,
+          x = {
+            name: t,
+            value: decodeURIComponent(r),
+            domain: o,
+            ...(s && { expires: new Date(s) }),
+            ...(i && { httpOnly: !0 }),
+            ...('string' == typeof a && { maxAge: Number(a) }),
+            path: l,
+            ...(u && { sameSite: h.includes((g = (g = u).toLowerCase())) ? g : void 0 }),
+            ...(c && { secure: !0 }),
+            ...(m && { priority: f.includes((v = (v = m).toLowerCase())) ? v : void 0 }),
+            ...(p && { partitioned: !0 }),
+          }
+        let e = {}
+        for (let t in x) x[t] && (e[t] = x[t])
+        return e
+      }
+    }
+    t.exports = ((e, t, r, a) => {
+      if ((t && 'object' == typeof t) || 'function' == typeof t)
+        for (let r of s(t))
+          i.call(e, r) ||
+            void 0 === r ||
+            n(e, r, { get: () => t[r], enumerable: !(a = o(t, r)) || a.enumerable })
+      return e
+    })(n({}, '__esModule', { value: !0 }), a)
+    var h = ['strict', 'lax', 'none'],
+      f = ['low', 'medium', 'high'],
+      m = class {
+        constructor(e) {
+          ;((this._parsed = new Map()), (this._headers = e))
+          const t = e.get('cookie')
+          if (t) for (const [e, r] of d(t)) this._parsed.set(e, { name: e, value: r })
+        }
+        [Symbol.iterator]() {
+          return this._parsed[Symbol.iterator]()
+        }
+        get size() {
+          return this._parsed.size
+        }
+        get(...e) {
+          let t = 'string' == typeof e[0] ? e[0] : e[0].name
+          return this._parsed.get(t)
+        }
+        getAll(...e) {
+          var t
+          let r = Array.from(this._parsed)
+          if (!e.length) return r.map(([e, t]) => t)
+          let n = 'string' == typeof e[0] ? e[0] : null == (t = e[0]) ? void 0 : t.name
+          return r.filter(([e]) => e === n).map(([e, t]) => t)
+        }
+        has(e) {
+          return this._parsed.has(e)
+        }
+        set(...e) {
+          let [t, r] = 1 === e.length ? [e[0].name, e[0].value] : e,
+            n = this._parsed
+          return (
+            n.set(t, { name: t, value: r }),
+            this._headers.set(
+              'cookie',
+              Array.from(n)
+                .map(([e, t]) => c(t))
+                .join('; ')
+            ),
+            this
+          )
+        }
+        delete(e) {
+          let t = this._parsed,
+            r = Array.isArray(e) ? e.map((e) => t.delete(e)) : t.delete(e)
+          return (
+            this._headers.set(
+              'cookie',
+              Array.from(t)
+                .map(([e, t]) => c(t))
+                .join('; ')
+            ),
+            r
+          )
+        }
+        clear() {
+          return (this.delete(Array.from(this._parsed.keys())), this)
+        }
+        [Symbol.for('edge-runtime.inspect.custom')]() {
+          return `RequestCookies ${JSON.stringify(Object.fromEntries(this._parsed))}`
+        }
+        toString() {
+          return [...this._parsed.values()]
+            .map((e) => `${e.name}=${encodeURIComponent(e.value)}`)
+            .join('; ')
+        }
+      },
+      g = class {
+        constructor(e) {
+          var t, r, n
+          ;((this._parsed = new Map()), (this._headers = e))
+          const o =
+            null !=
+            (n =
+              null != (r = null == (t = e.getSetCookie) ? void 0 : t.call(e))
+                ? r
+                : e.get('set-cookie'))
+              ? n
+              : []
+          for (const e of Array.isArray(o)
+            ? o
+            : (function (e) {
+                if (!e) return []
+                var t,
+                  r,
+                  n,
+                  o,
+                  s,
+                  i = [],
+                  a = 0
+                function l() {
+                  for (; a < e.length && /\s/.test(e.charAt(a)); ) a += 1
+                  return a < e.length
+                }
+                for (; a < e.length; ) {
+                  for (t = a, s = !1; l(); )
+                    if (',' === (r = e.charAt(a))) {
+                      for (
+                        n = a, a += 1, l(), o = a;
+                        a < e.length && '=' !== (r = e.charAt(a)) && ';' !== r && ',' !== r;
+
+                      )
+                        a += 1
+                      a < e.length && '=' === e.charAt(a)
+                        ? ((s = !0), (a = o), i.push(e.substring(t, n)), (t = a))
+                        : (a = n + 1)
+                    } else a += 1
+                  ;(!s || a >= e.length) && i.push(e.substring(t, e.length))
+                }
+                return i
+              })(o)) {
+            const t = p(e)
+            t && this._parsed.set(t.name, t)
+          }
+        }
+        get(...e) {
+          let t = 'string' == typeof e[0] ? e[0] : e[0].name
+          return this._parsed.get(t)
+        }
+        getAll(...e) {
+          var t
+          let r = Array.from(this._parsed.values())
+          if (!e.length) return r
+          let n = 'string' == typeof e[0] ? e[0] : null == (t = e[0]) ? void 0 : t.name
+          return r.filter((e) => e.name === n)
+        }
+        has(e) {
+          return this._parsed.has(e)
+        }
+        set(...e) {
+          let [t, r, n] = 1 === e.length ? [e[0].name, e[0].value, e[0]] : e,
+            o = this._parsed
+          return (
+            o.set(
+              t,
+              (function (e = { name: '', value: '' }) {
+                return (
+                  'number' == typeof e.expires && (e.expires = new Date(e.expires)),
+                  e.maxAge && (e.expires = new Date(Date.now() + 1e3 * e.maxAge)),
+                  (null === e.path || void 0 === e.path) && (e.path = '/'),
+                  e
+                )
+              })({ name: t, value: r, ...n })
+            ),
+            (function (e, t) {
+              for (let [, r] of (t.delete('set-cookie'), e)) {
+                let e = c(r)
+                t.append('set-cookie', e)
+              }
+            })(o, this._headers),
+            this
+          )
+        }
+        delete(...e) {
+          let [t, r] = 'string' == typeof e[0] ? [e[0]] : [e[0].name, e[0]]
+          return this.set({ ...r, name: t, value: '', expires: new Date(0) })
+        }
+        [Symbol.for('edge-runtime.inspect.custom')]() {
+          return `ResponseCookies ${JSON.stringify(Object.fromEntries(this._parsed))}`
+        }
+        toString() {
+          return [...this._parsed.values()].map(c).join('; ')
+        }
+      }
+  },
+  29173,
+  (e, t, r) => {
+    t.exports = e.x('@prisma/client', () => require('@prisma/client'))
+  },
+  954098,
+  (e, t, r) => {
+    'use strict'
+    ;(Object.defineProperty(r, '__esModule', { value: !0 }), (r.prisma = void 0))
+    let n = e.r(29173)
+    r.prisma = globalThis.prisma ?? new n.PrismaClient({ log: ['error'] })
+  },
+  428112,
+  (e, t, r) => {
+    'use strict'
+    ;(Object.defineProperty(r, '__esModule', { value: !0 }),
+      (r.WorkerApiError = void 0),
+      (r.WorkerApiError = class extends Error {
+        constructor(e, t, r, n) {
+          ;(super(e),
+            (this.code = t),
+            (this.statusCode = r),
+            (this.details = n),
+            (this.name = 'WorkerApiError'))
+        }
+      }))
+  },
+  85051,
+  (e, t, r) => {
+    'use strict'
+    var n =
+        (e.e && e.e.__createBinding) ||
+        (Object.create
+          ? function (e, t, r, n) {
+              void 0 === n && (n = r)
+              var o = Object.getOwnPropertyDescriptor(t, r)
+              ;((!o || ('get' in o ? !t.__esModule : o.writable || o.configurable)) &&
+                (o = {
+                  enumerable: !0,
+                  get: function () {
+                    return t[r]
+                  },
+                }),
+                Object.defineProperty(e, n, o))
+            }
+          : function (e, t, r, n) {
+              ;(void 0 === n && (n = r), (e[n] = t[r]))
+            }),
+      o =
+        (e.e && e.e.__exportStar) ||
+        function (e, t) {
+          for (var r in e)
+            'default' === r || Object.prototype.hasOwnProperty.call(t, r) || n(t, e, r)
+        }
+    ;(Object.defineProperty(r, '__esModule', { value: !0 }), o(e.r(29173), r), o(e.r(428112), r))
+  },
+  657446,
+  (e, t, r) => {
+    'use strict'
+    var n =
+        (e.e && e.e.__createBinding) ||
+        (Object.create
+          ? function (e, t, r, n) {
+              void 0 === n && (n = r)
+              var o = Object.getOwnPropertyDescriptor(t, r)
+              ;((!o || ('get' in o ? !t.__esModule : o.writable || o.configurable)) &&
+                (o = {
+                  enumerable: !0,
+                  get: function () {
+                    return t[r]
+                  },
+                }),
+                Object.defineProperty(e, n, o))
+            }
+          : function (e, t, r, n) {
+              ;(void 0 === n && (n = r), (e[n] = t[r]))
+            }),
+      o =
+        (e.e && e.e.__exportStar) ||
+        function (e, t) {
+          for (var r in e)
+            'default' === r || Object.prototype.hasOwnProperty.call(t, r) || n(t, e, r)
+        }
+    ;(Object.defineProperty(r, '__esModule', { value: !0 }), (r.prisma = void 0))
+    var s = e.r(954098)
+    ;(Object.defineProperty(r, 'prisma', {
+      enumerable: !0,
+      get: function () {
+        return s.prisma
+      },
+    }),
+      o(e.r(85051), r))
+  },
+  688947,
+  (e, t, r) => {
+    t.exports = e.x('stream', () => require('stream'))
+  },
+  921517,
+  (e, t, r) => {
+    t.exports = e.x('http', () => require('http'))
+  },
+  524836,
+  (e, t, r) => {
+    t.exports = e.x('https', () => require('https'))
+  },
+  406461,
+  (e, t, r) => {
+    t.exports = e.x('zlib', () => require('zlib'))
+  },
+  792509,
+  (e, t, r) => {
+    t.exports = e.x('url', () => require('url'))
+  },
+  992097,
+  (e, t, r) => {
+    t.exports = e.x('punycode', () => require('punycode'))
+  },
+  389579,
+  (e) => {
+    'use strict'
+    var t = e.i(657446),
+      r = e.i(647373)
+    let n = new t.PrismaClient()
+    class o {
+      static isValidExpoPushToken(e) {
+        return r.ExpoNotificationService.isValidExpoPushToken(e)
+      }
+      static async updateUserToken(e, t, o = 'android', s) {
+        try {
+          if (!r.ExpoNotificationService.isValidExpoPushToken(t))
+            return { success: !1, error: 'Invalid ExponentPushToken format' }
+          let i = await n.deviceToken.upsert({
+            where: { token: t },
+            create: {
+              userId: e,
+              token: t,
+              platform: o,
+              deviceId: s,
+              isActive: !0,
+              lastUsed: new Date(),
+            },
+            update: { isActive: !0, lastUsed: new Date(), platform: o, deviceId: s },
+            select: { id: !0, token: !0, platform: !0, lastUsed: !0 },
+          })
+          return (
+            console.log(`✅ ExponentPushToken saved to DeviceToken table:`),
+            console.log(`   User ID: ${e}`),
+            console.log(`   Token: ${i.token}`),
+            console.log(`   Platform: ${i.platform}`),
+            console.log(`   Last Used: ${i.lastUsed}`),
+            { success: !0 }
+          )
+        } catch (e) {
+          return (
+            console.error('Error updating ExponentPushToken:', e),
+            { success: !1, error: e instanceof Error ? e.message : 'Unknown error' }
+          )
+        }
+      }
+      static async getUserTokens(e) {
+        try {
+          let t = await n.user.findUnique({
+            where: { id: e },
+            select: { notificationsEnabled: !0 },
+          })
+          if (!t || !t.notificationsEnabled) return []
+          return (
+            await n.deviceToken.findMany({
+              where: { userId: e, isActive: !0 },
+              select: { token: !0 },
+            })
+          )
+            .filter((e) => r.ExpoNotificationService.isValidExpoPushToken(e.token))
+            .map((e) => e.token)
+        } catch (e) {
+          return (console.error('Error getting user ExponentPushTokens:', e), [])
+        }
+      }
+      static async getUserToken(e) {
+        return (await this.getUserTokens(e))[0] || null
+      }
+      static async getMultipleUserTokens(e) {
+        try {
+          let t = (
+            await n.user.findMany({
+              where: { id: { in: e }, notificationsEnabled: !0 },
+              select: { id: !0 },
+            })
+          ).map((e) => e.id)
+          return (
+            await n.deviceToken.findMany({
+              where: { userId: { in: t }, isActive: !0 },
+              select: { token: !0 },
+            })
+          )
+            .filter((e) => r.ExpoNotificationService.isValidExpoPushToken(e.token))
+            .map((e) => e.token)
+        } catch (e) {
+          return (console.error('Error getting user ExponentPushTokens:', e), [])
+        }
+      }
+      static async removeDeviceToken(e) {
+        try {
+          return (
+            await n.deviceToken.delete({ where: { token: e } }),
+            console.log(`ExponentPushToken removed: ${e}`),
+            !0
+          )
+        } catch (e) {
+          return (console.error('Error removing ExponentPushToken:', e), !1)
+        }
+      }
+      static async removeUserToken(e) {
+        try {
+          return (
+            await n.deviceToken.deleteMany({ where: { userId: e } }),
+            console.log(`All ExponentPushTokens removed for user: ${e}`),
+            !0
+          )
+        } catch (e) {
+          return (console.error('Error removing ExponentPushTokens:', e), !1)
+        }
+      }
+      static async deactivateUserTokens(e) {
+        try {
+          return (
+            await n.deviceToken.updateMany({ where: { userId: e }, data: { isActive: !1 } }),
+            console.log(`ExponentPushTokens deactivated for user: ${e}`),
+            !0
+          )
+        } catch (e) {
+          return (console.error('Error deactivating ExponentPushTokens:', e), !1)
+        }
+      }
+      static async getTokensByRole(e) {
+        try {
+          let t = (
+            await n.user.findMany({
+              where: { role: e, notificationsEnabled: !0 },
+              select: { id: !0 },
+            })
+          ).map((e) => e.id)
+          return (
+            await n.deviceToken.findMany({
+              where: { userId: { in: t }, isActive: !0 },
+              select: { token: !0 },
+            })
+          )
+            .filter((e) => r.ExpoNotificationService.isValidExpoPushToken(e.token))
+            .map((e) => e.token)
+        } catch (e) {
+          return (console.error('Error getting ExponentPushTokens by role:', e), [])
+        }
+      }
+      static async updateNotificationPreference(e, t) {
+        try {
+          return (
+            await n.user.update({ where: { id: e }, data: { notificationsEnabled: t } }),
+            console.log(`Notification preference updated for user: ${e} to ${t}`),
+            !0
+          )
+        } catch (e) {
+          return (console.error('Error updating notification preference:', e), !1)
+        }
+      }
+      static async getAllGroomerTokens() {
+        return this.getTokensByRole('GROOMER')
+      }
+    }
+    e.s(['FCMTokenService', () => o])
+  },
+  421270,
+  (e) => {
+    'use strict'
+    var t = e.i(747909),
+      r = e.i(174017),
+      n = e.i(996250),
+      o = e.i(759756),
+      s = e.i(561916),
+      i = e.i(114444),
+      a = e.i(837092),
+      l = e.i(869741),
+      u = e.i(316795),
+      c = e.i(487718),
+      d = e.i(995169),
+      p = e.i(47587),
+      h = e.i(666012),
+      f = e.i(570101),
+      m = e.i(626937),
+      g = e.i(10372),
+      v = e.i(193695)
+    e.i(52474)
+    var x = e.i(600220),
+      y = e.i(89171),
+      k = e.i(657446),
+      w = e.i(389579),
+      E = e.i(469719)
+    let b = E.z
+      .object({
+        userId: E.z.string().optional(),
+        email: E.z.string().email().optional(),
+        phone: E.z.string().optional(),
+        expoToken: E.z.string().min(1, 'ExpoToken is required'),
+        deviceInfo: E.z
+          .object({
+            platform: E.z.enum(['ios', 'android']).optional(),
+            deviceId: E.z.string().optional(),
+            appVersion: E.z.string().optional(),
+          })
+          .optional(),
+      })
+      .refine((e) => e.userId || e.email || e.phone, {
+        message: 'At least one user identification method (userId, email, or phone) is required',
+      })
+    async function R(e) {
+      try {
+        let t,
+          r = await e.json(),
+          n = b.parse(r)
+        console.log('📱 Received token registration request:', {
+          hasUserId: !!n.userId,
+          hasEmail: !!n.email,
+          hasPhone: !!n.phone,
+          tokenPreview: n.expoToken?.substring(0, 30) + '...',
+        })
+        let { userId: o, email: s, phone: i, expoToken: a, deviceInfo: l } = n
+        if (!w.FCMTokenService.isValidExpoPushToken(a))
+          return y.NextResponse.json(
+            { success: !1, error: 'Invalid ExponentPushToken format' },
+            { status: 400 }
+          )
+        if (
+          (o
+            ? (console.log('🔍 Looking up user by ID:', o),
+              (t = await k.prisma.user.findUnique({
+                where: { id: o },
+                select: { id: !0, email: !0, phoneNumber: !0, name: !0 },
+              })))
+            : s
+              ? (console.log('🔍 Looking up user by email:', s),
+                (t = await k.prisma.user.findUnique({
+                  where: { email: s },
+                  select: { id: !0, email: !0, phoneNumber: !0, name: !0 },
+                })))
+              : i &&
+                (console.log('🔍 Looking up user by phone:', i),
+                (t = await k.prisma.user.findFirst({
+                  where: { phoneNumber: i },
+                  select: { id: !0, email: !0, phoneNumber: !0, name: !0 },
+                }))),
+          !t)
+        )
+          return (
+            console.log('❌ User not found'),
+            y.NextResponse.json({ success: !1, error: 'User not found' }, { status: 404 })
+          )
+        console.log('✅ User found:', { id: t.id, email: t.email, name: t.name })
+        let u = await w.FCMTokenService.updateUserToken(
+          t.id,
+          a,
+          l?.platform || 'android',
+          l?.deviceId
+        )
+        if (!u.success)
+          return y.NextResponse.json(
+            { success: !1, error: u.error || 'Failed to register token' },
+            { status: 500 }
+          )
+        return (
+          console.log('✅ ExponentPushToken successfully registered:'),
+          console.log('   User ID:', t.id),
+          console.log('   User Email:', t.email),
+          console.log('   User Name:', t.name),
+          console.log('   Platform:', l?.platform || 'android'),
+          console.log('   Device ID:', l?.deviceId),
+          y.NextResponse.json({
+            success: !0,
+            message: 'ExponentPushToken registered successfully',
+            data: {
+              userId: t.id,
+              userEmail: t.email,
+              userName: t.name,
+              platform: l?.platform || 'android',
+              deviceId: l?.deviceId,
+            },
+          })
+        )
+      } catch (e) {
+        if (
+          (console.error('❌ Error registering ExponentPushToken:', e), e instanceof E.z.ZodError)
+        )
+          return y.NextResponse.json(
+            {
+              success: !1,
+              error: 'Invalid request data',
+              details: e.issues.map((e) => ({ field: e.path.join('.'), message: e.message })),
+            },
+            { status: 400 }
+          )
+        if (e && 'object' == typeof e && 'code' in e)
+          return y.NextResponse.json(
+            { success: !1, error: 'Database error occurred' },
+            { status: 500 }
+          )
+        return y.NextResponse.json({ success: !1, error: 'Internal server error' }, { status: 500 })
+      }
+    }
+    e.s(['POST', () => R, 'registerTokenSchema', 0, b], 769882)
+    var T = e.i(769882)
+    let P = new t.AppRouteRouteModule({
+        definition: {
+          kind: r.RouteKind.APP_ROUTE,
+          page: '/api/notifications/register-token/route',
+          pathname: '/api/notifications/register-token',
+          filename: 'route',
+          bundlePath: '',
+        },
+        distDir: '.next',
+        relativeProjectDir: '',
+        resolvedPagePath: '[project]/src/app/api/notifications/register-token/route.ts',
+        nextConfigOutput: 'standalone',
+        userland: T,
+      }),
+      { workAsyncStorage: _, workUnitAsyncStorage: A, serverHooks: O } = P
+    function C() {
+      return (0, n.patchFetch)({ workAsyncStorage: _, workUnitAsyncStorage: A })
+    }
+    async function j(e, t, n) {
+      P.isDev && (0, o.addRequestMeta)(e, 'devRequestTimingInternalsEnd', process.hrtime.bigint())
+      let y = '/api/notifications/register-token/route'
+      y = y.replace(/\/index$/, '') || '/'
+      let k = await P.prepare(e, t, { srcPage: y, multiZoneDraftMode: !1 })
+      if (!k)
+        return (
+          (t.statusCode = 400),
+          t.end('Bad Request'),
+          null == n.waitUntil || n.waitUntil.call(n, Promise.resolve()),
+          null
+        )
+      let {
+          buildId: w,
+          params: E,
+          nextConfig: b,
+          parsedUrl: R,
+          isDraftMode: T,
+          prerenderManifest: _,
+          routerServerContext: A,
+          isOnDemandRevalidate: O,
+          revalidateOnlyGenerated: C,
+          resolvedPathname: j,
+          clientReferenceManifest: S,
+          serverActionsManifest: N,
+        } = k,
+        U = (0, l.normalizeAppPath)(y),
+        I = !!(_.dynamicRoutes[U] || _.routes[j]),
+        M = async () => (
+          (null == A ? void 0 : A.render404)
+            ? await A.render404(e, t, R, !1)
+            : t.end('This page could not be found'),
+          null
+        )
+      if (I && !T) {
+        let e = !!_.routes[j],
+          t = _.dynamicRoutes[U]
+        if (t && !1 === t.fallback && !e) {
+          if (b.experimental.adapterPath) return await M()
+          throw new v.NoFallbackError()
+        }
+      }
+      let q = null
+      !I || P.isDev || T || (q = '/index' === (q = j) ? '/' : q)
+      let D = !0 === P.isDev || !I,
+        $ = I && !D
+      N &&
+        S &&
+        (0, i.setReferenceManifestsSingleton)({
+          page: y,
+          clientReferenceManifest: S,
+          serverActionsManifest: N,
+          serverModuleMap: (0, a.createServerModuleMap)({ serverActionsManifest: N }),
+        })
+      let H = e.method || 'GET',
+        z = (0, s.getTracer)(),
+        F = z.getActiveScopeSpan(),
+        L = {
+          params: E,
+          prerenderManifest: _,
+          renderOpts: {
+            experimental: { authInterrupts: !!b.experimental.authInterrupts },
+            cacheComponents: !!b.cacheComponents,
+            supportsDynamicResponse: D,
+            incrementalCache: (0, o.getRequestMeta)(e, 'incrementalCache'),
+            cacheLifeProfiles: b.cacheLife,
+            waitUntil: n.waitUntil,
+            onClose: (e) => {
+              t.on('close', e)
+            },
+            onAfterTaskError: void 0,
+            onInstrumentationRequestError: (t, r, n) => P.onRequestError(e, t, n, A),
+          },
+          sharedContext: { buildId: w },
+        },
+        V = new u.NodeNextRequest(e),
+        B = new u.NodeNextResponse(t),
+        K = c.NextRequestAdapter.fromNodeNextRequest(V, (0, c.signalFromNodeResponse)(t))
+      try {
+        let i = async (e) =>
+            P.handle(K, L).finally(() => {
+              if (!e) return
+              e.setAttributes({ 'http.status_code': t.statusCode, 'next.rsc': !1 })
+              let r = z.getRootSpanAttributes()
+              if (!r) return
+              if (r.get('next.span_type') !== d.BaseServerSpan.handleRequest)
+                return void console.warn(
+                  `Unexpected root span type '${r.get('next.span_type')}'. Please report this Next.js issue https://github.com/vercel/next.js`
+                )
+              let n = r.get('next.route')
+              if (n) {
+                let t = `${H} ${n}`
+                ;(e.setAttributes({ 'next.route': n, 'http.route': n, 'next.span_name': t }),
+                  e.updateName(t))
+              } else e.updateName(`${H} ${y}`)
+            }),
+          a = !!(0, o.getRequestMeta)(e, 'minimalMode'),
+          l = async (o) => {
+            var s, l
+            let u = async ({ previousCacheEntry: r }) => {
+                try {
+                  if (!a && O && C && !r)
+                    return (
+                      (t.statusCode = 404),
+                      t.setHeader('x-nextjs-cache', 'REVALIDATED'),
+                      t.end('This page could not be found'),
+                      null
+                    )
+                  let s = await i(o)
+                  e.fetchMetrics = L.renderOpts.fetchMetrics
+                  let l = L.renderOpts.pendingWaitUntil
+                  l && n.waitUntil && (n.waitUntil(l), (l = void 0))
+                  let u = L.renderOpts.collectedTags
+                  if (!I)
+                    return (await (0, h.sendResponse)(V, B, s, L.renderOpts.pendingWaitUntil), null)
+                  {
+                    let e = await s.blob(),
+                      t = (0, f.toNodeOutgoingHttpHeaders)(s.headers)
+                    ;(u && (t[g.NEXT_CACHE_TAGS_HEADER] = u),
+                      !t['content-type'] && e.type && (t['content-type'] = e.type))
+                    let r =
+                        void 0 !== L.renderOpts.collectedRevalidate &&
+                        !(L.renderOpts.collectedRevalidate >= g.INFINITE_CACHE) &&
+                        L.renderOpts.collectedRevalidate,
+                      n =
+                        void 0 === L.renderOpts.collectedExpire ||
+                        L.renderOpts.collectedExpire >= g.INFINITE_CACHE
+                          ? void 0
+                          : L.renderOpts.collectedExpire
+                    return {
+                      value: {
+                        kind: x.CachedRouteKind.APP_ROUTE,
+                        status: s.status,
+                        body: Buffer.from(await e.arrayBuffer()),
+                        headers: t,
+                      },
+                      cacheControl: { revalidate: r, expire: n },
+                    }
+                  }
+                } catch (t) {
+                  throw (
+                    (null == r ? void 0 : r.isStale) &&
+                      (await P.onRequestError(
+                        e,
+                        t,
+                        {
+                          routerKind: 'App Router',
+                          routePath: y,
+                          routeType: 'route',
+                          revalidateReason: (0, p.getRevalidateReason)({
+                            isStaticGeneration: $,
+                            isOnDemandRevalidate: O,
+                          }),
+                        },
+                        A
+                      )),
+                    t
+                  )
+                }
+              },
+              c = await P.handleResponse({
+                req: e,
+                nextConfig: b,
+                cacheKey: q,
+                routeKind: r.RouteKind.APP_ROUTE,
+                isFallback: !1,
+                prerenderManifest: _,
+                isRoutePPREnabled: !1,
+                isOnDemandRevalidate: O,
+                revalidateOnlyGenerated: C,
+                responseGenerator: u,
+                waitUntil: n.waitUntil,
+                isMinimalMode: a,
+              })
+            if (!I) return null
+            if (
+              (null == c || null == (s = c.value) ? void 0 : s.kind) !== x.CachedRouteKind.APP_ROUTE
+            )
+              throw Object.defineProperty(
+                Error(
+                  `Invariant: app-route received invalid cache entry ${null == c || null == (l = c.value) ? void 0 : l.kind}`
+                ),
+                '__NEXT_ERROR_CODE',
+                { value: 'E701', enumerable: !1, configurable: !0 }
+              )
+            ;(a ||
+              t.setHeader(
+                'x-nextjs-cache',
+                O ? 'REVALIDATED' : c.isMiss ? 'MISS' : c.isStale ? 'STALE' : 'HIT'
+              ),
+              T &&
+                t.setHeader(
+                  'Cache-Control',
+                  'private, no-cache, no-store, max-age=0, must-revalidate'
+                ))
+            let d = (0, f.fromNodeOutgoingHttpHeaders)(c.value.headers)
+            return (
+              (a && I) || d.delete(g.NEXT_CACHE_TAGS_HEADER),
+              !c.cacheControl ||
+                t.getHeader('Cache-Control') ||
+                d.get('Cache-Control') ||
+                d.set('Cache-Control', (0, m.getCacheControlHeader)(c.cacheControl)),
+              await (0, h.sendResponse)(
+                V,
+                B,
+                new Response(c.value.body, { headers: d, status: c.value.status || 200 })
+              ),
+              null
+            )
+          }
+        F
+          ? await l(F)
+          : await z.withPropagatedContext(e.headers, () =>
+              z.trace(
+                d.BaseServerSpan.handleRequest,
+                {
+                  spanName: `${H} ${y}`,
+                  kind: s.SpanKind.SERVER,
+                  attributes: { 'http.method': H, 'http.target': e.url },
+                },
+                l
+              )
+            )
+      } catch (t) {
+        if (
+          (t instanceof v.NoFallbackError ||
+            (await P.onRequestError(e, t, {
+              routerKind: 'App Router',
+              routePath: U,
+              routeType: 'route',
+              revalidateReason: (0, p.getRevalidateReason)({
+                isStaticGeneration: $,
+                isOnDemandRevalidate: O,
+              }),
+            })),
+          I)
+        )
+          throw t
+        return (await (0, h.sendResponse)(V, B, new Response(null, { status: 500 })), null)
+      }
+    }
+    e.s(
+      [
+        'handler',
+        () => j,
+        'patchFetch',
+        () => C,
+        'routeModule',
+        () => P,
+        'serverHooks',
+        () => O,
+        'workAsyncStorage',
+        () => _,
+        'workUnitAsyncStorage',
+        () => A,
+      ],
+      421270
+    )
+  },
+]
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__89df6823._.js.map

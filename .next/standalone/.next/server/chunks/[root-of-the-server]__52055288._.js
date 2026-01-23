@@ -1,0 +1,426 @@
+module.exports = [
+  254799,
+  (e, t, r) => {
+    t.exports = e.x('crypto', () => require('crypto'))
+  },
+  676962,
+  (e) => {
+    'use strict'
+    var t = e.i(747909),
+      r = e.i(174017),
+      n = e.i(996250),
+      a = e.i(759756),
+      o = e.i(561916),
+      s = e.i(114444),
+      i = e.i(837092),
+      l = e.i(869741),
+      u = e.i(316795),
+      d = e.i(487718),
+      c = e.i(995169),
+      p = e.i(47587),
+      h = e.i(666012),
+      m = e.i(570101),
+      v = e.i(626937),
+      f = e.i(10372),
+      R = e.i(193695)
+    e.i(52474)
+    var g = e.i(600220),
+      _ = e.i(89171),
+      E = e.i(493458),
+      b = e.i(79832),
+      w = e.i(657446)
+    async function S({ params: e }) {
+      try {
+        let t = await b.default.api.getSession({ headers: await (0, E.headers)() })
+        if (!t || t.user?.role !== 'ADMIN')
+          return _.NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        let { id: r } = await e,
+          n = await w.prisma.booking.findUnique({
+            where: { id: r },
+            select: { id: !0, status: !0, bookingNumber: !0 },
+          })
+        if (!n) return _.NextResponse.json({ error: 'Booking not found' }, { status: 404 })
+        let a = [w.BookingStatus.GROOMER_CONFIRM_PENDING, w.BookingStatus.FIRST_PAYMENT_COMPLETE]
+        if (!a.includes(n.status))
+          return _.NextResponse.json(
+            {
+              error: 'Invalid status for confirmation',
+              currentStatus: n.status,
+              allowedStatuses: a,
+            },
+            { status: 400 }
+          )
+        let o = await w.prisma.booking.update({
+          where: { id: r },
+          data: { status: w.BookingStatus.GROOMER_CONFIRM, confirmedAt: new Date() },
+          include: {
+            customer: { select: { id: !0, name: !0, email: !0, phoneNumber: !0 } },
+            groomer: { select: { id: !0, name: !0, email: !0, phoneNumber: !0 } },
+            bookingPets: { include: { pet: !0, services: { include: { service: !0 } } } },
+          },
+        })
+        return (
+          console.log(`[Confirm] Booking ${n.bookingNumber} confirmed by admin`),
+          _.NextResponse.json({
+            success: !0,
+            booking: {
+              ...o,
+              createdAt: o.createdAt.toISOString(),
+              updatedAt: o.updatedAt.toISOString(),
+              serviceDate: o.serviceDate.toISOString(),
+              confirmedAt: o.confirmedAt?.toISOString() ?? null,
+              cancelledAt: o.cancelledAt?.toISOString() ?? null,
+              completedAt: o.completedAt?.toISOString() ?? null,
+              actualStartTime: o.actualStartTime?.toISOString() ?? null,
+              actualEndTime: o.actualEndTime?.toISOString() ?? null,
+            },
+            message: '예약이 확정되었습니다.',
+          })
+        )
+      } catch (e) {
+        return (
+          console.error('[Confirm] Error:', e),
+          _.NextResponse.json(
+            {
+              error: 'Internal server error',
+              message: e instanceof Error ? e.message : 'Unknown error occurred',
+            },
+            { status: 500 }
+          )
+        )
+      }
+    }
+    e.s(['PATCH', () => S], 435941)
+    var A = e.i(435941)
+    let k = new t.AppRouteRouteModule({
+        definition: {
+          kind: r.RouteKind.APP_ROUTE,
+          page: '/api/admin/bookings/[id]/confirm/route',
+          pathname: '/api/admin/bookings/[id]/confirm',
+          filename: 'route',
+          bundlePath: '',
+        },
+        distDir: '.next',
+        relativeProjectDir: '',
+        resolvedPagePath: '[project]/src/app/api/admin/bookings/[id]/confirm/route.ts',
+        nextConfigOutput: 'standalone',
+        userland: A,
+      }),
+      { workAsyncStorage: C, workUnitAsyncStorage: x, serverHooks: N } = k
+    function O() {
+      return (0, n.patchFetch)({ workAsyncStorage: C, workUnitAsyncStorage: x })
+    }
+    async function P(e, t, n) {
+      k.isDev && (0, a.addRequestMeta)(e, 'devRequestTimingInternalsEnd', process.hrtime.bigint())
+      let _ = '/api/admin/bookings/[id]/confirm/route'
+      _ = _.replace(/\/index$/, '') || '/'
+      let E = await k.prepare(e, t, { srcPage: _, multiZoneDraftMode: !1 })
+      if (!E)
+        return (
+          (t.statusCode = 400),
+          t.end('Bad Request'),
+          null == n.waitUntil || n.waitUntil.call(n, Promise.resolve()),
+          null
+        )
+      let {
+          buildId: b,
+          params: w,
+          nextConfig: S,
+          parsedUrl: A,
+          isDraftMode: C,
+          prerenderManifest: x,
+          routerServerContext: N,
+          isOnDemandRevalidate: O,
+          revalidateOnlyGenerated: P,
+          resolvedPathname: T,
+          clientReferenceManifest: y,
+          serverActionsManifest: I,
+        } = E,
+        j = (0, l.normalizeAppPath)(_),
+        M = !!(x.dynamicRoutes[j] || x.routes[T]),
+        U = async () => (
+          (null == N ? void 0 : N.render404)
+            ? await N.render404(e, t, A, !1)
+            : t.end('This page could not be found'),
+          null
+        )
+      if (M && !C) {
+        let e = !!x.routes[T],
+          t = x.dynamicRoutes[j]
+        if (t && !1 === t.fallback && !e) {
+          if (S.experimental.adapterPath) return await U()
+          throw new R.NoFallbackError()
+        }
+      }
+      let q = null
+      !M || k.isDev || C || (q = '/index' === (q = T) ? '/' : q)
+      let D = !0 === k.isDev || !M,
+        H = M && !D
+      I &&
+        y &&
+        (0, s.setReferenceManifestsSingleton)({
+          page: _,
+          clientReferenceManifest: y,
+          serverActionsManifest: I,
+          serverModuleMap: (0, i.createServerModuleMap)({ serverActionsManifest: I }),
+        })
+      let F = e.method || 'GET',
+        B = (0, o.getTracer)(),
+        $ = B.getActiveScopeSpan(),
+        K = {
+          params: w,
+          prerenderManifest: x,
+          renderOpts: {
+            experimental: { authInterrupts: !!S.experimental.authInterrupts },
+            cacheComponents: !!S.cacheComponents,
+            supportsDynamicResponse: D,
+            incrementalCache: (0, a.getRequestMeta)(e, 'incrementalCache'),
+            cacheLifeProfiles: S.cacheLife,
+            waitUntil: n.waitUntil,
+            onClose: (e) => {
+              t.on('close', e)
+            },
+            onAfterTaskError: void 0,
+            onInstrumentationRequestError: (t, r, n) => k.onRequestError(e, t, n, N),
+          },
+          sharedContext: { buildId: b },
+        },
+        G = new u.NodeNextRequest(e),
+        L = new u.NodeNextResponse(t),
+        V = d.NextRequestAdapter.fromNodeNextRequest(G, (0, d.signalFromNodeResponse)(t))
+      try {
+        let s = async (e) =>
+            k.handle(V, K).finally(() => {
+              if (!e) return
+              e.setAttributes({ 'http.status_code': t.statusCode, 'next.rsc': !1 })
+              let r = B.getRootSpanAttributes()
+              if (!r) return
+              if (r.get('next.span_type') !== c.BaseServerSpan.handleRequest)
+                return void console.warn(
+                  `Unexpected root span type '${r.get('next.span_type')}'. Please report this Next.js issue https://github.com/vercel/next.js`
+                )
+              let n = r.get('next.route')
+              if (n) {
+                let t = `${F} ${n}`
+                ;(e.setAttributes({ 'next.route': n, 'http.route': n, 'next.span_name': t }),
+                  e.updateName(t))
+              } else e.updateName(`${F} ${_}`)
+            }),
+          i = !!(0, a.getRequestMeta)(e, 'minimalMode'),
+          l = async (a) => {
+            var o, l
+            let u = async ({ previousCacheEntry: r }) => {
+                try {
+                  if (!i && O && P && !r)
+                    return (
+                      (t.statusCode = 404),
+                      t.setHeader('x-nextjs-cache', 'REVALIDATED'),
+                      t.end('This page could not be found'),
+                      null
+                    )
+                  let o = await s(a)
+                  e.fetchMetrics = K.renderOpts.fetchMetrics
+                  let l = K.renderOpts.pendingWaitUntil
+                  l && n.waitUntil && (n.waitUntil(l), (l = void 0))
+                  let u = K.renderOpts.collectedTags
+                  if (!M)
+                    return (await (0, h.sendResponse)(G, L, o, K.renderOpts.pendingWaitUntil), null)
+                  {
+                    let e = await o.blob(),
+                      t = (0, m.toNodeOutgoingHttpHeaders)(o.headers)
+                    ;(u && (t[f.NEXT_CACHE_TAGS_HEADER] = u),
+                      !t['content-type'] && e.type && (t['content-type'] = e.type))
+                    let r =
+                        void 0 !== K.renderOpts.collectedRevalidate &&
+                        !(K.renderOpts.collectedRevalidate >= f.INFINITE_CACHE) &&
+                        K.renderOpts.collectedRevalidate,
+                      n =
+                        void 0 === K.renderOpts.collectedExpire ||
+                        K.renderOpts.collectedExpire >= f.INFINITE_CACHE
+                          ? void 0
+                          : K.renderOpts.collectedExpire
+                    return {
+                      value: {
+                        kind: g.CachedRouteKind.APP_ROUTE,
+                        status: o.status,
+                        body: Buffer.from(await e.arrayBuffer()),
+                        headers: t,
+                      },
+                      cacheControl: { revalidate: r, expire: n },
+                    }
+                  }
+                } catch (t) {
+                  throw (
+                    (null == r ? void 0 : r.isStale) &&
+                      (await k.onRequestError(
+                        e,
+                        t,
+                        {
+                          routerKind: 'App Router',
+                          routePath: _,
+                          routeType: 'route',
+                          revalidateReason: (0, p.getRevalidateReason)({
+                            isStaticGeneration: H,
+                            isOnDemandRevalidate: O,
+                          }),
+                        },
+                        N
+                      )),
+                    t
+                  )
+                }
+              },
+              d = await k.handleResponse({
+                req: e,
+                nextConfig: S,
+                cacheKey: q,
+                routeKind: r.RouteKind.APP_ROUTE,
+                isFallback: !1,
+                prerenderManifest: x,
+                isRoutePPREnabled: !1,
+                isOnDemandRevalidate: O,
+                revalidateOnlyGenerated: P,
+                responseGenerator: u,
+                waitUntil: n.waitUntil,
+                isMinimalMode: i,
+              })
+            if (!M) return null
+            if (
+              (null == d || null == (o = d.value) ? void 0 : o.kind) !== g.CachedRouteKind.APP_ROUTE
+            )
+              throw Object.defineProperty(
+                Error(
+                  `Invariant: app-route received invalid cache entry ${null == d || null == (l = d.value) ? void 0 : l.kind}`
+                ),
+                '__NEXT_ERROR_CODE',
+                { value: 'E701', enumerable: !1, configurable: !0 }
+              )
+            ;(i ||
+              t.setHeader(
+                'x-nextjs-cache',
+                O ? 'REVALIDATED' : d.isMiss ? 'MISS' : d.isStale ? 'STALE' : 'HIT'
+              ),
+              C &&
+                t.setHeader(
+                  'Cache-Control',
+                  'private, no-cache, no-store, max-age=0, must-revalidate'
+                ))
+            let c = (0, m.fromNodeOutgoingHttpHeaders)(d.value.headers)
+            return (
+              (i && M) || c.delete(f.NEXT_CACHE_TAGS_HEADER),
+              !d.cacheControl ||
+                t.getHeader('Cache-Control') ||
+                c.get('Cache-Control') ||
+                c.set('Cache-Control', (0, v.getCacheControlHeader)(d.cacheControl)),
+              await (0, h.sendResponse)(
+                G,
+                L,
+                new Response(d.value.body, { headers: c, status: d.value.status || 200 })
+              ),
+              null
+            )
+          }
+        $
+          ? await l($)
+          : await B.withPropagatedContext(e.headers, () =>
+              B.trace(
+                c.BaseServerSpan.handleRequest,
+                {
+                  spanName: `${F} ${_}`,
+                  kind: o.SpanKind.SERVER,
+                  attributes: { 'http.method': F, 'http.target': e.url },
+                },
+                l
+              )
+            )
+      } catch (t) {
+        if (
+          (t instanceof R.NoFallbackError ||
+            (await k.onRequestError(e, t, {
+              routerKind: 'App Router',
+              routePath: j,
+              routeType: 'route',
+              revalidateReason: (0, p.getRevalidateReason)({
+                isStaticGeneration: H,
+                isOnDemandRevalidate: O,
+              }),
+            })),
+          M)
+        )
+          throw t
+        return (await (0, h.sendResponse)(G, L, new Response(null, { status: 500 })), null)
+      }
+    }
+    e.s(
+      [
+        'handler',
+        () => P,
+        'patchFetch',
+        () => O,
+        'routeModule',
+        () => k,
+        'serverHooks',
+        () => N,
+        'workAsyncStorage',
+        () => C,
+        'workUnitAsyncStorage',
+        () => x,
+      ],
+      676962
+    )
+  },
+  308812,
+  (e) => {
+    e.v((t) =>
+      Promise.all(
+        [
+          'server/chunks/node_modules_better-auth_dist_chunks_bun-sqlite-dialect_mjs_ac94bb8b._.js',
+        ].map((t) => e.l(t))
+      ).then(() => t(463259))
+    )
+  },
+  922180,
+  (e) => {
+    e.v((t) =>
+      Promise.all(
+        [
+          'server/chunks/node_modules_better-auth_dist_chunks_node-sqlite-dialect_mjs_29019df6._.js',
+        ].map((t) => e.l(t))
+      ).then(() => t(8202))
+    )
+  },
+  501603,
+  (e) => {
+    e.v((t) =>
+      Promise.all(['server/chunks/[root-of-the-server]__fd3a5b9b._.js'].map((t) => e.l(t))).then(
+        () => t(492749)
+      )
+    )
+  },
+  715957,
+  (e) => {
+    e.v((t) =>
+      Promise.all(
+        ['server/chunks/[root-of-the-server]__05e349db._.js', 'server/chunks/_1aa5a6b5._.js'].map(
+          (t) => e.l(t)
+        )
+      ).then(() => t(309653))
+    )
+  },
+  578406,
+  (e) => {
+    e.v((t) =>
+      Promise.all(
+        [
+          'server/chunks/[root-of-the-server]__aa8ebafd._.js',
+          'server/chunks/[root-of-the-server]__aea4da49._.js',
+          'server/chunks/_46980750._.js',
+          'server/chunks/node_modules_mime-db_db_json_a85ad9f0._.js',
+          'server/chunks/node_modules_0f478c9c._.js',
+        ].map((t) => e.l(t))
+      ).then(() => t(315159))
+    )
+  },
+]
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__52055288._.js.map

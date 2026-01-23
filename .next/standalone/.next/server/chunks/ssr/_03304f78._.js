@@ -1,0 +1,620 @@
+module.exports = [
+  699570,
+  400187,
+  (a) => {
+    'use strict'
+    var b = a.i(187924),
+      c = a.i(572131),
+      d = a.i(811011),
+      e = a.i(298621)
+    let f = (a) => ('boolean' == typeof a ? `${a}` : 0 === a ? '0' : a),
+      g = e.clsx,
+      h = (a, b) => (c) => {
+        var d
+        if ((null == b ? void 0 : b.variants) == null)
+          return g(a, null == c ? void 0 : c.class, null == c ? void 0 : c.className)
+        let { variants: e, defaultVariants: h } = b,
+          i = Object.keys(e).map((a) => {
+            let b = null == c ? void 0 : c[a],
+              d = null == h ? void 0 : h[a]
+            if (null === b) return null
+            let g = f(b) || f(d)
+            return e[a][g]
+          }),
+          j =
+            c &&
+            Object.entries(c).reduce((a, b) => {
+              let [c, d] = b
+              return (void 0 === d || (a[c] = d), a)
+            }, {})
+        return g(
+          a,
+          i,
+          null == b || null == (d = b.compoundVariants)
+            ? void 0
+            : d.reduce((a, b) => {
+                let { class: c, className: d, ...e } = b
+                return Object.entries(e).every((a) => {
+                  let [b, c] = a
+                  return Array.isArray(c) ? c.includes({ ...h, ...j }[b]) : { ...h, ...j }[b] === c
+                })
+                  ? [...a, c, d]
+                  : a
+              }, []),
+          null == c ? void 0 : c.class,
+          null == c ? void 0 : c.className
+        )
+      }
+    a.s(['cva', 0, h], 400187)
+    var i = a.i(368114)
+    let j = h(
+        'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 touch-manipulation active:scale-[0.98] active:opacity-90 relative overflow-hidden',
+        {
+          variants: {
+            variant: {
+              default:
+                'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm hover:shadow-md active:shadow-sm before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-700',
+              destructive:
+                'bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/95 shadow-sm hover:shadow-md',
+              outline:
+                'border border-input bg-background hover:bg-accent hover:text-accent-foreground active:bg-accent/90 shadow-sm hover:shadow-md hover:border-primary/30',
+              secondary:
+                'bg-secondary text-secondary-foreground hover:bg-secondary/80 active:bg-secondary/90 shadow-sm hover:shadow-md',
+              ghost: 'hover:bg-accent hover:text-accent-foreground active:bg-accent/90',
+              link: 'text-primary underline-offset-4 hover:underline active:text-primary/80',
+              cta: 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary/80 shadow-lg hover:shadow-xl active:shadow-md transform hover:scale-[1.02] active:scale-[0.98] before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-700',
+              'cta-outline':
+                'border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground shadow-sm hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-300',
+              'mobile-primary':
+                'bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl active:shadow-md min-h-[48px] sm:min-h-[44px] rounded-lg font-semibold',
+            },
+            size: {
+              default: 'min-h-[44px] px-4 py-3 sm:min-h-[40px] sm:py-2',
+              sm: 'min-h-[40px] rounded-md px-3 py-2 sm:min-h-[36px] text-sm',
+              lg: 'min-h-[48px] rounded-md px-6 py-3 sm:min-h-[44px] sm:px-8 text-base',
+              xl: 'min-h-[52px] rounded-lg px-8 py-4 sm:min-h-[48px] sm:px-10 text-lg font-semibold',
+              icon: 'min-h-[44px] min-w-[44px] sm:min-h-[40px] sm:min-w-[40px]',
+              'icon-sm': 'min-h-[36px] min-w-[36px] sm:min-h-[32px] sm:min-w-[32px]',
+              'icon-lg': 'min-h-[48px] min-w-[48px] sm:min-h-[44px] sm:min-w-[44px]',
+            },
+          },
+          defaultVariants: { variant: 'default', size: 'default' },
+        }
+      ),
+      k = c.forwardRef(({ className: a, variant: c, size: e, asChild: f = !1, ...g }, h) => {
+        let k = f ? d.Slot : 'button'
+        return (0, b.jsx)(k, {
+          className: (0, i.cn)(j({ variant: c, size: e, className: a })),
+          ref: h,
+          ...g,
+        })
+      })
+    ;((k.displayName = 'Button'), a.s(['Button', () => k, 'buttonVariants', () => j], 699570))
+  },
+  170106,
+  (a) => {
+    'use strict'
+    var b = a.i(572131)
+    let c = (a) => {
+        let b = a.replace(/^([A-Z])|[\s-_]+(\w)/g, (a, b, c) =>
+          c ? c.toUpperCase() : b.toLowerCase()
+        )
+        return b.charAt(0).toUpperCase() + b.slice(1)
+      },
+      d = (...a) =>
+        a
+          .filter((a, b, c) => !!a && '' !== a.trim() && c.indexOf(a) === b)
+          .join(' ')
+          .trim()
+    var e = {
+      xmlns: 'http://www.w3.org/2000/svg',
+      width: 24,
+      height: 24,
+      viewBox: '0 0 24 24',
+      fill: 'none',
+      stroke: 'currentColor',
+      strokeWidth: 2,
+      strokeLinecap: 'round',
+      strokeLinejoin: 'round',
+    }
+    let f = (0, b.forwardRef)(
+        (
+          {
+            color: a = 'currentColor',
+            size: c = 24,
+            strokeWidth: f = 2,
+            absoluteStrokeWidth: g,
+            className: h = '',
+            children: i,
+            iconNode: j,
+            ...k
+          },
+          l
+        ) =>
+          (0, b.createElement)(
+            'svg',
+            {
+              ref: l,
+              ...e,
+              width: c,
+              height: c,
+              stroke: a,
+              strokeWidth: g ? (24 * Number(f)) / Number(c) : f,
+              className: d('lucide', h),
+              ...(!i &&
+                !((a) => {
+                  for (let b in a)
+                    if (b.startsWith('aria-') || 'role' === b || 'title' === b) return !0
+                })(k) && { 'aria-hidden': 'true' }),
+              ...k,
+            },
+            [...j.map(([a, c]) => (0, b.createElement)(a, c)), ...(Array.isArray(i) ? i : [i])]
+          )
+      ),
+      g = (a, e) => {
+        let g = (0, b.forwardRef)(({ className: g, ...h }, i) =>
+          (0, b.createElement)(f, {
+            ref: i,
+            iconNode: e,
+            className: d(
+              `lucide-${c(a)
+                .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+                .toLowerCase()}`,
+              `lucide-${a}`,
+              g
+            ),
+            ...h,
+          })
+        )
+        return ((g.displayName = c(a)), g)
+      }
+    a.s(['default', () => g], 170106)
+  },
+  810004,
+  (a) => {
+    'use strict'
+    var b,
+      c = a.i(572131),
+      d = a.i(529139)
+    class e {
+      static isReactNativeWebView() {
+        return !1
+      }
+      static async registerTokenViaAPI(a) {
+        try {
+          let b = await fetch('/api/notifications/register-token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(a),
+          })
+          return await b.json()
+        } catch (a) {
+          return { success: !1, error: a instanceof Error ? a.message : 'Unknown error' }
+        }
+      }
+      static async getTokenStatus() {
+        try {
+          let a = await fetch('/api/notifications/token/status')
+          return await a.json()
+        } catch (a) {
+          return { success: !1, error: a instanceof Error ? a.message : 'Unknown error' }
+        }
+      }
+    }
+    function f() {
+      let { data: a, isPending: b } = (0, d.useSession)(),
+        f = e.isReactNativeWebView(),
+        g = (0, c.useCallback)((a) => {}, [f]),
+        h = (0, c.useCallback)(
+          (a) => {
+            g({ type: 'USER_LOGGED_IN', data: a })
+          },
+          [g]
+        ),
+        i = (0, c.useCallback)(() => {
+          g({ type: 'USER_LOGGED_OUT' })
+        }, [g]),
+        j = (0, c.useCallback)(() => {
+          g({ type: 'IMAGE_UPLOAD_REQUEST' })
+        }, [g]),
+        k = (0, c.useCallback)(() => {
+          g({ type: 'CAMERA_REQUEST' })
+        }, [g])
+      return (
+        (0, c.useEffect)(() => {
+          try {
+            !b &&
+              a?.user &&
+              f &&
+              (console.log('🔄 Sending user data to React Native from bridge hook'),
+              h({
+                userId: a.user.id,
+                email: a.user.email || '',
+                name: a.user.name || '',
+                phoneNumber: a.user.phoneNumber || '',
+                role: a.user.role,
+              }))
+          } catch {
+            return
+          }
+        }, [a, b, f, h]),
+        {
+          isWebView: f,
+          sendMessage: g,
+          sendUserLogin: h,
+          sendUserLogout: i,
+          requestImageUpload: j,
+          requestCamera: k,
+        }
+      )
+    }
+    ;(((b = {}).USER_LOGGED_IN = 'USER_LOGGED_IN'),
+      (b.USER_LOGGED_OUT = 'USER_LOGGED_OUT'),
+      (b.EXPO_TOKEN_REGISTERED = 'EXPO_TOKEN_REGISTERED'),
+      (b.IMAGE_UPLOAD_REQUEST = 'IMAGE_UPLOAD_REQUEST'),
+      (b.CAMERA_REQUEST = 'CAMERA_REQUEST'),
+      (b.IMAGE_UPLOAD_RESPONSE = 'IMAGE_UPLOAD_RESPONSE'),
+      a.s(['useWebViewBridge', () => f], 810004))
+  },
+  317753,
+  (a) => {
+    'use strict'
+    let b = (0, a.i(170106).default)('camera', [
+      [
+        'path',
+        {
+          d: 'M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z',
+          key: '18u6gg',
+        },
+      ],
+      ['circle', { cx: '12', cy: '13', r: '3', key: '1vg3eu' }],
+    ])
+    a.s(['default', () => b])
+  },
+  713513,
+  (a) => {
+    'use strict'
+    var b = a.i(317753)
+    a.s(['Camera', () => b.default])
+  },
+  773320,
+  (a) => {
+    'use strict'
+    let b = (0, a.i(170106).default)('upload', [
+      ['path', { d: 'M12 3v12', key: '1x0j5s' }],
+      ['path', { d: 'm17 8-5-5-5 5', key: '7q97r8' }],
+      ['path', { d: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4', key: 'ih7n3h' }],
+    ])
+    a.s(['Upload', () => b], 773320)
+  },
+  43542,
+  (a) => {
+    'use strict'
+    function b(a, c = 'image/jpeg') {
+      let d = atob(a),
+        e = Array(d.length)
+      for (let a = 0; a < d.length; a++) e[a] = d.charCodeAt(a)
+      return new Blob([new Uint8Array(e)], { type: c })
+    }
+    async function c(a, c) {
+      try {
+        let d = (function (a, c = 'image.jpg') {
+            let d = b(a.replace(/^data:image\/[a-z]+;base64,/, '')),
+              e = new FormData()
+            return (e.append('file', d, c), e)
+          })(a),
+          e = await fetch(c, { method: 'POST', body: d })
+        if (!e.ok) throw Error(`Upload failed: ${e.status}`)
+        let f = await e.json()
+        return { success: !0, url: f.url || f.data?.url }
+      } catch (a) {
+        return (
+          console.error('Image upload failed:', a),
+          { success: !1, error: a instanceof Error ? a.message : 'Unknown error' }
+        )
+      }
+    }
+    function d(a) {
+      return /^data:image\/(jpeg|jpg|png|gif|webp);base64,/.test(a)
+    }
+    function e() {
+      return /android|iphone|ipad|ipod|ios/.test('')
+    }
+    a.s([
+      'base64ToBlob',
+      () => b,
+      'isMobileDevice',
+      () => e,
+      'isValidBase64Image',
+      () => d,
+      'uploadImageToServer',
+      () => c,
+    ])
+  },
+  639251,
+  (a) => {
+    'use strict'
+    var b = a.i(187924),
+      c = a.i(572131),
+      d = a.i(699570),
+      e = a.i(810004),
+      f = a.i(43542),
+      g = a.i(713513),
+      h = a.i(773320),
+      i = a.i(368114)
+    function j({
+      onImageSelect: a,
+      onImageUpload: j,
+      uploadUrl: k,
+      className: l,
+      accept: m = 'image/*',
+      multiple: n = !1,
+      disabled: o = !1,
+      placeholder: p = '이미지를 선택하세요',
+    }) {
+      let [q, r] = (0, c.useState)(!1),
+        [s, t] = (0, c.useState)(null),
+        { isWebView: u, requestImageUpload: v, requestCamera: w } = (0, e.useWebViewBridge)(),
+        x = (0, f.isMobileDevice)() && u,
+        y = (0, c.useCallback)(
+          async (b) => {
+            if (b.data?.type === 'IMAGE_UPLOAD_RESPONSE') {
+              let { imageData: c } = b.data
+              if (!c || !(0, f.isValidBase64Image)(c))
+                return void t('유효하지 않은 이미지 데이터입니다.')
+              if ((t(null), k)) {
+                r(!0)
+                try {
+                  let a = await (0, f.uploadImageToServer)(c, k)
+                  a.success && a.url ? j?.(a.url) : t(a.error || '업로드에 실패했습니다.')
+                } catch {
+                  t('업로드 중 오류가 발생했습니다.')
+                } finally {
+                  r(!1)
+                }
+              } else a?.(c)
+            }
+          },
+          [k, a, j]
+        )
+      ;(0, c.useEffect)(() => {
+        if (x)
+          return (
+            window.addEventListener('message', y),
+            () => {
+              window.removeEventListener('message', y)
+            }
+          )
+      }, [x, y])
+      let z = (0, c.useCallback)(
+        (b) => {
+          let c = b.target.files
+          if (!c || 0 === c.length) return
+          let d = c[0]
+          if (k) {
+            r(!0)
+            let a = new FormData()
+            ;(a.append('file', d),
+              fetch(k, { method: 'POST', body: a })
+                .then((a) => a.json())
+                .then((a) => {
+                  if (a.url) j?.(a.url)
+                  else throw Error('업로드 응답에 URL이 없습니다.')
+                })
+                .catch((a) => {
+                  t('업로드에 실패했습니다: ' + a.message)
+                })
+                .finally(() => {
+                  r(!1)
+                }))
+          } else a?.(d)
+          b.target.value = ''
+        },
+        [k, a, j]
+      )
+      return x
+        ? (0, b.jsxs)('div', {
+            className: (0, i.cn)('flex gap-2', l),
+            children: [
+              (0, b.jsxs)(d.Button, {
+                type: 'button',
+                variant: 'outline',
+                onClick: v,
+                disabled: o || q,
+                className: 'flex items-center gap-2',
+                children: [(0, b.jsx)(h.Upload, { size: 16 }), '갤러리'],
+              }),
+              (0, b.jsxs)(d.Button, {
+                type: 'button',
+                variant: 'outline',
+                onClick: w,
+                disabled: o || q,
+                className: 'flex items-center gap-2',
+                children: [(0, b.jsx)(g.Camera, { size: 16 }), '카메라'],
+              }),
+              q &&
+                (0, b.jsx)('div', {
+                  className: 'text-muted-foreground text-sm',
+                  children: '업로드 중...',
+                }),
+              s && (0, b.jsx)('div', { className: 'text-sm text-red-500', children: s }),
+            ],
+          })
+        : (0, b.jsxs)('div', {
+            className: (0, i.cn)('w-full', l),
+            children: [
+              (0, b.jsx)('input', {
+                type: 'file',
+                id: 'image-input',
+                accept: m,
+                multiple: n,
+                onChange: z,
+                disabled: o || q,
+                className: 'hidden',
+              }),
+              (0, b.jsx)('label', {
+                htmlFor: 'image-input',
+                className: (0, i.cn)(
+                  'flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100',
+                  o && 'cursor-not-allowed opacity-50',
+                  'transition-colors'
+                ),
+                children: (0, b.jsxs)('div', {
+                  className: 'flex flex-col items-center justify-center pt-5 pb-6',
+                  children: [
+                    (0, b.jsx)(h.Upload, { className: 'mb-4 h-8 w-8 text-gray-500' }),
+                    (0, b.jsx)('p', {
+                      className: 'mb-2 text-sm text-gray-500',
+                      children: (0, b.jsx)('span', {
+                        className: 'font-semibold',
+                        children: '클릭하여 업로드',
+                      }),
+                    }),
+                    (0, b.jsx)('p', { className: 'text-xs text-gray-500', children: p }),
+                  ],
+                }),
+              }),
+              q &&
+                (0, b.jsx)('div', {
+                  className: 'text-muted-foreground mt-2 text-sm',
+                  children: '업로드 중...',
+                }),
+              s && (0, b.jsx)('div', { className: 'mt-2 text-sm text-red-500', children: s }),
+            ],
+          })
+    }
+    function k() {
+      let [a, d] = (0, c.useState)(null),
+        [e, f] = (0, c.useState)(null)
+      return (0, b.jsxs)('div', {
+        className: 'container mx-auto px-4 py-8',
+        children: [
+          (0, b.jsx)('h1', {
+            className: 'mb-8 text-3xl font-bold',
+            children: '이미지 업로드 테스트',
+          }),
+          (0, b.jsxs)('div', {
+            className: 'space-y-8',
+            children: [
+              (0, b.jsxs)('div', {
+                children: [
+                  (0, b.jsx)('h2', {
+                    className: 'mb-4 text-xl font-semibold',
+                    children: '파일 선택만 (업로드 없음)',
+                  }),
+                  (0, b.jsx)(j, {
+                    onImageSelect: (a) => {
+                      if ((console.log('Image selected:', a), 'string' == typeof a)) d(a)
+                      else {
+                        let b = new FileReader()
+                        ;((b.onload = (a) => {
+                          a.target?.result && d(a.target.result)
+                        }),
+                          b.readAsDataURL(a))
+                      }
+                    },
+                    placeholder: '이미지를 선택하세요 (업로드하지 않음)',
+                  }),
+                  a &&
+                    (0, b.jsxs)('div', {
+                      className: 'mt-4',
+                      children: [
+                        (0, b.jsx)('p', {
+                          className: 'mb-2 text-sm text-gray-600',
+                          children: '선택된 이미지:',
+                        }),
+                        (0, b.jsx)('img', {
+                          src: a,
+                          alt: 'Selected',
+                          className: 'max-h-48 max-w-xs rounded border object-contain',
+                        }),
+                      ],
+                    }),
+                ],
+              }),
+              (0, b.jsxs)('div', {
+                children: [
+                  (0, b.jsx)('h2', {
+                    className: 'mb-4 text-xl font-semibold',
+                    children: '서버 업로드',
+                  }),
+                  (0, b.jsx)(j, {
+                    onImageUpload: (a) => {
+                      ;(console.log('Image uploaded:', a), f(a))
+                    },
+                    uploadUrl: '/api/upload',
+                    placeholder: '이미지를 선택하여 서버에 업로드',
+                  }),
+                  e &&
+                    (0, b.jsxs)('div', {
+                      className: 'mt-4',
+                      children: [
+                        (0, b.jsx)('p', {
+                          className: 'mb-2 text-sm text-gray-600',
+                          children: '업로드된 이미지 URL:',
+                        }),
+                        (0, b.jsx)('a', {
+                          href: e,
+                          target: '_blank',
+                          rel: 'noopener noreferrer',
+                          className: 'break-all text-blue-600 hover:underline',
+                          children: e,
+                        }),
+                      ],
+                    }),
+                ],
+              }),
+              (0, b.jsxs)('div', {
+                className: 'rounded-lg bg-gray-50 p-4',
+                children: [
+                  (0, b.jsx)('h3', { className: 'mb-2 font-semibold', children: '테스트 방법:' }),
+                  (0, b.jsxs)('ol', {
+                    className: 'list-inside list-decimal space-y-1 text-sm',
+                    children: [
+                      (0, b.jsx)('li', { children: '웹 브라우저에서: 파일 선택 UI가 표시됩니다' }),
+                      (0, b.jsx)('li', {
+                        children: 'React Native WebView에서: 갤러리/카메라 버튼이 표시됩니다',
+                      }),
+                      (0, b.jsx)('li', {
+                        children: 'Android/iOS에서 UserAgent 자동 감지하여 적절한 UI를 보여줍니다',
+                      }),
+                      (0, b.jsx)('li', { children: '이미지 선택/촬영 후 자동으로 처리됩니다' }),
+                    ],
+                  }),
+                ],
+              }),
+              (0, b.jsxs)('div', {
+                className: 'rounded-lg border border-yellow-200 bg-yellow-50 p-4',
+                children: [
+                  (0, b.jsx)('h3', {
+                    className: 'mb-2 font-semibold text-yellow-800',
+                    children: '참고사항:',
+                  }),
+                  (0, b.jsxs)('ul', {
+                    className: 'list-inside list-disc space-y-1 text-sm text-yellow-700',
+                    children: [
+                      (0, b.jsx)('li', {
+                        children:
+                          '서버 업로드 기능을 사용하려면 /api/upload 엔드포인트 구현이 필요합니다',
+                      }),
+                      (0, b.jsx)('li', {
+                        children: 'React Native에서 테스트할 때는 카메라/갤러리 권한이 필요합니다',
+                      }),
+                      (0, b.jsx)('li', {
+                        children:
+                          'Base64 이미지는 크기가 큰 파일의 경우 성능에 영향을 줄 수 있습니다',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      })
+    }
+    a.s(['default', () => k], 639251)
+  },
+]
+
+//# sourceMappingURL=_03304f78._.js.map

@@ -1,0 +1,399 @@
+module.exports = [
+  777192,
+  (a) => {
+    'use strict'
+    var b = a.i(572131),
+      c = a.i(470121),
+      d = a.i(872752),
+      e = (a) => {
+        var e
+        let g,
+          h,
+          { present: i, children: j } = a,
+          k = (function (a) {
+            var c, e
+            let [g, h] = b.useState(),
+              i = b.useRef(null),
+              j = b.useRef(a),
+              k = b.useRef('none'),
+              [l, m] =
+                ((c = a ? 'mounted' : 'unmounted'),
+                (e = {
+                  mounted: { UNMOUNT: 'unmounted', ANIMATION_OUT: 'unmountSuspended' },
+                  unmountSuspended: { MOUNT: 'mounted', ANIMATION_END: 'unmounted' },
+                  unmounted: { MOUNT: 'mounted' },
+                }),
+                b.useReducer((a, b) => e[a][b] ?? a, c))
+            return (
+              b.useEffect(() => {
+                let a = f(i.current)
+                k.current = 'mounted' === l ? a : 'none'
+              }, [l]),
+              (0, d.useLayoutEffect)(() => {
+                let b = i.current,
+                  c = j.current
+                if (c !== a) {
+                  let d = k.current,
+                    e = f(b)
+                  ;(a
+                    ? m('MOUNT')
+                    : 'none' === e || b?.display === 'none'
+                      ? m('UNMOUNT')
+                      : c && d !== e
+                        ? m('ANIMATION_OUT')
+                        : m('UNMOUNT'),
+                    (j.current = a))
+                }
+              }, [a, m]),
+              (0, d.useLayoutEffect)(() => {
+                if (g) {
+                  let a,
+                    b = g.ownerDocument.defaultView ?? window,
+                    c = (c) => {
+                      let d = f(i.current).includes(CSS.escape(c.animationName))
+                      if (c.target === g && d && (m('ANIMATION_END'), !j.current)) {
+                        let c = g.style.animationFillMode
+                        ;((g.style.animationFillMode = 'forwards'),
+                          (a = b.setTimeout(() => {
+                            'forwards' === g.style.animationFillMode &&
+                              (g.style.animationFillMode = c)
+                          })))
+                      }
+                    },
+                    d = (a) => {
+                      a.target === g && (k.current = f(i.current))
+                    }
+                  return (
+                    g.addEventListener('animationstart', d),
+                    g.addEventListener('animationcancel', c),
+                    g.addEventListener('animationend', c),
+                    () => {
+                      ;(b.clearTimeout(a),
+                        g.removeEventListener('animationstart', d),
+                        g.removeEventListener('animationcancel', c),
+                        g.removeEventListener('animationend', c))
+                    }
+                  )
+                }
+                m('ANIMATION_END')
+              }, [g, m]),
+              {
+                isPresent: ['mounted', 'unmountSuspended'].includes(l),
+                ref: b.useCallback((a) => {
+                  ;((i.current = a ? getComputedStyle(a) : null), h(a))
+                }, []),
+              }
+            )
+          })(i),
+          l = 'function' == typeof j ? j({ present: k.isPresent }) : b.Children.only(j),
+          m = (0, c.useComposedRefs)(
+            k.ref,
+            ((e = l),
+            (h =
+              (g = Object.getOwnPropertyDescriptor(e.props, 'ref')?.get) &&
+              'isReactWarning' in g &&
+              g.isReactWarning)
+              ? e.ref
+              : (h =
+                    (g = Object.getOwnPropertyDescriptor(e, 'ref')?.get) &&
+                    'isReactWarning' in g &&
+                    g.isReactWarning)
+                ? e.props.ref
+                : e.props.ref || e.ref)
+          )
+        return 'function' == typeof j || k.isPresent ? b.cloneElement(l, { ref: m }) : null
+      }
+    function f(a) {
+      return a?.animationName || 'none'
+    }
+    ;((e.displayName = 'Presence'), a.s(['Presence', () => e]))
+  },
+  130656,
+  (a) => {
+    'use strict'
+    function b(a, [b, c]) {
+      return Math.min(c, Math.max(b, a))
+    }
+    a.s(['clamp', () => b])
+  },
+  352254,
+  111989,
+  (a) => {
+    'use strict'
+    let b = (0, a.i(170106).default)('chevron-right', [
+      ['path', { d: 'm9 18 6-6-6-6', key: 'mthhwq' }],
+    ])
+    ;(a.s(['default', () => b], 111989), a.s(['ChevronRightIcon', () => b], 352254))
+  },
+  517756,
+  (a) => {
+    'use strict'
+    let b = (0, a.i(170106).default)('chevron-left', [
+      ['path', { d: 'm15 18-6-6 6-6', key: '1wnfg3' }],
+    ])
+    a.s(['default', () => b])
+  },
+  281643,
+  (a) => {
+    'use strict'
+    var b = a.i(517756)
+    a.s(['ChevronLeftIcon', () => b.default])
+  },
+  622282,
+  (a) => {
+    'use strict'
+    let b = (0, a.i(170106).default)('credit-card', [
+      ['rect', { width: '20', height: '14', x: '2', y: '5', rx: '2', key: 'ynyp8z' }],
+      ['line', { x1: '2', x2: '22', y1: '10', y2: '10', key: '1b3vmo' }],
+    ])
+    a.s(['default', () => b])
+  },
+  839982,
+  (a) => {
+    'use strict'
+    var b = a.i(622282)
+    a.s(['CreditCardIcon', () => b.default])
+  },
+  438500,
+  (a) => {
+    'use strict'
+    let b = (0, a.i(170106).default)('shield-check', [
+      [
+        'path',
+        {
+          d: 'M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z',
+          key: 'oel41y',
+        },
+      ],
+      ['path', { d: 'm9 12 2 2 4-4', key: 'dzmm74' }],
+    ])
+    a.s(['ShieldCheckIcon', () => b], 438500)
+  },
+  199071,
+  (a) => {
+    'use strict'
+    let b = (0, a.i(170106).default)('bell', [
+      ['path', { d: 'M10.268 21a2 2 0 0 0 3.464 0', key: 'vwvbt9' }],
+      [
+        'path',
+        {
+          d: 'M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326',
+          key: '11g9vi',
+        },
+      ],
+    ])
+    a.s(['default', () => b])
+  },
+  981954,
+  (a) => {
+    'use strict'
+    var b = a.i(199071)
+    a.s(['BellIcon', () => b.default])
+  },
+  639414,
+  (a) => {
+    'use strict'
+    var b = a.i(187924),
+      c = a.i(572131),
+      d = a.i(699570),
+      e = a.i(269876),
+      f = a.i(281643),
+      g = a.i(352254)
+    let h = (0, a.i(170106).default)('file-text', [
+      ['path', { d: 'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z', key: '1rqfz7' }],
+      ['path', { d: 'M14 2v4a2 2 0 0 0 2 2h4', key: 'tnqrlb' }],
+      ['path', { d: 'M10 9H8', key: 'b1mrlr' }],
+      ['path', { d: 'M16 13H8', key: 't4e002' }],
+      ['path', { d: 'M16 17H8', key: 'z1uh3a' }],
+    ])
+    var i = a.i(438500),
+      j = a.i(839982),
+      k = a.i(981954),
+      l = a.i(50944),
+      m = a.i(368114)
+    let n = [
+      { id: 'service', title: '서비스 이용약관', icon: h },
+      { id: 'privacy', title: '개인정보처리방침', icon: i.ShieldCheckIcon },
+      { id: 'payment', title: '결제 및 환불 정책', icon: j.CreditCardIcon },
+      { id: 'marketing', title: '마케팅 정보 수신', icon: k.BellIcon },
+    ]
+    function o({ serviceTerms: a, privacyPolicy: h, paymentTerms: i, marketingTerms: j }) {
+      let k = (0, l.useRouter)(),
+        o = (0, l.useSearchParams)(),
+        [p, q] = (0, c.useState)(() => {
+          let a = o.get('tab')
+          return a && ['service', 'privacy', 'payment', 'marketing'].includes(a) ? a : 'service'
+        }),
+        r = { service: a, privacy: h, payment: i, marketing: j }
+      return (
+        (0, c.useEffect)(() => {
+          let a = o.get('tab')
+          a && ['service', 'privacy', 'payment', 'marketing'].includes(a) && q(a)
+        }, [o]),
+        (0, b.jsxs)(b.Fragment, {
+          children: [
+            (0, b.jsxs)(d.Button, {
+              variant: 'ghost',
+              onClick: () => k.back(),
+              className: 'mb-4 hidden sm:inline-flex',
+              children: [(0, b.jsx)(f.ChevronLeftIcon, { className: 'mr-2 h-4 w-4' }), '뒤로가기'],
+            }),
+            (0, b.jsxs)('div', {
+              className: 'sm:hidden',
+              children: [
+                (0, b.jsxs)(d.Button, {
+                  variant: 'ghost',
+                  onClick: () => k.back(),
+                  className: 'mb-4',
+                  children: [
+                    (0, b.jsx)(f.ChevronLeftIcon, { className: 'mr-2 h-4 w-4' }),
+                    '뒤로가기',
+                  ],
+                }),
+                (0, b.jsx)('div', {
+                  className: 'space-y-2',
+                  children: n.map((a) => {
+                    let c = a.icon,
+                      d = p === a.id
+                    return (0, b.jsxs)(
+                      'button',
+                      {
+                        onClick: () => q(a.id),
+                        className: (0, m.cn)(
+                          'flex w-full items-center justify-between rounded-lg p-4 transition-colors',
+                          d ? 'bg-primary text-white' : 'border bg-white hover:bg-gray-50'
+                        ),
+                        children: [
+                          (0, b.jsxs)('div', {
+                            className: 'flex items-center gap-3',
+                            children: [
+                              (0, b.jsx)(c, {
+                                className: (0, m.cn)('h-5 w-5', d ? 'text-white' : 'text-gray-600'),
+                              }),
+                              (0, b.jsx)('span', {
+                                className: 'text-left font-medium',
+                                children: a.title,
+                              }),
+                            ],
+                          }),
+                          (0, b.jsx)(g.ChevronRightIcon, {
+                            className: (0, m.cn)('h-5 w-5', d ? 'text-white' : 'text-gray-400'),
+                          }),
+                        ],
+                      },
+                      a.id
+                    )
+                  }),
+                }),
+                p &&
+                  (0, b.jsx)('div', {
+                    className: 'mt-4',
+                    children: (0, b.jsxs)('div', {
+                      className: 'rounded-lg border bg-white p-4',
+                      children: [
+                        (0, b.jsxs)('div', {
+                          className: 'mb-4 flex items-center justify-between border-b pb-3',
+                          children: [
+                            (0, b.jsx)('h3', {
+                              className: 'text-lg font-semibold',
+                              children: n.find((a) => a.id === p)?.title,
+                            }),
+                            (0, b.jsx)(d.Button, {
+                              size: 'sm',
+                              variant: 'ghost',
+                              onClick: () => q('service'),
+                              children: '닫기',
+                            }),
+                          ],
+                        }),
+                        (0, b.jsx)(e.ScrollArea, {
+                          className: 'h-[50vh]',
+                          children: (0, b.jsx)('div', { className: 'pr-4', children: r[p] }),
+                        }),
+                      ],
+                    }),
+                  }),
+              ],
+            }),
+            (0, b.jsxs)('div', {
+              className: 'hidden gap-6 lg:flex',
+              children: [
+                (0, b.jsx)('div', {
+                  className: 'w-64 flex-shrink-0',
+                  children: (0, b.jsx)('div', {
+                    className: 'sticky top-4',
+                    children: (0, b.jsx)('nav', {
+                      className: 'space-y-1',
+                      children: n.map((a) => {
+                        let c = a.icon
+                        return (0, b.jsxs)(
+                          'button',
+                          {
+                            onClick: () => q(a.id),
+                            className: (0, m.cn)(
+                              'flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors',
+                              p === a.id
+                                ? 'bg-primary text-primary-foreground'
+                                : 'text-gray-700 hover:bg-gray-100'
+                            ),
+                            children: [
+                              (0, b.jsx)(c, { className: 'h-5 w-5 flex-shrink-0' }),
+                              (0, b.jsx)('span', { className: 'font-medium', children: a.title }),
+                            ],
+                          },
+                          a.id
+                        )
+                      }),
+                    }),
+                  }),
+                }),
+                (0, b.jsx)('div', {
+                  className: 'flex-1',
+                  children: (0, b.jsx)(e.ScrollArea, {
+                    className: 'h-[75vh] rounded-lg border bg-white p-6',
+                    children: (0, b.jsx)('div', { className: 'max-w-4xl', children: r[p] }),
+                  }),
+                }),
+              ],
+            }),
+            (0, b.jsxs)('div', {
+              className: 'hidden sm:block lg:hidden',
+              children: [
+                (0, b.jsx)('div', {
+                  className: 'mb-4 space-y-2',
+                  children: n.map((a) => {
+                    let c = a.icon
+                    return (0, b.jsxs)(
+                      'button',
+                      {
+                        onClick: () => q(a.id),
+                        className: (0, m.cn)(
+                          'flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors',
+                          p === a.id
+                            ? 'bg-primary text-primary-foreground'
+                            : 'border bg-gray-50 text-gray-700 hover:bg-gray-100'
+                        ),
+                        children: [
+                          (0, b.jsx)(c, { className: 'h-5 w-5 flex-shrink-0' }),
+                          (0, b.jsx)('span', { className: 'font-medium', children: a.title }),
+                        ],
+                      },
+                      a.id
+                    )
+                  }),
+                }),
+                (0, b.jsx)(e.ScrollArea, {
+                  className: 'h-[65vh] rounded-lg border bg-white p-5',
+                  children: r[p],
+                }),
+              ],
+            }),
+          ],
+        })
+      )
+    }
+    a.s(['default', () => o], 639414)
+  },
+]
+
+//# sourceMappingURL=_7e0bf5e1._.js.map

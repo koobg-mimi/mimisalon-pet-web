@@ -1,0 +1,11 @@
+var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/notifications/register-token/route.js")
+R.c("server/chunks/[root-of-the-server]__ce4ee3fe._.js")
+R.c("server/chunks/node_modules_next_f2da0d3e._.js")
+R.c("server/chunks/[root-of-the-server]__89df6823._.js")
+R.c("server/chunks/node_modules_63c106d0._.js")
+R.c("server/chunks/node_modules_zod_v4_classic_external_fa90cebf.js")
+R.c("server/chunks/[root-of-the-server]__09c3bdaf._.js")
+R.c("server/chunks/node_modules_next_dist_bfd7b269._.js")
+R.c("server/chunks/ce889_server_app_api_notifications_register-token_route_actions_1087abe3.js")
+R.m(421270)
+module.exports=R.m(421270).exports

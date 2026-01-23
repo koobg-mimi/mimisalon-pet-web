@@ -1,0 +1,3 @@
+{
+  "/api/webhooks/portone-settlement/route": "app/api/webhooks/portone-settlement/route.js"
+}

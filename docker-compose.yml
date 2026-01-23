@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: mimisalon-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: mimisalon
+      POSTGRES_USER: mimisalon
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mimisalon123}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - mimisalon-network
+
+  # Redis for BullMQ
+  redis:
+    image: redis:7-alpine
+    container_name: mimisalon-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - mimisalon-network
+
+  # MimiSalon Application (Next.js)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: mimisalon-app
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      # Database
+      DATABASE_URL: postgresql://mimisalon:${POSTGRES_PASSWORD:-mimisalon123}@postgres:5432/mimisalon
+
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+      # better-auth
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+
+      # Google OAuth
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+
+      # PortOne
+      PORTONE_API_KEY: ${PORTONE_API_KEY}
+      PORTONE_API_SECRET: ${PORTONE_API_SECRET}
+      PORTONE_API_BASE_URL: ${PORTONE_API_BASE_URL:-https://api.portone.io}
+      PORTONE_WEBHOOK_SECRET: ${PORTONE_WEBHOOK_SECRET}
+      PORTONE_PLATFORM_ENABLED: ${PORTONE_PLATFORM_ENABLED:-false}
+      PORTONE_DEFAULT_CONTRACT_ID: ${PORTONE_DEFAULT_CONTRACT_ID}
+
+      # PM2
+      PM2_NEXT_INSTANCES: ${PM2_NEXT_INSTANCES:-1}
+      PM2_DISABLE_FILE_LOGS: "true"
+
+      # Node
+      NODE_ENV: production
+    ports:
+      - "3000:3000"  # Next.js
+    # Logs are output to console via pm2-runtime, no need for volume mount
+    networks:
+      - mimisalon-network
+
+  # Development-only services
+  # Uncomment these for development
+
+  # # Redis Commander (Redis GUI)
+  # redis-commander:
+  #   image: rediscommander/redis-commander:latest
+  #   container_name: mimisalon-redis-commander
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - redis
+  #   environment:
+  #     REDIS_HOSTS: local:redis:6379
+  #   ports:
+  #     - "8081:8081"
+  #   networks:
+  #     - mimisalon-network
+
+  # # Adminer (Database GUI)
+  # adminer:
+  #   image: adminer
+  #   container_name: mimisalon-adminer
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - postgres
+  #   ports:
+  #     - "8080:8080"
+  #   networks:
+  #     - mimisalon-network
+
+networks:
+  mimisalon-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:

@@ -1,0 +1,1057 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Better-Auth Account model
+model Account {
+  id           String    @id @default(cuid())
+  userId       String
+  accountId    String // better-auth uses accountId instead of providerAccountId
+  providerId   String // better-auth uses providerId instead of provider
+  accessToken  String?   @db.Text
+  refreshToken String?   @db.Text
+  expiresAt    DateTime?
+  password     String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@map("Account")
+}
+
+// Better-Auth Session model
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique // better-auth uses 'token' instead of 'sessionToken'
+  userId    String
+  expiresAt DateTime // better-auth uses 'expiresAt' instead of 'expires'
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("Session")
+}
+
+model User {
+  id                   String    @id @default(cuid())
+  name                 String?
+  email                String    @unique
+  emailVerified        DateTime?
+  image                String?
+  password             String? // For credentials login
+  role                 UserRole  @default(CUSTOMER)
+  phoneNumber          String?   @unique // Phone number in E.164 format
+  phoneNumberVerified  Boolean   @default(false)
+  notificationsEnabled Boolean   @default(true) // User preference for notifications
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  accounts        Account[]
+  sessions        Session[]
+  pets            Pet[]
+  bookings        Booking[]             @relation("CustomerBookings")
+  groomerBookings Booking[]             @relation("GroomerBookings")
+  addresses       Address[]
+  reviews         Review[]
+  payments        Payment[]
+  workAreas       GroomerWorkArea[]
+  schedule        GroomerSchedule?
+  workingDates    GroomerWorkingDate[]
+  availabilities  GroomerAvailability[]
+  groomerProfile  GroomerProfile?
+  settlements     GroomerSettlement[]
+  notifications   Notification[]
+  settlementJobs  SettlementJob[]
+  emailLogs       EmailLog[]
+  deviceTokens    DeviceToken[]
+}
+
+model DeviceToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique // ExponentPushToken
+  platform  String // "ios" | "android" | "web"
+  deviceId  String? // Optional device identifier
+  isActive  Boolean  @default(true)
+  lastUsed  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+// Breed table for managing dog/cat breeds with categories
+model Breed {
+  id           String        @id @default(cuid())
+  name         String // 품종명 (예: 푸들, 말티즈, 페르시안)
+  petType      PetType // DOG or CAT
+  category     BreedCategory // SMALL, MEDIUM, LARGE, SPECIAL (for dogs) / SHORT_HAIR, LONG_HAIR (for cats)
+  displayOrder Int           @default(0)
+  isActive     Boolean       @default(true)
+
+  pets               Pet[]
+  servicePriceBreeds ServicePriceBreed[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, petType])
+  @@index([petType, category])
+}
+
+// Application Models
+model Pet {
+  id                String            @id @default(cuid())
+  name              String
+  type              PetType
+  breedId           String?
+  weight            Float?
+  age               Int?
+  birthDate         DateTime?
+  gender            PetGender?
+  hairType          CatHairType? // Deprecated - will use breed.category instead
+  specialNeeds      String?
+  vaccinationStatus VaccinationStatus @default(UNKNOWN)
+  vaccinationDate   DateTime?
+  isActive          Boolean           @default(true)
+  termsAcception    Boolean           @default(false) // 지병·노령견 미용 동의서 동의 여부
+
+  customerId String
+  customer   User   @relation(fields: [customerId], references: [id])
+  breed      Breed? @relation(fields: [breedId], references: [id])
+
+  bookings    Booking[]    @relation("PetBookings") // Deprecated
+  bookingPets BookingPet[]
+  images      PetImage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Pet images stored in Google Cloud Storage
+model PetImage {
+  id           String  @id @default(cuid())
+  url          String // Full URL to image in Google Cloud Storage
+  filename     String // Original filename
+  mimeType     String // Image mime type (e.g., image/jpeg, image/png)
+  size         Int // File size in bytes
+  isPrimary    Boolean @default(false) // Primary image shown in lists
+  displayOrder Int     @default(0) // Order for displaying images
+
+  petId String
+  pet   Pet    @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([petId])
+}
+
+model Service {
+  id                  String  @id @default(cuid())
+  name                String
+  description         String?
+  durationMinutes     Int
+  requiresVaccination Boolean @default(false)
+  isActive            Boolean @default(true)
+
+  // 새로운 관계 필드들
+  servicePetTypes        ServicePetType[]
+  serviceBreedCategories ServiceBreedCategory[]
+  priceRanges            ServicePriceRange[]
+
+  bookingServices BookingService[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 서비스별 대상 동물 타입 (강아지/고양이)
+model ServicePetType {
+  id        String  @id @default(cuid())
+  serviceId String
+  petType   PetType
+
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([serviceId, petType])
+}
+
+// 서비스별 품종 카테고리 (소형, 중형, 대형, 특수, 단모, 장모)
+model ServiceBreedCategory {
+  id            String        @id @default(cuid())
+  serviceId     String
+  breedCategory BreedCategory
+
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([serviceId, breedCategory])
+  @@index([serviceId])
+  @@index([breedCategory])
+}
+
+// 무게별 가격 구간 설정
+model ServicePriceRange {
+  id        String  @id @default(cuid())
+  serviceId String
+  petType   PetType // 강아지/고양이 구분
+  minWeight Float?  @default(0) // 최소 무게 (kg) - 0이면 하한 없음
+  maxWeight Float? // 최대 무게 (kg) - null이면 무제한
+  price     Float // 해당 구간의 가격
+
+  service          Service             @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  applicableBreeds ServicePriceBreed[] // 이 가격이 적용되는 품종들
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([serviceId, petType, minWeight])
+}
+
+// 가격별 적용 품종 매핑
+model ServicePriceBreed {
+  id                  String @id @default(cuid())
+  servicePriceRangeId String
+  breedId             String
+
+  servicePriceRange ServicePriceRange @relation(fields: [servicePriceRangeId], references: [id], onDelete: Cascade)
+  breed             Breed             @relation(fields: [breedId], references: [id])
+
+  @@unique([servicePriceRangeId, breedId])
+  @@index([servicePriceRangeId])
+  @@index([breedId])
+}
+
+model Address {
+  id        String  @id @default(cuid())
+  street    String
+  city      String
+  state     String
+  zipCode   String
+  country   String  @default("KR")
+  isDefault Boolean @default(false)
+  centerLat Float?
+  centerLng Float?
+
+  customerId String
+  customer   User   @relation(fields: [customerId], references: [id])
+
+  bookings Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Booking {
+  id            String @id @default(cuid())
+  bookingNumber String @unique
+
+  // Foreign keys
+  customerId        String
+  groomerId         String?
+  petId             String? // Deprecated but keeping for compatibility
+  customerAddressId String?
+  paymentId         String? // Primary payment for this booking
+
+  // Scheduling
+  serviceDate              DateTime
+  serviceTime              String
+  estimatedDurationMinutes Int
+  actualStartTime          DateTime?
+  actualEndTime            DateTime?
+
+  // Status
+  status        BookingStatus @default(FIRST_PAYMENT_PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+
+  // Service details
+  serviceType        String
+  serviceDescription String?
+  specialRequests    String?
+
+  // Pricing
+  basePrice         Float
+  additionalCharges Float @default(0)
+  discountAmount    Float @default(0)
+  totalPrice        Float
+
+  // Status timestamps
+  confirmedAt DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+  cancelledAt DateTime?
+
+  // Cancellation
+  cancellationReason String?
+  cancelledBy        String?
+
+  // Review and rating
+  customerRating Int? // 1-5
+  customerReview String?
+  reviewDate     DateTime?
+
+  // Flags
+  isEmergency     Boolean @default(false)
+  requiresPickup  Boolean @default(false)
+  requiresDropoff Boolean @default(false)
+
+  // Administrative
+  notes String?
+
+  // Idempotency
+  idempotencyKey String?
+  expiresAt      DateTime?
+
+  // Relations
+  customer        User     @relation("CustomerBookings", fields: [customerId], references: [id])
+  groomer         User?    @relation("GroomerBookings", fields: [groomerId], references: [id])
+  pet             Pet?     @relation("PetBookings", fields: [petId], references: [id]) // Deprecated
+  customerAddress Address? @relation(fields: [customerAddressId], references: [id])
+
+  bookingPets           BookingPet[]
+  payments              Payment[]
+  reviews               Review[]
+  groomerAvailabilities GroomerAvailability[]
+  settlementDetails     GroomerSettlementDetail[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([idempotencyKey, customerId])
+  @@index([expiresAt])
+}
+
+model BookingPet {
+  id        String @id @default(cuid())
+  bookingId String
+  petId     String
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  pet     Pet     @relation(fields: [petId], references: [id])
+
+  services        BookingService[]
+  selectedOptions BookingPetOption[]
+
+  @@unique([bookingId, petId])
+}
+
+model BookingService {
+  id                     String @id @default(cuid())
+  bookingPetId           String
+  serviceId              String
+  servicePrice           Float
+  serviceDurationMinutes Int?
+
+  bookingPet BookingPet @relation(fields: [bookingPetId], references: [id], onDelete: Cascade)
+  service    Service    @relation(fields: [serviceId], references: [id])
+
+  @@unique([bookingPetId, serviceId])
+}
+
+// Service options that can be added per pet (e.g., medical conditions, tangled fur)
+model ServiceOption {
+  id                   String          @id @default(cuid())
+  name                 String // e.g., "지병 관리", "털엉킴 경미", "털엉킴 심함"
+  description          String?
+  price                Float // Additional charge for this option
+  isActive             Boolean         @default(true)
+  displayOrder         Int             @default(0)
+  applicableCategories BreedCategory[] // Categories this option applies to
+
+  bookingPetOptions BookingPetOption[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+}
+
+// Junction table for booking pets and their selected options
+model BookingPetOption {
+  id              String @id @default(cuid())
+  bookingPetId    String
+  serviceOptionId String
+  optionPrice     Float // Price snapshot at time of booking
+
+  bookingPet    BookingPet    @relation(fields: [bookingPetId], references: [id], onDelete: Cascade)
+  serviceOption ServiceOption @relation(fields: [serviceOptionId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([bookingPetId, serviceOptionId])
+  @@index([bookingPetId])
+  @@index([serviceOptionId])
+}
+
+model Payment {
+  id         String  @id @default(cuid())
+  bookingId  String?
+  customerId String?
+
+  // PortOne specific fields
+  paymentId String  @unique // PortOne payment ID
+  pgTxId    String? // PG transaction ID
+  orderId   String? // Order ID from merchant
+  orderName String? // Order name for display
+
+  // Payment details
+  amount   Float
+  currency String        @default("KRW")
+  method   String // Will store actual method from webhook
+  status   PaymentStatus @default(PENDING)
+
+  // Transaction IDs
+  transactionId String? // Legacy field
+  receiptUrl    String?
+
+  // Status timestamps
+  paidAt      DateTime?
+  failedAt    DateTime?
+  cancelledAt DateTime?
+  refundedAt  DateTime?
+
+  // Failure/cancellation details
+  failReason      String?
+  cancelReason    String?
+  cancelledAmount Float?
+
+  // Virtual account info (for bank transfer)
+  virtualAccount Json?
+
+  // Relations (optional to allow webhook creation before booking)
+  booking  Booking? @relation(fields: [bookingId], references: [id])
+  customer User?    @relation(fields: [customerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([paymentId])
+  @@index([bookingId])
+  @@index([status])
+  @@index([bookingId, status, createdAt])
+}
+
+model Review {
+  id         String  @id @default(cuid())
+  bookingId  String
+  customerId String
+  rating     Int // 1-5
+  comment    String?
+
+  booking  Booking         @relation(fields: [bookingId], references: [id])
+  customer User            @relation(fields: [customerId], references: [id])
+  response ReviewResponse?
+  images   ReviewImage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([bookingId, customerId])
+}
+
+model ReviewImage {
+  id       String @id @default(cuid())
+  reviewId String
+  url      String // GCS URL or base64 data URL
+  filename String
+  mimeType String
+  size     Int
+  order    Int    @default(0)
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([reviewId])
+}
+
+model ReviewResponse {
+  id       String @id @default(cuid())
+  reviewId String @unique
+  content  String
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Enums
+enum UserRole {
+  CUSTOMER
+  GROOMER
+  ADMIN
+}
+
+enum BreedCategory {
+  SMALL // 소형
+  MEDIUM // 중형
+  LARGE // 대형
+  SPECIAL // 특수
+  SHORT_HAIR // 단모
+  LONG_HAIR // 장모
+}
+
+enum PetType {
+  DOG
+  CAT
+}
+
+enum PetGender {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+enum CatHairType {
+  SHORT_HAIR
+  LONG_HAIR
+}
+
+enum VaccinationStatus {
+  UP_TO_DATE
+  OVERDUE
+  PARTIAL
+  UNKNOWN
+}
+
+enum BookingStatus {
+  FIRST_PAYMENT_PENDING
+  FIRST_PAYMENT_COMPLETE
+  FIRST_PAYMENT_VERIFY
+  GROOMER_CONFIRM_PENDING
+  GROOMER_CONFIRM
+  ADDITIONAL_PAYMENT_PENDING
+  ADDITIONAL_PAYMENT_COMPLETE
+  WORK_IN_PROGRESS
+  SERVICE_COMPLETED
+  SERVICE_CANCELLED
+  BOOKING_FAILED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID // Successfully paid
+  AUTHORIZED
+  CAPTURED
+  COMPLETED
+  FAILED
+  CANCELLED // Payment cancelled by user
+  PARTIAL_CANCELLED // Partially cancelled
+  REFUNDED
+  PARTIALLY_REFUNDED
+  EXPIRED // Payment expired after timeout
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  KAKAO_PAY
+  NAVER_PAY
+  TOSS
+  PAYPAL
+  CASH
+}
+
+// Groomer work areas with radius-based coverage
+model GroomerWorkArea {
+  id        String  @id @default(cuid())
+  groomerId String
+  name      String // e.g., "강남구 주변", "홍대 근처"
+  centerLat Float // Latitude of center point
+  centerLng Float // Longitude of center point
+  radiusKm  Float // Radius in kilometers
+  isActive  Boolean @default(true)
+
+  // Optional detailed address for reference
+  address     String?
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  groomer User @relation(fields: [groomerId], references: [id], onDelete: Cascade)
+
+  @@index([groomerId])
+  @@index([centerLat, centerLng])
+}
+
+// Groomer default schedule settings (DEPRECATED - use GroomerWorkingDate instead)
+model GroomerSchedule {
+  id                  String  @id @default(cuid())
+  groomerId           String  @unique
+  workingDays         Int[] // Array of day numbers (0=Sunday, 1=Monday, ..., 6=Saturday)
+  workingHoursStart   String // Time in HH:mm format (e.g., "09:00")
+  workingHoursEnd     String // Time in HH:mm format (e.g., "18:00")
+  slotDurationMinutes Int     @default(30) // Duration of each time slot in minutes
+  isActive            Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  groomer        User                  @relation(fields: [groomerId], references: [id], onDelete: Cascade)
+  availabilities GroomerAvailability[]
+
+  @@index([groomerId])
+}
+
+// Calendar-based working dates for groomers
+model GroomerWorkingDate {
+  id           String   @id @default(cuid())
+  groomerId    String
+  date         DateTime @db.Date // Specific working date
+  startTime    String // Time in HH:mm format (e.g., "09:00")
+  endTime      String // Time in HH:mm format (e.g., "18:00")
+  slotDuration Int      @default(30) // Duration of each time slot in minutes
+  isActive     Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  groomer        User                  @relation(fields: [groomerId], references: [id], onDelete: Cascade)
+  availabilities GroomerAvailability[]
+
+  @@unique([groomerId, date])
+  @@index([groomerId])
+  @@index([date])
+  @@index([groomerId, date])
+}
+
+// Specific time slot availability for groomers
+model GroomerAvailability {
+  id            String   @id @default(cuid())
+  scheduleId    String? // DEPRECATED - for backward compatibility
+  workingDateId String? // New: reference to GroomerWorkingDate
+  groomerId     String
+  date          DateTime @db.Date // Date for this availability slot
+  timeSlot      String // Time in HH:mm format (e.g., "09:00")
+  isAvailable   Boolean  @default(true)
+  isBooked      Boolean  @default(false) // Set to true when a booking is made
+  bookingId     String? // Reference to the booking if slot is booked
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  schedule    GroomerSchedule?    @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  workingDate GroomerWorkingDate? @relation(fields: [workingDateId], references: [id], onDelete: Cascade)
+  groomer     User                @relation(fields: [groomerId], references: [id], onDelete: Cascade)
+  booking     Booking?            @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@unique([groomerId, date, timeSlot])
+  @@index([groomerId, date])
+  @@index([scheduleId])
+  @@index([workingDateId])
+}
+
+// Groomer commission grade system
+model GroomerCommissionGrade {
+  id             String  @id @default(cuid())
+  name           String // e.g., "브론즈", "실버", "골드", "플래티넘"
+  description    String?
+  commissionRate Float // Commission rate as percentage (e.g., 60.0 for 60%)
+  isActive       Boolean @default(true)
+  displayOrder   Int     @default(0) // Order for displaying grades
+
+  // Relations
+  groomers GroomerProfile[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([displayOrder])
+}
+
+// Extended groomer profile for commission and settlement
+model GroomerProfile {
+  id                String  @id @default(cuid())
+  groomerId         String  @unique
+  commissionGradeId String?
+
+  // Personal information
+  birthDate DateTime? @db.Date // 생년월일
+
+  // Bank account information for settlement
+  bankName              String?
+  bankAccountNumber     String?
+  bankAccountHolderName String?
+
+  // PortOne partner information
+  portonePartnerId  String? @unique // PortOne partner ID for settlement
+  portoneContractId String? // PortOne contract ID reference
+  // All groomers are freelancers (individuals without business registration)
+
+  // Settlement preferences
+  settlementCycle    SettlementCycle @default(WEEKLY_TUESDAY) // Weekly on Tuesday
+  isSettlementActive Boolean         @default(true)
+
+  // Tax information
+  taxRate Float @default(3.3) // Default tax rate percentage
+
+  // Status
+  isActive Boolean @default(false)
+
+  // Relations
+  groomer           User                      @relation(fields: [groomerId], references: [id], onDelete: Cascade)
+  commissionGrade   GroomerCommissionGrade?   @relation(fields: [commissionGradeId], references: [id])
+  portoneContract   PortOneContract?          @relation(fields: [portoneContractId], references: [contractId])
+  settlements       GroomerSettlement[]
+  settlementDetails GroomerSettlementDetail[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([groomerId])
+  @@index([commissionGradeId])
+  @@index([portonePartnerId])
+  @@index([portoneContractId])
+}
+
+// Weekly settlement records for groomers
+model GroomerSettlement {
+  id               String @id @default(cuid())
+  groomerId        String
+  groomerProfileId String
+
+  // Settlement period
+  settlementDate  DateTime @db.Date // Settlement date (e.g., every Tuesday)
+  periodStartDate DateTime @db.Date // Start of settlement period
+  periodEndDate   DateTime @db.Date // End of settlement period
+
+  // Financial details
+  totalRevenue        Float // Total revenue from bookings
+  commissionRate      Float // Commission rate applied
+  commissionAmount    Float // Commission earned
+  taxAmount           Float // Tax deducted
+  netSettlementAmount Float // Final amount to be paid
+
+  // PortOne settlement details
+  portoneSettlementId String? @unique // PortOne settlement ID
+  portoneTransferId   String? // PortOne transfer ID for order settlement
+  portonePayoutId     String? // PortOne payout ID if paid
+
+  // Status
+  status        SettlementStatus @default(PENDING)
+  processedAt   DateTime?
+  paidAt        DateTime?
+  failureReason String?
+
+  // Metadata
+  bookingCount Int     @default(0) // Number of bookings included
+  notes        String?
+
+  // Relations
+  groomer        User                      @relation(fields: [groomerId], references: [id])
+  groomerProfile GroomerProfile            @relation(fields: [groomerProfileId], references: [id])
+  details        GroomerSettlementDetail[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([groomerId, settlementDate])
+  @@index([groomerProfileId])
+  @@index([status])
+  @@index([settlementDate])
+  @@index([portoneSettlementId])
+  @@index([portoneTransferId])
+}
+
+// Individual booking details within each settlement
+model GroomerSettlementDetail {
+  id               String @id @default(cuid())
+  settlementId     String
+  groomerProfileId String
+  bookingId        String
+
+  // Booking details at time of settlement
+  bookingDate      DateTime
+  serviceAmount    Float // Amount from this booking
+  commissionRate   Float // Commission rate applied
+  commissionAmount Float // Commission earned from this booking
+  taxAmount        Float // Tax on this booking's commission
+  netAmount        Float // Net amount from this booking
+
+  // Relations
+  settlement     GroomerSettlement @relation(fields: [settlementId], references: [id], onDelete: Cascade)
+  groomerProfile GroomerProfile    @relation(fields: [groomerProfileId], references: [id])
+  booking        Booking           @relation(fields: [bookingId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([settlementId, bookingId]) // Prevent duplicate booking in same settlement
+  @@index([settlementId])
+  @@index([groomerProfileId])
+  @@index([bookingId])
+}
+
+// Settlement management system for admins
+model SettlementBatch {
+  id             String   @id @default(cuid())
+  batchNumber    String   @unique // e.g., "SETTLEMENT_2024_W12"
+  settlementDate DateTime @db.Date
+
+  // Batch totals
+  totalGroomers  Int   @default(0)
+  totalAmount    Float @default(0)
+  totalTaxAmount Float @default(0)
+  totalNetAmount Float @default(0)
+
+  // PortOne batch details
+  portoneBatchId       String? @unique
+  portonePayoutBatchId String? // If using batch payout
+
+  // Status
+  status      BatchStatus @default(PENDING)
+  processedAt DateTime?
+  executedAt  DateTime?
+
+  // Admin info
+  createdBy   String? // Admin user ID
+  processedBy String? // Admin user ID who processed
+
+  // Relations
+  // settlements           GroomerSettlement[] @relation("SettlementBatch")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([settlementDate])
+  @@index([status])
+}
+
+// Database-based job scheduling for settlements
+model SettlementJob {
+  id      String            @id @default(cuid())
+  jobType SettlementJobType @default(WEEKLY_SETTLEMENT)
+
+  // Scheduling
+  scheduledAt DateTime // 실행 예정 시간
+  executedAt  DateTime? // 실제 실행 시간
+  completedAt DateTime? // 완료 시간
+
+  // Target information
+  groomerId       String? // 특정 미용사 정산의 경우
+  periodStartDate DateTime? // 정산 기간 시작
+  periodEndDate   DateTime? // 정산 기간 끝
+
+  // Status and results
+  status      JobStatus @default(PENDING)
+  attempts    Int       @default(0) // 시도 횟수
+  maxAttempts Int       @default(3) // 최대 시도 횟수
+  lastError   String? // 마지막 오류 메시지
+  result      Json? // 실행 결과 (JSON)
+
+  // Metadata
+  createdBy String? // 작업 생성자 (관리자 ID)
+  notes     String? // 메모
+
+  // Relations
+  groomer User? @relation(fields: [groomerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, scheduledAt])
+  @@index([jobType, status])
+  @@index([groomerId])
+}
+
+// PortOne contract management
+model PortOneContract {
+  id          String  @id @default(cuid())
+  contractId  String  @unique // PortOne contract ID
+  name        String
+  description String?
+
+  // Commission settings
+  platformFeeType  String @default("RATIO") // RATIO or FIXED
+  platformFeeValue Float // Percentage or fixed amount
+
+  // Settlement cycle
+  settlementCycleType String @default("WEEKLY") // DAILY, WEEKLY, MONTHLY
+  settlementLagDays   Int    @default(2) // Days to delay settlement
+
+  // VAT and tax settings
+  platformFeeVatPayer                   String  @default("PARTNER") // MERCHANT or PARTNER
+  subtractPaymentVatOnPartnerSettlement Boolean @default(false)
+
+  // Status
+  isActive  Boolean @default(true)
+  isDefault Boolean @default(false) // Default contract for new partners
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  groomerProfiles GroomerProfile[]
+}
+
+// New enums for settlement system
+enum SettlementJobType {
+  WEEKLY_SETTLEMENT // 주간 정산
+  MANUAL_SETTLEMENT // 수동 정산
+  RETRY_SETTLEMENT // 재시도 정산
+}
+
+enum JobStatus {
+  PENDING // 대기 중
+  RUNNING // 실행 중
+  COMPLETED // 완료
+  FAILED // 실패
+  CANCELLED // 취소됨
+}
+
+enum SettlementCycle {
+  WEEKLY_TUESDAY
+  MANUAL
+}
+
+enum SettlementStatus {
+  PENDING
+  CALCULATED
+  READY_FOR_PAYOUT
+  PROCESSING
+  PAID
+  FAILED
+  CANCELLED
+}
+
+enum BatchStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// Notification model for system notifications
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  title     String
+  body      String
+  type      NotificationType @default(SYSTEM)
+  isRead    Boolean          @default(false)
+  metadata  Json? // Additional data for notification
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([type])
+  @@index([createdAt])
+}
+
+enum NotificationType {
+  SYSTEM
+  PUSH
+  EMAIL
+  SMS
+  BOOKING_REMINDER
+  ADMIN_MESSAGE
+}
+
+// Email log model for tracking email sending attempts and results
+model EmailLog {
+  id             String      @id @default(cuid())
+  email          String
+  subject        String
+  type           EmailType
+  status         EmailStatus
+  messageId      String? // SMTP message ID from successful sends
+  error          String? // Error message from failed sends
+  processingTime Int? // Processing time in milliseconds
+  userId         String? // Optional link to user
+  metadata       Json? // Additional metadata (template type, original data, etc.)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([type])
+  @@index([status])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("email_logs")
+}
+
+enum EmailType {
+  VERIFICATION
+  PASSWORD_RESET
+  NOTIFICATION
+  BOOKING_REMINDER
+}
+
+enum EmailStatus {
+  SUCCESS
+  FAILED
+}
+
+// Better-Auth verification table for emailOTP plugin
+model verification {
+  id         String   @id @default(cuid())
+  identifier String // email or phone number
+  value      String // OTP code
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Removed @@unique([identifier]) to allow multiple OTP requests
+  // better-auth handles expiration and cleanup automatically
+  @@index([identifier, expiresAt]) // Add index for performance
+}
+
+model TaskQueue {
+  id          String     @id @default(cuid())
+  type        TaskTypes
+  jobId       String? // Task identifier for deduplication (e.g., paymentId for PAYMENT_CLEANUP)
+  payload     Json
+  status      TaskStatus
+  version     Int        @default(0)
+  retry       Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  scheduledAt DateTime?
+
+  @@index([type])
+  @@index([status])
+  @@index([id, version])
+  @@index([type, jobId]) // Fast lookup by task type and job identifier
+}
+
+enum TaskTypes {
+  NONE
+  PAYMENT_CLEANUP
+  BOOKING_REMINDER       // Scheduled 2 hours before service
+  TODAY_NOTIFICATION     // Sent at 8 AM on service day
+  IMMEDIATE_NOTIFICATION // High-priority immediate notification
+}
+
+enum TaskStatus {
+  PENDING // 대기 중
+  RUNNING // 실행 중
+  COMPLETED // 완료
+  FAILED // 실패
+  CANCELLED // 취소됨
+}

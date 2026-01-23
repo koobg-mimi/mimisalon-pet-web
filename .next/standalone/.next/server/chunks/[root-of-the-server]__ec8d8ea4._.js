@@ -1,0 +1,446 @@
+module.exports = [
+  254799,
+  (e, t, r) => {
+    t.exports = e.x('crypto', () => require('crypto'))
+  },
+  718924,
+  (e) => {
+    'use strict'
+    var t = e.i(747909),
+      r = e.i(174017),
+      a = e.i(996250),
+      s = e.i(759756),
+      n = e.i(561916),
+      o = e.i(114444),
+      i = e.i(837092),
+      l = e.i(869741),
+      u = e.i(316795),
+      d = e.i(487718),
+      c = e.i(995169),
+      p = e.i(47587),
+      h = e.i(666012),
+      m = e.i(570101),
+      v = e.i(626937),
+      g = e.i(10372),
+      R = e.i(193695)
+    e.i(52474)
+    var f = e.i(600220),
+      _ = e.i(89171),
+      b = e.i(493458),
+      w = e.i(469719),
+      x = e.i(79832),
+      y = e.i(657446)
+    let E = w.z.object({
+      date: w.z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format. Use YYYY-MM-DD'),
+      time: w.z
+        .string()
+        .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format. Use HH:mm'),
+    })
+    async function A(e) {
+      try {
+        let t = await x.default.api.getSession({ headers: await (0, b.headers)() })
+        if (!t || t.user?.role !== 'GROOMER')
+          return _.NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        let r = t.user.id,
+          a = await e.json(),
+          { date: s, time: n } = E.parse(a),
+          o = new Date(s),
+          i = new Date()
+        if ((i.setHours(0, 0, 0, 0), o < i))
+          return _.NextResponse.json({ error: 'Cannot modify past dates' }, { status: 400 })
+        let l = new Date(i)
+        if ((l.setDate(i.getDate() + 28), o > l))
+          return _.NextResponse.json(
+            { error: 'Cannot schedule more than 4 weeks in advance' },
+            { status: 400 }
+          )
+        let u = await y.prisma.groomerSchedule.findUnique({ where: { groomerId: r } })
+        if (!u)
+          return _.NextResponse.json(
+            { error: 'Groomer schedule not found. Please set up your working hours first.' },
+            { status: 404 }
+          )
+        let d = o.getDay()
+        if (!u.workingDays.includes(d))
+          return _.NextResponse.json({ error: 'This is not a working day' }, { status: 400 })
+        let c = C(n),
+          p = C(u.workingHoursStart),
+          h = C(u.workingHoursEnd)
+        if (c < p || c >= h)
+          return _.NextResponse.json(
+            { error: 'Time slot is outside working hours' },
+            { status: 400 }
+          )
+        let m = await y.prisma.groomerAvailability.findUnique({
+          where: { groomerId_date_timeSlot: { groomerId: r, date: o, timeSlot: n } },
+        })
+        if (m) {
+          if (m.isBooked)
+            return _.NextResponse.json({ error: 'Cannot modify booked time slot' }, { status: 400 })
+          let e = await y.prisma.groomerAvailability.update({
+            where: { id: m.id },
+            data: { isAvailable: !m.isAvailable },
+          })
+          return _.NextResponse.json({
+            success: !0,
+            available: e.isAvailable,
+            message: e.isAvailable
+              ? 'Time slot marked as available'
+              : 'Time slot marked as unavailable',
+          })
+        }
+        {
+          let e = await y.prisma.groomerAvailability.create({
+            data: { scheduleId: u.id, groomerId: r, date: o, timeSlot: n, isAvailable: !1 },
+          })
+          return _.NextResponse.json({
+            success: !0,
+            available: e.isAvailable,
+            message: 'Time slot marked as unavailable',
+          })
+        }
+      } catch (e) {
+        return (
+          console.error('Failed to toggle time slot:', e),
+          _.NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+        )
+      }
+    }
+    function C(e) {
+      let [t, r] = e.split(':').map(Number)
+      return 60 * t + r
+    }
+    e.s(['POST', () => A, 'toggleAvailabilitySchema', 0, E], 359525)
+    var k = e.i(359525)
+    let N = new t.AppRouteRouteModule({
+        definition: {
+          kind: r.RouteKind.APP_ROUTE,
+          page: '/api/groomer/availability/toggle/route',
+          pathname: '/api/groomer/availability/toggle',
+          filename: 'route',
+          bundlePath: '',
+        },
+        distDir: '.next',
+        relativeProjectDir: '',
+        resolvedPagePath: '[project]/src/app/api/groomer/availability/toggle/route.ts',
+        nextConfigOutput: 'standalone',
+        userland: k,
+      }),
+      { workAsyncStorage: j, workUnitAsyncStorage: P, serverHooks: T } = N
+    function S() {
+      return (0, a.patchFetch)({ workAsyncStorage: j, workUnitAsyncStorage: P })
+    }
+    async function O(e, t, a) {
+      N.isDev && (0, s.addRequestMeta)(e, 'devRequestTimingInternalsEnd', process.hrtime.bigint())
+      let _ = '/api/groomer/availability/toggle/route'
+      _ = _.replace(/\/index$/, '') || '/'
+      let b = await N.prepare(e, t, { srcPage: _, multiZoneDraftMode: !1 })
+      if (!b)
+        return (
+          (t.statusCode = 400),
+          t.end('Bad Request'),
+          null == a.waitUntil || a.waitUntil.call(a, Promise.resolve()),
+          null
+        )
+      let {
+          buildId: w,
+          params: x,
+          nextConfig: y,
+          parsedUrl: E,
+          isDraftMode: A,
+          prerenderManifest: C,
+          routerServerContext: k,
+          isOnDemandRevalidate: j,
+          revalidateOnlyGenerated: P,
+          resolvedPathname: T,
+          clientReferenceManifest: S,
+          serverActionsManifest: O,
+        } = b,
+        D = (0, l.normalizeAppPath)(_),
+        H = !!(C.dynamicRoutes[D] || C.routes[T]),
+        U = async () => (
+          (null == k ? void 0 : k.render404)
+            ? await k.render404(e, t, E, !1)
+            : t.end('This page could not be found'),
+          null
+        )
+      if (H && !A) {
+        let e = !!C.routes[T],
+          t = C.dynamicRoutes[D]
+        if (t && !1 === t.fallback && !e) {
+          if (y.experimental.adapterPath) return await U()
+          throw new R.NoFallbackError()
+        }
+      }
+      let I = null
+      !H || N.isDev || A || (I = '/index' === (I = T) ? '/' : I)
+      let q = !0 === N.isDev || !H,
+        M = H && !q
+      O &&
+        S &&
+        (0, o.setReferenceManifestsSingleton)({
+          page: _,
+          clientReferenceManifest: S,
+          serverActionsManifest: O,
+          serverModuleMap: (0, i.createServerModuleMap)({ serverActionsManifest: O }),
+        })
+      let $ = e.method || 'GET',
+        F = (0, n.getTracer)(),
+        K = F.getActiveScopeSpan(),
+        B = {
+          params: x,
+          prerenderManifest: C,
+          renderOpts: {
+            experimental: { authInterrupts: !!y.experimental.authInterrupts },
+            cacheComponents: !!y.cacheComponents,
+            supportsDynamicResponse: q,
+            incrementalCache: (0, s.getRequestMeta)(e, 'incrementalCache'),
+            cacheLifeProfiles: y.cacheLife,
+            waitUntil: a.waitUntil,
+            onClose: (e) => {
+              t.on('close', e)
+            },
+            onAfterTaskError: void 0,
+            onInstrumentationRequestError: (t, r, a) => N.onRequestError(e, t, a, k),
+          },
+          sharedContext: { buildId: w },
+        },
+        z = new u.NodeNextRequest(e),
+        G = new u.NodeNextResponse(t),
+        L = d.NextRequestAdapter.fromNodeNextRequest(z, (0, d.signalFromNodeResponse)(t))
+      try {
+        let o = async (e) =>
+            N.handle(L, B).finally(() => {
+              if (!e) return
+              e.setAttributes({ 'http.status_code': t.statusCode, 'next.rsc': !1 })
+              let r = F.getRootSpanAttributes()
+              if (!r) return
+              if (r.get('next.span_type') !== c.BaseServerSpan.handleRequest)
+                return void console.warn(
+                  `Unexpected root span type '${r.get('next.span_type')}'. Please report this Next.js issue https://github.com/vercel/next.js`
+                )
+              let a = r.get('next.route')
+              if (a) {
+                let t = `${$} ${a}`
+                ;(e.setAttributes({ 'next.route': a, 'http.route': a, 'next.span_name': t }),
+                  e.updateName(t))
+              } else e.updateName(`${$} ${_}`)
+            }),
+          i = !!(0, s.getRequestMeta)(e, 'minimalMode'),
+          l = async (s) => {
+            var n, l
+            let u = async ({ previousCacheEntry: r }) => {
+                try {
+                  if (!i && j && P && !r)
+                    return (
+                      (t.statusCode = 404),
+                      t.setHeader('x-nextjs-cache', 'REVALIDATED'),
+                      t.end('This page could not be found'),
+                      null
+                    )
+                  let n = await o(s)
+                  e.fetchMetrics = B.renderOpts.fetchMetrics
+                  let l = B.renderOpts.pendingWaitUntil
+                  l && a.waitUntil && (a.waitUntil(l), (l = void 0))
+                  let u = B.renderOpts.collectedTags
+                  if (!H)
+                    return (await (0, h.sendResponse)(z, G, n, B.renderOpts.pendingWaitUntil), null)
+                  {
+                    let e = await n.blob(),
+                      t = (0, m.toNodeOutgoingHttpHeaders)(n.headers)
+                    ;(u && (t[g.NEXT_CACHE_TAGS_HEADER] = u),
+                      !t['content-type'] && e.type && (t['content-type'] = e.type))
+                    let r =
+                        void 0 !== B.renderOpts.collectedRevalidate &&
+                        !(B.renderOpts.collectedRevalidate >= g.INFINITE_CACHE) &&
+                        B.renderOpts.collectedRevalidate,
+                      a =
+                        void 0 === B.renderOpts.collectedExpire ||
+                        B.renderOpts.collectedExpire >= g.INFINITE_CACHE
+                          ? void 0
+                          : B.renderOpts.collectedExpire
+                    return {
+                      value: {
+                        kind: f.CachedRouteKind.APP_ROUTE,
+                        status: n.status,
+                        body: Buffer.from(await e.arrayBuffer()),
+                        headers: t,
+                      },
+                      cacheControl: { revalidate: r, expire: a },
+                    }
+                  }
+                } catch (t) {
+                  throw (
+                    (null == r ? void 0 : r.isStale) &&
+                      (await N.onRequestError(
+                        e,
+                        t,
+                        {
+                          routerKind: 'App Router',
+                          routePath: _,
+                          routeType: 'route',
+                          revalidateReason: (0, p.getRevalidateReason)({
+                            isStaticGeneration: M,
+                            isOnDemandRevalidate: j,
+                          }),
+                        },
+                        k
+                      )),
+                    t
+                  )
+                }
+              },
+              d = await N.handleResponse({
+                req: e,
+                nextConfig: y,
+                cacheKey: I,
+                routeKind: r.RouteKind.APP_ROUTE,
+                isFallback: !1,
+                prerenderManifest: C,
+                isRoutePPREnabled: !1,
+                isOnDemandRevalidate: j,
+                revalidateOnlyGenerated: P,
+                responseGenerator: u,
+                waitUntil: a.waitUntil,
+                isMinimalMode: i,
+              })
+            if (!H) return null
+            if (
+              (null == d || null == (n = d.value) ? void 0 : n.kind) !== f.CachedRouteKind.APP_ROUTE
+            )
+              throw Object.defineProperty(
+                Error(
+                  `Invariant: app-route received invalid cache entry ${null == d || null == (l = d.value) ? void 0 : l.kind}`
+                ),
+                '__NEXT_ERROR_CODE',
+                { value: 'E701', enumerable: !1, configurable: !0 }
+              )
+            ;(i ||
+              t.setHeader(
+                'x-nextjs-cache',
+                j ? 'REVALIDATED' : d.isMiss ? 'MISS' : d.isStale ? 'STALE' : 'HIT'
+              ),
+              A &&
+                t.setHeader(
+                  'Cache-Control',
+                  'private, no-cache, no-store, max-age=0, must-revalidate'
+                ))
+            let c = (0, m.fromNodeOutgoingHttpHeaders)(d.value.headers)
+            return (
+              (i && H) || c.delete(g.NEXT_CACHE_TAGS_HEADER),
+              !d.cacheControl ||
+                t.getHeader('Cache-Control') ||
+                c.get('Cache-Control') ||
+                c.set('Cache-Control', (0, v.getCacheControlHeader)(d.cacheControl)),
+              await (0, h.sendResponse)(
+                z,
+                G,
+                new Response(d.value.body, { headers: c, status: d.value.status || 200 })
+              ),
+              null
+            )
+          }
+        K
+          ? await l(K)
+          : await F.withPropagatedContext(e.headers, () =>
+              F.trace(
+                c.BaseServerSpan.handleRequest,
+                {
+                  spanName: `${$} ${_}`,
+                  kind: n.SpanKind.SERVER,
+                  attributes: { 'http.method': $, 'http.target': e.url },
+                },
+                l
+              )
+            )
+      } catch (t) {
+        if (
+          (t instanceof R.NoFallbackError ||
+            (await N.onRequestError(e, t, {
+              routerKind: 'App Router',
+              routePath: D,
+              routeType: 'route',
+              revalidateReason: (0, p.getRevalidateReason)({
+                isStaticGeneration: M,
+                isOnDemandRevalidate: j,
+              }),
+            })),
+          H)
+        )
+          throw t
+        return (await (0, h.sendResponse)(z, G, new Response(null, { status: 500 })), null)
+      }
+    }
+    e.s(
+      [
+        'handler',
+        () => O,
+        'patchFetch',
+        () => S,
+        'routeModule',
+        () => N,
+        'serverHooks',
+        () => T,
+        'workAsyncStorage',
+        () => j,
+        'workUnitAsyncStorage',
+        () => P,
+      ],
+      718924
+    )
+  },
+  308812,
+  (e) => {
+    e.v((t) =>
+      Promise.all(
+        [
+          'server/chunks/node_modules_better-auth_dist_chunks_bun-sqlite-dialect_mjs_ac94bb8b._.js',
+        ].map((t) => e.l(t))
+      ).then(() => t(463259))
+    )
+  },
+  922180,
+  (e) => {
+    e.v((t) =>
+      Promise.all(
+        [
+          'server/chunks/node_modules_better-auth_dist_chunks_node-sqlite-dialect_mjs_29019df6._.js',
+        ].map((t) => e.l(t))
+      ).then(() => t(8202))
+    )
+  },
+  501603,
+  (e) => {
+    e.v((t) =>
+      Promise.all(['server/chunks/[root-of-the-server]__fd3a5b9b._.js'].map((t) => e.l(t))).then(
+        () => t(492749)
+      )
+    )
+  },
+  715957,
+  (e) => {
+    e.v((t) =>
+      Promise.all(
+        ['server/chunks/[root-of-the-server]__05e349db._.js', 'server/chunks/_1aa5a6b5._.js'].map(
+          (t) => e.l(t)
+        )
+      ).then(() => t(309653))
+    )
+  },
+  578406,
+  (e) => {
+    e.v((t) =>
+      Promise.all(
+        [
+          'server/chunks/[root-of-the-server]__aa8ebafd._.js',
+          'server/chunks/[root-of-the-server]__aea4da49._.js',
+          'server/chunks/_46980750._.js',
+          'server/chunks/node_modules_mime-db_db_json_a85ad9f0._.js',
+          'server/chunks/node_modules_0f478c9c._.js',
+        ].map((t) => e.l(t))
+      ).then(() => t(315159))
+    )
+  },
+]
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__ec8d8ea4._.js.map

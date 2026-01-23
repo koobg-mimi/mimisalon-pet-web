@@ -1,0 +1,767 @@
+module.exports = [
+  270406,
+  (e, t, r) => {
+    t.exports = e.x('next/dist/compiled/@opentelemetry/api', () =>
+      require('next/dist/compiled/@opentelemetry/api')
+    )
+  },
+  918622,
+  (e, t, r) => {
+    t.exports = e.x('next/dist/compiled/next-server/app-page-turbo.runtime.prod.js', () =>
+      require('next/dist/compiled/next-server/app-page-turbo.runtime.prod.js')
+    )
+  },
+  556704,
+  (e, t, r) => {
+    t.exports = e.x('next/dist/server/app-render/work-async-storage.external.js', () =>
+      require('next/dist/server/app-render/work-async-storage.external.js')
+    )
+  },
+  832319,
+  (e, t, r) => {
+    t.exports = e.x('next/dist/server/app-render/work-unit-async-storage.external.js', () =>
+      require('next/dist/server/app-render/work-unit-async-storage.external.js')
+    )
+  },
+  324725,
+  (e, t, r) => {
+    t.exports = e.x('next/dist/server/app-render/after-task-async-storage.external.js', () =>
+      require('next/dist/server/app-render/after-task-async-storage.external.js')
+    )
+  },
+  193695,
+  (e, t, r) => {
+    t.exports = e.x('next/dist/shared/lib/no-fallback-error.external.js', () =>
+      require('next/dist/shared/lib/no-fallback-error.external.js')
+    )
+  },
+  442315,
+  (e, t, r) => {
+    'use strict'
+    t.exports = e.r(918622)
+  },
+  347540,
+  (e, t, r) => {
+    'use strict'
+    t.exports = e.r(442315).vendored['react-rsc'].React
+  },
+  819481,
+  (e, t, r) => {
+    'use strict'
+    var n = Object.defineProperty,
+      a = Object.getOwnPropertyDescriptor,
+      s = Object.getOwnPropertyNames,
+      i = Object.prototype.hasOwnProperty,
+      o = {},
+      l = {
+        RequestCookies: () => f,
+        ResponseCookies: () => g,
+        parseCookie: () => d,
+        parseSetCookie: () => c,
+        stringifyCookie: () => p,
+      }
+    for (var u in l) n(o, u, { get: l[u], enumerable: !0 })
+    function p(e) {
+      var t
+      let r = [
+          'path' in e && e.path && `Path=${e.path}`,
+          'expires' in e &&
+            (e.expires || 0 === e.expires) &&
+            `Expires=${('number' == typeof e.expires ? new Date(e.expires) : e.expires).toUTCString()}`,
+          'maxAge' in e && 'number' == typeof e.maxAge && `Max-Age=${e.maxAge}`,
+          'domain' in e && e.domain && `Domain=${e.domain}`,
+          'secure' in e && e.secure && 'Secure',
+          'httpOnly' in e && e.httpOnly && 'HttpOnly',
+          'sameSite' in e && e.sameSite && `SameSite=${e.sameSite}`,
+          'partitioned' in e && e.partitioned && 'Partitioned',
+          'priority' in e && e.priority && `Priority=${e.priority}`,
+        ].filter(Boolean),
+        n = `${e.name}=${encodeURIComponent(null != (t = e.value) ? t : '')}`
+      return 0 === r.length ? n : `${n}; ${r.join('; ')}`
+    }
+    function d(e) {
+      let t = new Map()
+      for (let r of e.split(/; */)) {
+        if (!r) continue
+        let e = r.indexOf('=')
+        if (-1 === e) {
+          t.set(r, 'true')
+          continue
+        }
+        let [n, a] = [r.slice(0, e), r.slice(e + 1)]
+        try {
+          t.set(n, decodeURIComponent(null != a ? a : 'true'))
+        } catch {}
+      }
+      return t
+    }
+    function c(e) {
+      if (!e) return
+      let [[t, r], ...n] = d(e),
+        {
+          domain: a,
+          expires: s,
+          httponly: i,
+          maxage: o,
+          path: l,
+          samesite: u,
+          secure: p,
+          partitioned: c,
+          priority: f,
+        } = Object.fromEntries(n.map(([e, t]) => [e.toLowerCase().replace(/-/g, ''), t]))
+      {
+        var g,
+          v,
+          x = {
+            name: t,
+            value: decodeURIComponent(r),
+            domain: a,
+            ...(s && { expires: new Date(s) }),
+            ...(i && { httpOnly: !0 }),
+            ...('string' == typeof o && { maxAge: Number(o) }),
+            path: l,
+            ...(u && { sameSite: h.includes((g = (g = u).toLowerCase())) ? g : void 0 }),
+            ...(p && { secure: !0 }),
+            ...(f && { priority: m.includes((v = (v = f).toLowerCase())) ? v : void 0 }),
+            ...(c && { partitioned: !0 }),
+          }
+        let e = {}
+        for (let t in x) x[t] && (e[t] = x[t])
+        return e
+      }
+    }
+    t.exports = ((e, t, r, o) => {
+      if ((t && 'object' == typeof t) || 'function' == typeof t)
+        for (let r of s(t))
+          i.call(e, r) ||
+            void 0 === r ||
+            n(e, r, { get: () => t[r], enumerable: !(o = a(t, r)) || o.enumerable })
+      return e
+    })(n({}, '__esModule', { value: !0 }), o)
+    var h = ['strict', 'lax', 'none'],
+      m = ['low', 'medium', 'high'],
+      f = class {
+        constructor(e) {
+          ;((this._parsed = new Map()), (this._headers = e))
+          const t = e.get('cookie')
+          if (t) for (const [e, r] of d(t)) this._parsed.set(e, { name: e, value: r })
+        }
+        [Symbol.iterator]() {
+          return this._parsed[Symbol.iterator]()
+        }
+        get size() {
+          return this._parsed.size
+        }
+        get(...e) {
+          let t = 'string' == typeof e[0] ? e[0] : e[0].name
+          return this._parsed.get(t)
+        }
+        getAll(...e) {
+          var t
+          let r = Array.from(this._parsed)
+          if (!e.length) return r.map(([e, t]) => t)
+          let n = 'string' == typeof e[0] ? e[0] : null == (t = e[0]) ? void 0 : t.name
+          return r.filter(([e]) => e === n).map(([e, t]) => t)
+        }
+        has(e) {
+          return this._parsed.has(e)
+        }
+        set(...e) {
+          let [t, r] = 1 === e.length ? [e[0].name, e[0].value] : e,
+            n = this._parsed
+          return (
+            n.set(t, { name: t, value: r }),
+            this._headers.set(
+              'cookie',
+              Array.from(n)
+                .map(([e, t]) => p(t))
+                .join('; ')
+            ),
+            this
+          )
+        }
+        delete(e) {
+          let t = this._parsed,
+            r = Array.isArray(e) ? e.map((e) => t.delete(e)) : t.delete(e)
+          return (
+            this._headers.set(
+              'cookie',
+              Array.from(t)
+                .map(([e, t]) => p(t))
+                .join('; ')
+            ),
+            r
+          )
+        }
+        clear() {
+          return (this.delete(Array.from(this._parsed.keys())), this)
+        }
+        [Symbol.for('edge-runtime.inspect.custom')]() {
+          return `RequestCookies ${JSON.stringify(Object.fromEntries(this._parsed))}`
+        }
+        toString() {
+          return [...this._parsed.values()]
+            .map((e) => `${e.name}=${encodeURIComponent(e.value)}`)
+            .join('; ')
+        }
+      },
+      g = class {
+        constructor(e) {
+          var t, r, n
+          ;((this._parsed = new Map()), (this._headers = e))
+          const a =
+            null !=
+            (n =
+              null != (r = null == (t = e.getSetCookie) ? void 0 : t.call(e))
+                ? r
+                : e.get('set-cookie'))
+              ? n
+              : []
+          for (const e of Array.isArray(a)
+            ? a
+            : (function (e) {
+                if (!e) return []
+                var t,
+                  r,
+                  n,
+                  a,
+                  s,
+                  i = [],
+                  o = 0
+                function l() {
+                  for (; o < e.length && /\s/.test(e.charAt(o)); ) o += 1
+                  return o < e.length
+                }
+                for (; o < e.length; ) {
+                  for (t = o, s = !1; l(); )
+                    if (',' === (r = e.charAt(o))) {
+                      for (
+                        n = o, o += 1, l(), a = o;
+                        o < e.length && '=' !== (r = e.charAt(o)) && ';' !== r && ',' !== r;
+
+                      )
+                        o += 1
+                      o < e.length && '=' === e.charAt(o)
+                        ? ((s = !0), (o = a), i.push(e.substring(t, n)), (t = o))
+                        : (o = n + 1)
+                    } else o += 1
+                  ;(!s || o >= e.length) && i.push(e.substring(t, e.length))
+                }
+                return i
+              })(a)) {
+            const t = c(e)
+            t && this._parsed.set(t.name, t)
+          }
+        }
+        get(...e) {
+          let t = 'string' == typeof e[0] ? e[0] : e[0].name
+          return this._parsed.get(t)
+        }
+        getAll(...e) {
+          var t
+          let r = Array.from(this._parsed.values())
+          if (!e.length) return r
+          let n = 'string' == typeof e[0] ? e[0] : null == (t = e[0]) ? void 0 : t.name
+          return r.filter((e) => e.name === n)
+        }
+        has(e) {
+          return this._parsed.has(e)
+        }
+        set(...e) {
+          let [t, r, n] = 1 === e.length ? [e[0].name, e[0].value, e[0]] : e,
+            a = this._parsed
+          return (
+            a.set(
+              t,
+              (function (e = { name: '', value: '' }) {
+                return (
+                  'number' == typeof e.expires && (e.expires = new Date(e.expires)),
+                  e.maxAge && (e.expires = new Date(Date.now() + 1e3 * e.maxAge)),
+                  (null === e.path || void 0 === e.path) && (e.path = '/'),
+                  e
+                )
+              })({ name: t, value: r, ...n })
+            ),
+            (function (e, t) {
+              for (let [, r] of (t.delete('set-cookie'), e)) {
+                let e = p(r)
+                t.append('set-cookie', e)
+              }
+            })(a, this._headers),
+            this
+          )
+        }
+        delete(...e) {
+          let [t, r] = 'string' == typeof e[0] ? [e[0]] : [e[0].name, e[0]]
+          return this.set({ ...r, name: t, value: '', expires: new Date(0) })
+        }
+        [Symbol.for('edge-runtime.inspect.custom')]() {
+          return `ResponseCookies ${JSON.stringify(Object.fromEntries(this._parsed))}`
+        }
+        toString() {
+          return [...this._parsed.values()].map(p).join('; ')
+        }
+      }
+  },
+  29173,
+  (e, t, r) => {
+    t.exports = e.x('@prisma/client', () => require('@prisma/client'))
+  },
+  954098,
+  (e, t, r) => {
+    'use strict'
+    ;(Object.defineProperty(r, '__esModule', { value: !0 }), (r.prisma = void 0))
+    let n = e.r(29173)
+    r.prisma = globalThis.prisma ?? new n.PrismaClient({ log: ['error'] })
+  },
+  428112,
+  (e, t, r) => {
+    'use strict'
+    ;(Object.defineProperty(r, '__esModule', { value: !0 }),
+      (r.WorkerApiError = void 0),
+      (r.WorkerApiError = class extends Error {
+        constructor(e, t, r, n) {
+          ;(super(e),
+            (this.code = t),
+            (this.statusCode = r),
+            (this.details = n),
+            (this.name = 'WorkerApiError'))
+        }
+      }))
+  },
+  85051,
+  (e, t, r) => {
+    'use strict'
+    var n =
+        (e.e && e.e.__createBinding) ||
+        (Object.create
+          ? function (e, t, r, n) {
+              void 0 === n && (n = r)
+              var a = Object.getOwnPropertyDescriptor(t, r)
+              ;((!a || ('get' in a ? !t.__esModule : a.writable || a.configurable)) &&
+                (a = {
+                  enumerable: !0,
+                  get: function () {
+                    return t[r]
+                  },
+                }),
+                Object.defineProperty(e, n, a))
+            }
+          : function (e, t, r, n) {
+              ;(void 0 === n && (n = r), (e[n] = t[r]))
+            }),
+      a =
+        (e.e && e.e.__exportStar) ||
+        function (e, t) {
+          for (var r in e)
+            'default' === r || Object.prototype.hasOwnProperty.call(t, r) || n(t, e, r)
+        }
+    ;(Object.defineProperty(r, '__esModule', { value: !0 }), a(e.r(29173), r), a(e.r(428112), r))
+  },
+  657446,
+  (e, t, r) => {
+    'use strict'
+    var n =
+        (e.e && e.e.__createBinding) ||
+        (Object.create
+          ? function (e, t, r, n) {
+              void 0 === n && (n = r)
+              var a = Object.getOwnPropertyDescriptor(t, r)
+              ;((!a || ('get' in a ? !t.__esModule : a.writable || a.configurable)) &&
+                (a = {
+                  enumerable: !0,
+                  get: function () {
+                    return t[r]
+                  },
+                }),
+                Object.defineProperty(e, n, a))
+            }
+          : function (e, t, r, n) {
+              ;(void 0 === n && (n = r), (e[n] = t[r]))
+            }),
+      a =
+        (e.e && e.e.__exportStar) ||
+        function (e, t) {
+          for (var r in e)
+            'default' === r || Object.prototype.hasOwnProperty.call(t, r) || n(t, e, r)
+        }
+    ;(Object.defineProperty(r, '__esModule', { value: !0 }), (r.prisma = void 0))
+    var s = e.r(954098)
+    ;(Object.defineProperty(r, 'prisma', {
+      enumerable: !0,
+      get: function () {
+        return s.prisma
+      },
+    }),
+      a(e.r(85051), r))
+  },
+  254799,
+  (e, t, r) => {
+    t.exports = e.x('crypto', () => require('crypto'))
+  },
+  972394,
+  (e) => {
+    'use strict'
+    var t = e.i(747909),
+      r = e.i(174017),
+      n = e.i(996250),
+      a = e.i(759756),
+      s = e.i(561916),
+      i = e.i(114444),
+      o = e.i(837092),
+      l = e.i(869741),
+      u = e.i(316795),
+      p = e.i(487718),
+      d = e.i(995169),
+      c = e.i(47587),
+      h = e.i(666012),
+      m = e.i(570101),
+      f = e.i(626937),
+      g = e.i(10372),
+      v = e.i(193695)
+    e.i(52474)
+    var x = e.i(600220),
+      y = e.i(89171),
+      R = e.i(657446),
+      b = e.i(449632),
+      w = e.i(469719)
+    let _ = new R.PrismaClient(),
+      O = w.z.object({
+        name: w.z.string().min(1, 'Name is required'),
+        email: w.z.string().email('Invalid email address'),
+        phone: w.z.string().min(10, 'Phone number must be at least 10 characters'),
+        password: w.z.string().min(8, 'Password must be at least 8 characters'),
+        role: w.z.enum(['CUSTOMER', 'GROOMER', 'ADMIN'], {
+          message: 'Role must be CUSTOMER, GROOMER, or ADMIN',
+        }),
+        phoneVerified: w.z.boolean(),
+      })
+    async function E(e) {
+      try {
+        let t = await e.json(),
+          { name: r, email: n, phone: a, password: s, role: i, phoneVerified: o } = O.parse(t)
+        if (!o)
+          return y.NextResponse.json(
+            { error: 'Phone verification required', code: 'PHONE_NOT_VERIFIED' },
+            { status: 400 }
+          )
+        if (await _.user.findUnique({ where: { email: n } }))
+          return y.NextResponse.json(
+            { error: 'Email already registered', code: 'EMAIL_ALREADY_EXISTS' },
+            { status: 400 }
+          )
+        let l = await b.default.hash(s, 10),
+          u = await _.user.create({
+            data: {
+              name: r,
+              email: n,
+              emailVerified: new Date(),
+              phoneNumber: a,
+              phoneNumberVerified: !0,
+              role: i,
+              image: null,
+            },
+          })
+        return (
+          await _.account.create({
+            data: { userId: u.id, accountId: u.id, providerId: 'credential', password: l },
+          }),
+          y.NextResponse.json(
+            { success: !0, message: 'User created successfully', userId: u.id },
+            { status: 201 }
+          )
+        )
+      } catch (e) {
+        if ((console.error('Signup error:', e), e instanceof w.z.ZodError))
+          return y.NextResponse.json(
+            { error: 'Invalid request data', details: e.issues },
+            { status: 400 }
+          )
+        return y.NextResponse.json(
+          { error: 'Failed to create user', message: String(e) },
+          { status: 500 }
+        )
+      }
+    }
+    e.s(['POST', () => E, 'signupSchema', 0, O], 462843)
+    var A = e.i(462843)
+    let C = new t.AppRouteRouteModule({
+        definition: {
+          kind: r.RouteKind.APP_ROUTE,
+          page: '/api/auth/signup/route',
+          pathname: '/api/auth/signup',
+          filename: 'route',
+          bundlePath: '',
+        },
+        distDir: '.next',
+        relativeProjectDir: '',
+        resolvedPagePath: '[project]/src/app/api/auth/signup/route.ts',
+        nextConfigOutput: 'standalone',
+        userland: A,
+      }),
+      { workAsyncStorage: j, workUnitAsyncStorage: P, serverHooks: S } = C
+    function k() {
+      return (0, n.patchFetch)({ workAsyncStorage: j, workUnitAsyncStorage: P })
+    }
+    async function N(e, t, n) {
+      C.isDev && (0, a.addRequestMeta)(e, 'devRequestTimingInternalsEnd', process.hrtime.bigint())
+      let y = '/api/auth/signup/route'
+      y = y.replace(/\/index$/, '') || '/'
+      let R = await C.prepare(e, t, { srcPage: y, multiZoneDraftMode: !1 })
+      if (!R)
+        return (
+          (t.statusCode = 400),
+          t.end('Bad Request'),
+          null == n.waitUntil || n.waitUntil.call(n, Promise.resolve()),
+          null
+        )
+      let {
+          buildId: b,
+          params: w,
+          nextConfig: _,
+          parsedUrl: O,
+          isDraftMode: E,
+          prerenderManifest: A,
+          routerServerContext: j,
+          isOnDemandRevalidate: P,
+          revalidateOnlyGenerated: S,
+          resolvedPathname: k,
+          clientReferenceManifest: N,
+          serverActionsManifest: M,
+        } = R,
+        I = (0, l.normalizeAppPath)(y),
+        T = !!(A.dynamicRoutes[I] || A.routes[k]),
+        q = async () => (
+          (null == j ? void 0 : j.render404)
+            ? await j.render404(e, t, O, !1)
+            : t.end('This page could not be found'),
+          null
+        )
+      if (T && !E) {
+        let e = !!A.routes[k],
+          t = A.dynamicRoutes[I]
+        if (t && !1 === t.fallback && !e) {
+          if (_.experimental.adapterPath) return await q()
+          throw new v.NoFallbackError()
+        }
+      }
+      let D = null
+      !T || C.isDev || E || (D = '/index' === (D = k) ? '/' : D)
+      let U = !0 === C.isDev || !T,
+        $ = T && !U
+      M &&
+        N &&
+        (0, i.setReferenceManifestsSingleton)({
+          page: y,
+          clientReferenceManifest: N,
+          serverActionsManifest: M,
+          serverModuleMap: (0, o.createServerModuleMap)({ serverActionsManifest: M }),
+        })
+      let H = e.method || 'GET',
+        z = (0, s.getTracer)(),
+        F = z.getActiveScopeSpan(),
+        L = {
+          params: w,
+          prerenderManifest: A,
+          renderOpts: {
+            experimental: { authInterrupts: !!_.experimental.authInterrupts },
+            cacheComponents: !!_.cacheComponents,
+            supportsDynamicResponse: U,
+            incrementalCache: (0, a.getRequestMeta)(e, 'incrementalCache'),
+            cacheLifeProfiles: _.cacheLife,
+            waitUntil: n.waitUntil,
+            onClose: (e) => {
+              t.on('close', e)
+            },
+            onAfterTaskError: void 0,
+            onInstrumentationRequestError: (t, r, n) => C.onRequestError(e, t, n, j),
+          },
+          sharedContext: { buildId: b },
+        },
+        B = new u.NodeNextRequest(e),
+        K = new u.NodeNextResponse(t),
+        V = p.NextRequestAdapter.fromNodeNextRequest(B, (0, p.signalFromNodeResponse)(t))
+      try {
+        let i = async (e) =>
+            C.handle(V, L).finally(() => {
+              if (!e) return
+              e.setAttributes({ 'http.status_code': t.statusCode, 'next.rsc': !1 })
+              let r = z.getRootSpanAttributes()
+              if (!r) return
+              if (r.get('next.span_type') !== d.BaseServerSpan.handleRequest)
+                return void console.warn(
+                  `Unexpected root span type '${r.get('next.span_type')}'. Please report this Next.js issue https://github.com/vercel/next.js`
+                )
+              let n = r.get('next.route')
+              if (n) {
+                let t = `${H} ${n}`
+                ;(e.setAttributes({ 'next.route': n, 'http.route': n, 'next.span_name': t }),
+                  e.updateName(t))
+              } else e.updateName(`${H} ${y}`)
+            }),
+          o = !!(0, a.getRequestMeta)(e, 'minimalMode'),
+          l = async (a) => {
+            var s, l
+            let u = async ({ previousCacheEntry: r }) => {
+                try {
+                  if (!o && P && S && !r)
+                    return (
+                      (t.statusCode = 404),
+                      t.setHeader('x-nextjs-cache', 'REVALIDATED'),
+                      t.end('This page could not be found'),
+                      null
+                    )
+                  let s = await i(a)
+                  e.fetchMetrics = L.renderOpts.fetchMetrics
+                  let l = L.renderOpts.pendingWaitUntil
+                  l && n.waitUntil && (n.waitUntil(l), (l = void 0))
+                  let u = L.renderOpts.collectedTags
+                  if (!T)
+                    return (await (0, h.sendResponse)(B, K, s, L.renderOpts.pendingWaitUntil), null)
+                  {
+                    let e = await s.blob(),
+                      t = (0, m.toNodeOutgoingHttpHeaders)(s.headers)
+                    ;(u && (t[g.NEXT_CACHE_TAGS_HEADER] = u),
+                      !t['content-type'] && e.type && (t['content-type'] = e.type))
+                    let r =
+                        void 0 !== L.renderOpts.collectedRevalidate &&
+                        !(L.renderOpts.collectedRevalidate >= g.INFINITE_CACHE) &&
+                        L.renderOpts.collectedRevalidate,
+                      n =
+                        void 0 === L.renderOpts.collectedExpire ||
+                        L.renderOpts.collectedExpire >= g.INFINITE_CACHE
+                          ? void 0
+                          : L.renderOpts.collectedExpire
+                    return {
+                      value: {
+                        kind: x.CachedRouteKind.APP_ROUTE,
+                        status: s.status,
+                        body: Buffer.from(await e.arrayBuffer()),
+                        headers: t,
+                      },
+                      cacheControl: { revalidate: r, expire: n },
+                    }
+                  }
+                } catch (t) {
+                  throw (
+                    (null == r ? void 0 : r.isStale) &&
+                      (await C.onRequestError(
+                        e,
+                        t,
+                        {
+                          routerKind: 'App Router',
+                          routePath: y,
+                          routeType: 'route',
+                          revalidateReason: (0, c.getRevalidateReason)({
+                            isStaticGeneration: $,
+                            isOnDemandRevalidate: P,
+                          }),
+                        },
+                        j
+                      )),
+                    t
+                  )
+                }
+              },
+              p = await C.handleResponse({
+                req: e,
+                nextConfig: _,
+                cacheKey: D,
+                routeKind: r.RouteKind.APP_ROUTE,
+                isFallback: !1,
+                prerenderManifest: A,
+                isRoutePPREnabled: !1,
+                isOnDemandRevalidate: P,
+                revalidateOnlyGenerated: S,
+                responseGenerator: u,
+                waitUntil: n.waitUntil,
+                isMinimalMode: o,
+              })
+            if (!T) return null
+            if (
+              (null == p || null == (s = p.value) ? void 0 : s.kind) !== x.CachedRouteKind.APP_ROUTE
+            )
+              throw Object.defineProperty(
+                Error(
+                  `Invariant: app-route received invalid cache entry ${null == p || null == (l = p.value) ? void 0 : l.kind}`
+                ),
+                '__NEXT_ERROR_CODE',
+                { value: 'E701', enumerable: !1, configurable: !0 }
+              )
+            ;(o ||
+              t.setHeader(
+                'x-nextjs-cache',
+                P ? 'REVALIDATED' : p.isMiss ? 'MISS' : p.isStale ? 'STALE' : 'HIT'
+              ),
+              E &&
+                t.setHeader(
+                  'Cache-Control',
+                  'private, no-cache, no-store, max-age=0, must-revalidate'
+                ))
+            let d = (0, m.fromNodeOutgoingHttpHeaders)(p.value.headers)
+            return (
+              (o && T) || d.delete(g.NEXT_CACHE_TAGS_HEADER),
+              !p.cacheControl ||
+                t.getHeader('Cache-Control') ||
+                d.get('Cache-Control') ||
+                d.set('Cache-Control', (0, f.getCacheControlHeader)(p.cacheControl)),
+              await (0, h.sendResponse)(
+                B,
+                K,
+                new Response(p.value.body, { headers: d, status: p.value.status || 200 })
+              ),
+              null
+            )
+          }
+        F
+          ? await l(F)
+          : await z.withPropagatedContext(e.headers, () =>
+              z.trace(
+                d.BaseServerSpan.handleRequest,
+                {
+                  spanName: `${H} ${y}`,
+                  kind: s.SpanKind.SERVER,
+                  attributes: { 'http.method': H, 'http.target': e.url },
+                },
+                l
+              )
+            )
+      } catch (t) {
+        if (
+          (t instanceof v.NoFallbackError ||
+            (await C.onRequestError(e, t, {
+              routerKind: 'App Router',
+              routePath: I,
+              routeType: 'route',
+              revalidateReason: (0, c.getRevalidateReason)({
+                isStaticGeneration: $,
+                isOnDemandRevalidate: P,
+              }),
+            })),
+          T)
+        )
+          throw t
+        return (await (0, h.sendResponse)(B, K, new Response(null, { status: 500 })), null)
+      }
+    }
+    e.s(
+      [
+        'handler',
+        () => N,
+        'patchFetch',
+        () => k,
+        'routeModule',
+        () => C,
+        'serverHooks',
+        () => S,
+        'workAsyncStorage',
+        () => j,
+        'workUnitAsyncStorage',
+        () => P,
+      ],
+      972394
+    )
+  },
+]
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__8025e61d._.js.map

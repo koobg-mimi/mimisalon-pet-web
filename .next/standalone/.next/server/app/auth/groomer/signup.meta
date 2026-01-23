@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/auth/layout,_N_T_/auth/groomer/layout,_N_T_/auth/groomer/signup/layout,_N_T_/auth/groomer/signup/page,_N_T_/auth/groomer/signup"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/auth/groomer/signup/__PAGE__",
+    "/auth/groomer/signup",
+    "/auth/groomer",
+    "/auth",
+    "/_index"
+  ]
+}

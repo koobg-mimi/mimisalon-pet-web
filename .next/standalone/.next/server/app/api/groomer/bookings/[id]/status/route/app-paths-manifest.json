@@ -1,0 +1,3 @@
+{
+  "/api/groomer/bookings/[id]/status/route": "app/api/groomer/bookings/[id]/status/route.js"
+}

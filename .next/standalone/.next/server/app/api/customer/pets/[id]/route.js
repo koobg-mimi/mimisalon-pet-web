@@ -1,0 +1,20 @@
+var R = require('../../../../../chunks/[turbopack]_runtime.js')(
+  'server/app/api/customer/pets/[id]/route.js'
+)
+R.c('server/chunks/[root-of-the-server]__118c4056._.js')
+R.c('server/chunks/node_modules_next_dist_bfd7b269._.js')
+R.c('server/chunks/[root-of-the-server]__c7f8f561._.js')
+R.c('server/chunks/node_modules_next_f2da0d3e._.js')
+R.c('server/chunks/node_modules_zod_v4_classic_external_fa90cebf.js')
+R.c('server/chunks/node_modules_next_92aaecbe._.js')
+R.c('server/chunks/node_modules_bcryptjs_index_42ebb250.js')
+R.c('server/chunks/node_modules_63c106d0._.js')
+R.c('server/chunks/[root-of-the-server]__09c3bdaf._.js')
+R.c('server/chunks/src_lib_auth_ts_f5ef5b5b._.js')
+R.c('server/chunks/[root-of-the-server]__3efe2b8b._.js')
+R.c('server/chunks/node_modules_kysely_dist_esm_50461ed0._.js')
+R.c('server/chunks/[root-of-the-server]__462be84d._.js')
+R.c('server/chunks/node_modules_e93aeb1a._.js')
+R.c('server/chunks/_next-internal_server_app_api_customer_pets_[id]_route_actions_0a7a4075.js')
+R.m(837498)
+module.exports = R.m(837498).exports

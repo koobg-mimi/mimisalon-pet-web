@@ -1,0 +1,379 @@
+module.exports = [
+  254799,
+  (e, t, r) => {
+    t.exports = e.x('crypto', () => require('crypto'))
+  },
+  267691,
+  (e) => {
+    'use strict'
+    let t
+    var r,
+      a = e.i(747909),
+      n = e.i(174017),
+      s = e.i(996250),
+      o = e.i(759756),
+      i = e.i(561916),
+      l = e.i(114444),
+      d = e.i(837092),
+      u = e.i(869741),
+      c = e.i(316795),
+      p = e.i(487718),
+      h = e.i(995169),
+      _ = e.i(47587),
+      v = e.i(666012),
+      R = e.i(570101),
+      m = e.i(626937),
+      f = e.i(10372),
+      E = e.i(193695)
+    e.i(52474)
+    var b = e.i(600220),
+      g = e.i(79832)
+    ;(e.i(912700), e.i(9662), e.i(530501), e.i(35972), e.i(323770), e.i(591488), e.i(336870))
+    let { GET: x, POST: w } =
+      ((r = g.default), { GET: (t = async (e) => ('handler' in r ? r.handler(e) : r(e))), POST: t })
+    e.s(['GET', 0, x, 'POST', 0, w], 67110)
+    var C = e.i(67110)
+    let P = new a.AppRouteRouteModule({
+        definition: {
+          kind: n.RouteKind.APP_ROUTE,
+          page: '/api/auth/[...all]/route',
+          pathname: '/api/auth/[...all]',
+          filename: 'route',
+          bundlePath: '',
+        },
+        distDir: '.next',
+        relativeProjectDir: '',
+        resolvedPagePath: '[project]/src/app/api/auth/[...all]/route.ts',
+        nextConfigOutput: 'standalone',
+        userland: C,
+      }),
+      { workAsyncStorage: y, workUnitAsyncStorage: k, serverHooks: A } = P
+    function T() {
+      return (0, s.patchFetch)({ workAsyncStorage: y, workUnitAsyncStorage: k })
+    }
+    async function j(e, t, r) {
+      P.isDev && (0, o.addRequestMeta)(e, 'devRequestTimingInternalsEnd', process.hrtime.bigint())
+      let a = '/api/auth/[...all]/route'
+      a = a.replace(/\/index$/, '') || '/'
+      let s = await P.prepare(e, t, { srcPage: a, multiZoneDraftMode: !1 })
+      if (!s)
+        return (
+          (t.statusCode = 400),
+          t.end('Bad Request'),
+          null == r.waitUntil || r.waitUntil.call(r, Promise.resolve()),
+          null
+        )
+      let {
+          buildId: g,
+          params: x,
+          nextConfig: w,
+          parsedUrl: C,
+          isDraftMode: y,
+          prerenderManifest: k,
+          routerServerContext: A,
+          isOnDemandRevalidate: T,
+          revalidateOnlyGenerated: j,
+          resolvedPathname: N,
+          clientReferenceManifest: O,
+          serverActionsManifest: S,
+        } = s,
+        q = (0, u.normalizeAppPath)(a),
+        H = !!(k.dynamicRoutes[q] || k.routes[N]),
+        M = async () => (
+          (null == A ? void 0 : A.render404)
+            ? await A.render404(e, t, C, !1)
+            : t.end('This page could not be found'),
+          null
+        )
+      if (H && !y) {
+        let e = !!k.routes[N],
+          t = k.dynamicRoutes[q]
+        if (t && !1 === t.fallback && !e) {
+          if (w.experimental.adapterPath) return await M()
+          throw new E.NoFallbackError()
+        }
+      }
+      let U = null
+      !H || P.isDev || y || (U = '/index' === (U = N) ? '/' : U)
+      let I = !0 === P.isDev || !H,
+        D = H && !I
+      S &&
+        O &&
+        (0, l.setReferenceManifestsSingleton)({
+          page: a,
+          clientReferenceManifest: O,
+          serverActionsManifest: S,
+          serverModuleMap: (0, d.createServerModuleMap)({ serverActionsManifest: S }),
+        })
+      let $ = e.method || 'GET',
+        F = (0, i.getTracer)(),
+        K = F.getActiveScopeSpan(),
+        B = {
+          params: x,
+          prerenderManifest: k,
+          renderOpts: {
+            experimental: { authInterrupts: !!w.experimental.authInterrupts },
+            cacheComponents: !!w.cacheComponents,
+            supportsDynamicResponse: I,
+            incrementalCache: (0, o.getRequestMeta)(e, 'incrementalCache'),
+            cacheLifeProfiles: w.cacheLife,
+            waitUntil: r.waitUntil,
+            onClose: (e) => {
+              t.on('close', e)
+            },
+            onAfterTaskError: void 0,
+            onInstrumentationRequestError: (t, r, a) => P.onRequestError(e, t, a, A),
+          },
+          sharedContext: { buildId: g },
+        },
+        G = new c.NodeNextRequest(e),
+        L = new c.NodeNextResponse(t),
+        V = p.NextRequestAdapter.fromNodeNextRequest(G, (0, p.signalFromNodeResponse)(t))
+      try {
+        let s = async (e) =>
+            P.handle(V, B).finally(() => {
+              if (!e) return
+              e.setAttributes({ 'http.status_code': t.statusCode, 'next.rsc': !1 })
+              let r = F.getRootSpanAttributes()
+              if (!r) return
+              if (r.get('next.span_type') !== h.BaseServerSpan.handleRequest)
+                return void console.warn(
+                  `Unexpected root span type '${r.get('next.span_type')}'. Please report this Next.js issue https://github.com/vercel/next.js`
+                )
+              let n = r.get('next.route')
+              if (n) {
+                let t = `${$} ${n}`
+                ;(e.setAttributes({ 'next.route': n, 'http.route': n, 'next.span_name': t }),
+                  e.updateName(t))
+              } else e.updateName(`${$} ${a}`)
+            }),
+          l = !!(0, o.getRequestMeta)(e, 'minimalMode'),
+          d = async (o) => {
+            var i, d
+            let u = async ({ previousCacheEntry: n }) => {
+                try {
+                  if (!l && T && j && !n)
+                    return (
+                      (t.statusCode = 404),
+                      t.setHeader('x-nextjs-cache', 'REVALIDATED'),
+                      t.end('This page could not be found'),
+                      null
+                    )
+                  let a = await s(o)
+                  e.fetchMetrics = B.renderOpts.fetchMetrics
+                  let i = B.renderOpts.pendingWaitUntil
+                  i && r.waitUntil && (r.waitUntil(i), (i = void 0))
+                  let d = B.renderOpts.collectedTags
+                  if (!H)
+                    return (await (0, v.sendResponse)(G, L, a, B.renderOpts.pendingWaitUntil), null)
+                  {
+                    let e = await a.blob(),
+                      t = (0, R.toNodeOutgoingHttpHeaders)(a.headers)
+                    ;(d && (t[f.NEXT_CACHE_TAGS_HEADER] = d),
+                      !t['content-type'] && e.type && (t['content-type'] = e.type))
+                    let r =
+                        void 0 !== B.renderOpts.collectedRevalidate &&
+                        !(B.renderOpts.collectedRevalidate >= f.INFINITE_CACHE) &&
+                        B.renderOpts.collectedRevalidate,
+                      n =
+                        void 0 === B.renderOpts.collectedExpire ||
+                        B.renderOpts.collectedExpire >= f.INFINITE_CACHE
+                          ? void 0
+                          : B.renderOpts.collectedExpire
+                    return {
+                      value: {
+                        kind: b.CachedRouteKind.APP_ROUTE,
+                        status: a.status,
+                        body: Buffer.from(await e.arrayBuffer()),
+                        headers: t,
+                      },
+                      cacheControl: { revalidate: r, expire: n },
+                    }
+                  }
+                } catch (t) {
+                  throw (
+                    (null == n ? void 0 : n.isStale) &&
+                      (await P.onRequestError(
+                        e,
+                        t,
+                        {
+                          routerKind: 'App Router',
+                          routePath: a,
+                          routeType: 'route',
+                          revalidateReason: (0, _.getRevalidateReason)({
+                            isStaticGeneration: D,
+                            isOnDemandRevalidate: T,
+                          }),
+                        },
+                        A
+                      )),
+                    t
+                  )
+                }
+              },
+              c = await P.handleResponse({
+                req: e,
+                nextConfig: w,
+                cacheKey: U,
+                routeKind: n.RouteKind.APP_ROUTE,
+                isFallback: !1,
+                prerenderManifest: k,
+                isRoutePPREnabled: !1,
+                isOnDemandRevalidate: T,
+                revalidateOnlyGenerated: j,
+                responseGenerator: u,
+                waitUntil: r.waitUntil,
+                isMinimalMode: l,
+              })
+            if (!H) return null
+            if (
+              (null == c || null == (i = c.value) ? void 0 : i.kind) !== b.CachedRouteKind.APP_ROUTE
+            )
+              throw Object.defineProperty(
+                Error(
+                  `Invariant: app-route received invalid cache entry ${null == c || null == (d = c.value) ? void 0 : d.kind}`
+                ),
+                '__NEXT_ERROR_CODE',
+                { value: 'E701', enumerable: !1, configurable: !0 }
+              )
+            ;(l ||
+              t.setHeader(
+                'x-nextjs-cache',
+                T ? 'REVALIDATED' : c.isMiss ? 'MISS' : c.isStale ? 'STALE' : 'HIT'
+              ),
+              y &&
+                t.setHeader(
+                  'Cache-Control',
+                  'private, no-cache, no-store, max-age=0, must-revalidate'
+                ))
+            let p = (0, R.fromNodeOutgoingHttpHeaders)(c.value.headers)
+            return (
+              (l && H) || p.delete(f.NEXT_CACHE_TAGS_HEADER),
+              !c.cacheControl ||
+                t.getHeader('Cache-Control') ||
+                p.get('Cache-Control') ||
+                p.set('Cache-Control', (0, m.getCacheControlHeader)(c.cacheControl)),
+              await (0, v.sendResponse)(
+                G,
+                L,
+                new Response(c.value.body, { headers: p, status: c.value.status || 200 })
+              ),
+              null
+            )
+          }
+        K
+          ? await d(K)
+          : await F.withPropagatedContext(e.headers, () =>
+              F.trace(
+                h.BaseServerSpan.handleRequest,
+                {
+                  spanName: `${$} ${a}`,
+                  kind: i.SpanKind.SERVER,
+                  attributes: { 'http.method': $, 'http.target': e.url },
+                },
+                d
+              )
+            )
+      } catch (t) {
+        if (
+          (t instanceof E.NoFallbackError ||
+            (await P.onRequestError(e, t, {
+              routerKind: 'App Router',
+              routePath: q,
+              routeType: 'route',
+              revalidateReason: (0, _.getRevalidateReason)({
+                isStaticGeneration: D,
+                isOnDemandRevalidate: T,
+              }),
+            })),
+          H)
+        )
+          throw t
+        return (await (0, v.sendResponse)(G, L, new Response(null, { status: 500 })), null)
+      }
+    }
+    e.s(
+      [
+        'handler',
+        () => j,
+        'patchFetch',
+        () => T,
+        'routeModule',
+        () => P,
+        'serverHooks',
+        () => A,
+        'workAsyncStorage',
+        () => y,
+        'workUnitAsyncStorage',
+        () => k,
+      ],
+      267691
+    )
+  },
+  308812,
+  (e) => {
+    e.v((t) =>
+      Promise.all(
+        [
+          'server/chunks/node_modules_better-auth_dist_chunks_bun-sqlite-dialect_mjs_ac94bb8b._.js',
+        ].map((t) => e.l(t))
+      ).then(() => t(463259))
+    )
+  },
+  922180,
+  (e) => {
+    e.v((t) =>
+      Promise.all(
+        [
+          'server/chunks/node_modules_better-auth_dist_chunks_node-sqlite-dialect_mjs_29019df6._.js',
+        ].map((t) => e.l(t))
+      ).then(() => t(8202))
+    )
+  },
+  501603,
+  (e) => {
+    e.v((t) =>
+      Promise.all(['server/chunks/[root-of-the-server]__fd3a5b9b._.js'].map((t) => e.l(t))).then(
+        () => t(492749)
+      )
+    )
+  },
+  715957,
+  (e) => {
+    e.v((t) =>
+      Promise.all(
+        ['server/chunks/[root-of-the-server]__05e349db._.js', 'server/chunks/_1aa5a6b5._.js'].map(
+          (t) => e.l(t)
+        )
+      ).then(() => t(309653))
+    )
+  },
+  578406,
+  (e) => {
+    e.v((t) =>
+      Promise.all(
+        [
+          'server/chunks/[root-of-the-server]__aa8ebafd._.js',
+          'server/chunks/[root-of-the-server]__aea4da49._.js',
+          'server/chunks/_46980750._.js',
+          'server/chunks/node_modules_mime-db_db_json_a85ad9f0._.js',
+          'server/chunks/node_modules_0f478c9c._.js',
+        ].map((t) => e.l(t))
+      ).then(() => t(315159))
+    )
+  },
+  6878,
+  (e) => {
+    e.v((t) =>
+      Promise.all(
+        [
+          'server/chunks/2e4a4_next_dist_server_app-render_after-task-async-storage_external_7bcc6304.js',
+          'server/chunks/node_modules_next_dist_bfd7b269._.js',
+          'server/chunks/node_modules_next_92aaecbe._.js',
+        ].map((t) => e.l(t))
+      ).then(() => t(493458))
+    )
+  },
+]
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__5843a0f4._.js.map

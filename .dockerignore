@@ -1,0 +1,75 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+node_modules
+**/node_modules
+.pnp
+.pnp.js
+.yarn/install-state.gz
+.bun
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/.next-build/
+/out/
+
+# production
+/build
+
+# PM2
+.pm2
+pids
+*.pid
+*.seed
+*.pid.lock
+logs/
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# ide
+.vscode
+.idea
+
+# git
+.git
+.gitignore
+
+# docker
+Dockerfile*
+.dockerignore
+
+# documentation
+*.md
+docs/
+
+# scripts
+scripts/
+
+# misc files
+session.md
+tags
+MIGRATION_CHECKLIST.md
+DETAILED_MIGRATION_CHECKLIST.md
+MOBILE_BRIDGE_INTEGRATION.md
+SIMPLIFY_PLAN.md

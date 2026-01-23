@@ -1,0 +1,24 @@
+# Bun configuration file
+# Reference: https://bun.sh/docs/runtime/configuration
+
+[install]
+# Auto-install peer dependencies (bun does this by default)
+# This ensures compatibility with tools expecting peer dependencies
+peer = true
+
+# Optimize for compatibility with tools that expect a flat node_modules
+# Bun uses a flat node_modules structure by default
+savesResolutions = true
+
+[run]
+# Allow running scripts from any directory in the workspace
+cwd = "."
+
+[log]
+# Log level can be adjusted here if needed
+# default is "info"
+level = "info"
+
+[test]
+smol = true
+root = 'tests'

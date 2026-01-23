@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/groomer/layout,_N_T_/groomer/dashboard/layout,_N_T_/groomer/dashboard/locations/layout,_N_T_/groomer/dashboard/locations/page,_N_T_/groomer/dashboard/locations"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/groomer/dashboard/locations/__PAGE__",
+    "/groomer/dashboard/locations",
+    "/groomer/dashboard",
+    "/groomer",
+    "/_index"
+  ]
+}
