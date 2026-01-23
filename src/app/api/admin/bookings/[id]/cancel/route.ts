@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import auth from '@/lib/auth'
-import { BookingStatus, PaymentStatus, prisma } from '@mimisalon/shared'
+import { BookingStatus, PaymentStatus, prisma, Prisma } from '@mimisalon/shared'
 import { cancelPayment } from '@/lib/portone-server'
 
 interface ErrorResponse {
@@ -153,7 +153,7 @@ export async function PATCH({
     }
 
     // 트랜잭션으로 DB 업데이트
-    const updatedBooking = await prisma.$transaction(async (tx) => {
+    const updatedBooking = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // 성공한 결제들의 상태 업데이트
       if (cancellationResults.successful.length > 0) {
         await tx.payment.updateMany({
