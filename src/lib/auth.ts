@@ -38,6 +38,7 @@ const auth = betterAuth({
     'http://localhost:3000',
     'https://mimisalon.pet',
     'https://staging.mimisalon.pet',
+    "https://mimisalon-pet-deploy.vercel.app",
   ],
 
   // Email and password authentication

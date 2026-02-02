@@ -300,7 +300,7 @@ describe('Dashboard API Slice (RTK Query)', () => {
 
       // Note: 'empty' is a test-only value to trigger empty response in the mock
       const promise = store.dispatch(
-        // @ts-expect-error - Using test-only value to trigger empty response
+        // @ts-ignore - Using test-only value to trigger empty response
         dashboardApi.endpoints.getDashboardOverview.initiate('empty')
       )
 
@@ -460,7 +460,7 @@ describe('Dashboard API Slice (RTK Query)', () => {
 
       // Note: 'error' is a test-only value to trigger error response in the mock
       const promise = store.dispatch(
-        // @ts-expect-error - Using test-only value to trigger error response
+        // @ts-ignore - Using test-only value to trigger error response
         dashboardApi.endpoints.getDashboardOverview.initiate('error')
       )
 
@@ -477,7 +477,7 @@ describe('Dashboard API Slice (RTK Query)', () => {
 
       // Note: 'error' is a test-only value to trigger error response in the mock
       const promise = store.dispatch(
-        // @ts-expect-error - Using test-only value to trigger error response
+        // @ts-ignore - Using test-only value to trigger error response
         dashboardApi.endpoints.getDashboardOverview.initiate('error')
       )
 

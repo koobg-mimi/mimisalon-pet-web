@@ -245,7 +245,7 @@ describe('Booking Service Tests', () => {
         { status: 'SERVICE_CANCELLED', _count: { id: 2 } },
       ]
 
-      // @ts-expect-error - Mock returns simplified test data
+      // @ts-ignore - Mock returns simplified test data
       prisma.booking.groupBy.mockResolvedValue(groupResult)
 
       const result = await prisma.booking.groupBy({
