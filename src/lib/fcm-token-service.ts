@@ -1,7 +1,7 @@
 import { PrismaClient } from '@mimisalon/shared'
 import { ExpoNotificationService } from './expo-notification-service'
 
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 export class FCMTokenService {
   /**

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@mimisalon/shared'
 import { z } from 'zod'
 
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 /**
  * Request schema for email OTP verification

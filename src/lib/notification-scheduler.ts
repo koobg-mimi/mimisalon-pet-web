@@ -32,7 +32,7 @@ type BookingWithRelations = {
   }>
 }
 
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 export class NotificationScheduler {
   /**

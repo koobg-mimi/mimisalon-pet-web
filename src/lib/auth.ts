@@ -116,68 +116,67 @@ const auth = betterAuth({
 
   // Plugins for extended functionality
   plugins: [
-    // Admin plugin for role-based access control
     admin({
-      impersonationSessionDuration: 60 * 60, // 1 hour
+      impersonationSessionDuration: 60 * 60,
     }),
 
-    // Email OTP plugin for flexible verification
-    // Supports: email verification during signup, sign-in OTP, password reset OTP
-    // OTP is sent when client calls sendVerificationEmail() method
     emailOTP({
-      // Send OTP via email for various verification scenarios
       async sendVerificationOTP({ email, otp, type }) {
-        console.log('Sending OTP to:', email, 'with code:', otp)
-        if (process.env.NODE_ENV === 'production') {
-          // Import services dynamically
-          const { sendEmail } = await import('@/lib/email')
-          const { generateOTPEmailTemplate } = await import('@/features/templates')
+        const emailEnabled =
+          process.env.NODE_ENV === 'production' || process.env.EMAIL_OTP_ENABLED === 'true'
 
-          // Generate custom OTP email template
-          const html = await generateOTPEmailTemplate(email, otp, type)
-
-          await sendEmail({
-            to: email,
-            subject:
-              type === 'sign-in'
-                ? '로그인 인증코드 - 미미살롱펫'
-                : type === 'email-verification'
-                  ? '이메일 인증코드 - 미미살롱펫'
-                  : '비밀번호 재설정 인증코드 - 미미살롱펫',
-            html,
-          })
+        if (!emailEnabled) {
+          console.log('[email OTP][dev] email disabled. otp:', { email, otp, type })
+          return
         }
+
+        const { sendEmail } = await import('@/lib/email')
+        const { generateOTPEmailTemplate } = await import('@/features/templates')
+
+        const html = await generateOTPEmailTemplate(email, otp, type)
+
+        await sendEmail({
+          to: email,
+          subject:
+            type === 'sign-in'
+              ? '로그인 인증코드 - 미미살롱펫'
+              : type === 'email-verification'
+                ? '이메일 인증코드 - 미미살롱펫'
+                : '비밀번호 재설정 인증코드 - 미미살롱펫',
+          html,
+        })
       },
-      otpLength: 6, // 6-digit OTP code
-      expiresIn: 600, // 10 minutes validity
-      disableSignUp: false, // Enable signup via email OTP
-      allowedAttempts: 5, // Maximum OTP verification attempts before invalidation
+      otpLength: 6,
+      expiresIn: 600,
+      disableSignUp: false,
+      allowedAttempts: 5,
     }),
 
-    // Phone Number plugin for SMS authentication
-    // Supports: phone verification during signup, sign-in OTP, password reset via SMS
-    // OTP is sent when client calls sendVerificationOtp() method
     phoneNumber({
-      // Send OTP via SMS using Twilio
-      async sendOTP({ phoneNumber, code }, request) {
-        console.log('Sending SMS OTP to:', phoneNumber, 'with code:', code)
+      async sendOTP({ phoneNumber, code }) {
+        const smsEnabled =
+          process.env.NODE_ENV === 'production' || process.env.TWILIO_SMS_ENABLED === 'true'
 
-        // Import Twilio service dynamically
-        if (process.env.NODE_ENV === 'production') {
-          const { sendSMSCode } = await import('./twilio')
-
-          const result = await sendSMSCode(phoneNumber, code)
-
-          if (!result.success) {
-            throw new Error(result.error || 'Failed to send SMS')
-          }
+        if (!smsEnabled) {
+          console.log('[phone OTP][dev] sms disabled. code:', code)
+          return
         }
 
-        console.log('SMS OTP sent successfully to:', phoneNumber)
+        const { sendSMSCode } = await import('./twilio')
+        const result = await sendSMSCode(phoneNumber, code)
+
+        if (!result.success) {
+          if (process.env.NODE_ENV !== 'production') {
+            console.warn('[phone OTP][dev] Twilio failed, fallback to console OTP', {
+              phoneNumber,
+              code,
+              error: result.error,
+            })
+            return
+          }
+          throw new Error(result.error || 'Failed to send SMS')
+        }
       },
-      otpLength: 6, // 6-digit OTP code
-      expiresIn: 600, // 10 minutes validity
-      allowedAttempts: 3, // Maximum OTP verification attempts before invalidation
     }),
   ],
 

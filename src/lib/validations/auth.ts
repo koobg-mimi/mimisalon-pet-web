@@ -63,7 +63,7 @@ export const customerSignUpSchema = z
   .object({
     name: nameSchema,
     email: emailSchema,
-    phone: requiredPhoneSchema,
+    phone: phoneSchema,
     password: passwordSchema,
     confirmPassword: z.string().min(1, '비밀번호 확인을 입력해주세요'),
     agreeToTerms: z.boolean().refine((val) => val === true, {

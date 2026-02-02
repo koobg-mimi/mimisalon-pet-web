@@ -1,6 +1,6 @@
 import { PrismaClient, PetType, BreedCategory } from '@prisma/client'
 
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 interface BreedData {
   name: string

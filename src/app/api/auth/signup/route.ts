@@ -11,31 +11,27 @@ const prisma = new PrismaClient()
 export const signupSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   email: z.string().email('Invalid email address'),
-  phone: z.string().min(10, 'Phone number must be at least 10 characters'),
+
+  // ✅ phone optional (빈 문자열도 허용)
+  phone: z.string().trim().optional().or(z.literal('')),
+
   password: z.string().min(8, 'Password must be at least 8 characters'),
   role: z.enum(['CUSTOMER', 'GROOMER', 'ADMIN'], {
     message: 'Role must be CUSTOMER, GROOMER, or ADMIN',
   }),
-  phoneVerified: z.boolean(),
+
+  // ✅ phone 인증값은 유지하되, phone이 없으면 의미 없으니 optional로 해도 됨
+  phoneVerified: z.boolean().optional(),
 })
 
-/**
- * Request body type for signup
- */
 export type SignupRequest = z.infer<typeof signupSchema>
 
-/**
- * Response type for successful signup
- */
 export type SignupResponse = {
   success: true
   message: string
   userId: string
 }
 
-/**
- * Error response type
- */
 export type SignupErrorResponse = {
   error: string
   code?: 'PHONE_NOT_VERIFIED' | 'EMAIL_ALREADY_EXISTS'
@@ -43,35 +39,28 @@ export type SignupErrorResponse = {
   details?: z.ZodIssue[]
 }
 
-/**
- * User signup endpoint
- *
- * Creates a new user account with email and password.
- * Requires email and phone verification to be completed before signup.
- */
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<SignupResponse | SignupErrorResponse>> {
   try {
     const body: unknown = await request.json()
 
-    // Validate request body
     const validatedData = signupSchema.parse(body)
-    const { name, email, phone, password, role, phoneVerified } = validatedData
+    const { name, email, password, role } = validatedData
 
-    // Phone verification is required for signup via /auth/signin
-    if (!phoneVerified) {
+    // ✅ phone 정규화: '' -> undefined
+    const phone = validatedData.phone?.trim() ? validatedData.phone.trim() : undefined
+    const phoneVerified = Boolean(validatedData.phoneVerified)
+
+    // ✅ phone이 존재할 때만 phoneVerified 요구
+    if (phone && !phoneVerified) {
       return NextResponse.json<SignupErrorResponse>(
         { error: 'Phone verification required', code: 'PHONE_NOT_VERIFIED' },
         { status: 400 }
       )
     }
 
-    // Check if email already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    })
-
+    const existingUser = await prisma.user.findUnique({ where: { email } })
     if (existingUser) {
       return NextResponse.json<SignupErrorResponse>(
         { error: 'Email already registered', code: 'EMAIL_ALREADY_EXISTS' },
@@ -79,23 +68,23 @@ export async function POST(
       )
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    // Create user (phone verification is guaranteed at this point)
     const user = await prisma.user.create({
       data: {
         name,
         email,
-        emailVerified: new Date(), // Email verification completed - store timestamp
-        phoneNumber: phone,
-        phoneNumberVerified: true, // Phone verification completed
+        emailVerified: new Date(),
+
+        // ✅ phone이 있을 때만 저장
+        phoneNumber: phone ?? null,
+        phoneNumberVerified: phone ? true : false,
+
         role,
         image: null,
       },
     })
 
-    // Create account record for password
     await prisma.account.create({
       data: {
         userId: user.id,
@@ -106,23 +95,15 @@ export async function POST(
     })
 
     return NextResponse.json<SignupResponse>(
-      {
-        success: true,
-        message: 'User created successfully',
-        userId: user.id,
-      },
+      { success: true, message: 'User created successfully', userId: user.id },
       { status: 201 }
     )
   } catch (error) {
     console.error('Signup error:', error)
 
-    // Handle Zod validation errors
     if (error instanceof z.ZodError) {
       return NextResponse.json<SignupErrorResponse>(
-        {
-          error: 'Invalid request data',
-          details: error.issues,
-        },
+        { error: 'Invalid request data', details: error.issues },
         { status: 400 }
       )
     }

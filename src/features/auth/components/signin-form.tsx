@@ -219,7 +219,7 @@ export function SignInForm({
                 size="sm"
                 onClick={() => {
                   form.setValue('email', 'customer@petmanagement.com')
-                  form.setValue('password', 'defaultpass123')
+                  form.setValue('password', 'Defaultpass123!')
                 }}
                 disabled={isLoading}
               >
@@ -231,7 +231,7 @@ export function SignInForm({
                 size="sm"
                 onClick={() => {
                   form.setValue('email', 'groomer@petmanagement.com')
-                  form.setValue('password', 'defaultpass123')
+                  form.setValue('password', 'Defaultpass123!')
                 }}
                 disabled={isLoading}
               >
@@ -243,7 +243,7 @@ export function SignInForm({
                 size="sm"
                 onClick={() => {
                   form.setValue('email', 'admin@petmanagement.com')
-                  form.setValue('password', 'defaultpass123')
+                  form.setValue('password', 'Defaultpass123!')
                 }}
                 disabled={isLoading}
               >

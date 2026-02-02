@@ -70,13 +70,15 @@ export function usePhoneVerification(): UsePhoneVerificationReturn {
     try {
       setSendingCode(true)
 
+      phoneNumber = phoneNumber.replace(/[^\d+]/g, '')
       // Use better-auth phoneNumber plugin
       const { error } = await authClient.phoneNumber.sendOtp({
         phoneNumber,
       })
 
       if (error) {
-        console.error('Phone OTP send error:', error)
+        console.error('Phone OTP send error detail:', JSON.stringify(error, null, 2))
+
         setVerificationError(error.message || '인증번호 발송 중 오류가 발생했습니다.')
       } else {
         setShowVerificationInput(true)

@@ -1,0 +1,23 @@
+[debug] [2026-02-01T08:30:49.985Z] ----------------------------------------------------------------------
+[debug] [2026-02-01T08:30:49.987Z] Command:       /opt/homebrew/Cellar/node/23.11.0/bin/node /opt/homebrew/bin/firebase init
+[debug] [2026-02-01T08:30:49.987Z] CLI Version:   15.5.1
+[debug] [2026-02-01T08:30:49.987Z] Platform:      darwin
+[debug] [2026-02-01T08:30:49.988Z] Node Version:  v23.11.0
+[debug] [2026-02-01T08:30:49.988Z] Time:          Sun Feb 01 2026 17:30:49 GMT+0900 (대한민국 표준시)
+[debug] [2026-02-01T08:30:49.988Z] ----------------------------------------------------------------------
+[debug] 
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /Volumes/MacBook-Dev/package/mimisalon-pet-web
+
+Before we get started, keep in mind:
+
+  * You are currently outside your home directory
+
