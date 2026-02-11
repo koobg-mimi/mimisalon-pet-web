@@ -48,6 +48,14 @@ export async function POST(
   request: NextRequest
 ): Promise<NextResponse<InitializePaymentResponse | InitializePaymentErrorResponse>> {
   try {
+    // Log PG service connection status
+    console.log('📱 [Payment Initialize] 결제 초기화 요청 시작')
+    if (env.PORTONE_API_SECRET) {
+      console.log('✅ [Payment Initialize] PG 서비스 (PortOne) 연결 상태: 활성화')
+    } else {
+      console.error('❌ [Payment Initialize] PG 서비스 (PortOne) 연결 상태: 미활성화')
+    }
+
     const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session?.user) {

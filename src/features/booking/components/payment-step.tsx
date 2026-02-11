@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { PaymentCard } from '@/components/card/payment-card'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { useAppSelector } from '@/lib/redux/hooks'
 import { UserResponse } from '@/app/api/auth/me/route'
 
@@ -45,6 +46,21 @@ export function PaymentStep({
   const formData = useAppSelector((state) => state.booking.formData)
   const paymentId = useAppSelector((state) => state.booking.paymentId)
   const bookingId = useAppSelector((state) => state.booking.selectedBookingId)
+  const isComplatingPayment = useAppSelector((state) => state.booking.isComplatingPayment)
+
+  // 결제 완료 후 로딩 중일 때 전체 화면 로딩 표시
+  if (isComplatingPayment) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="bg-background rounded-lg p-8 text-center">
+          <LoadingSpinner size="lg" className="mb-4" />
+          <h2 className="text-lg font-semibold">예약을 완료하는 중입니다...</h2>
+          <p className="text-muted-foreground mt-2">잠시만 기다려주세요.</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* 결제 정보 요약 */}

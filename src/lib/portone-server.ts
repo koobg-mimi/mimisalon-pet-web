@@ -6,6 +6,13 @@ const portoneClient = PortOneClient({
   secret: env.PORTONE_API_SECRET,
 })
 
+// Log PG service connection status
+if (env.PORTONE_API_SECRET) {
+  console.log('✅ [PortOne] PG 서비스 연결 완료 - API Secret 설정됨')
+} else {
+  console.error('❌ [PortOne] PG 서비스 연결 실패 - API Secret 미설정')
+}
+
 /**
  * Get payment details from PortOne
  */

@@ -29,6 +29,7 @@ export type GroomerProfileResponse = {
   joinedAt: Date
   isVerified: boolean
   status: string
+  isActive: boolean
   birthDate: string | null
   bankName: string | null
   bankAccountNumber: string | null
@@ -132,6 +133,7 @@ export async function GET(): Promise<NextResponse<GroomerProfileResponse | Error
       joinedAt: groomerProfile.createdAt,
       isVerified: groomerProfile.phoneNumberVerified, // For now, verification is based on phone
       status: 'ACTIVE', // We'll need to add this field to User model later
+      isActive: groomerProfile.groomerProfile?.isActive ?? true,
       birthDate: groomerProfile.groomerProfile?.birthDate
         ? groomerProfile.groomerProfile.birthDate.toISOString()
         : null,

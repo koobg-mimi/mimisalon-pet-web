@@ -6,7 +6,9 @@ import { admin, emailOTP, phoneNumber } from 'better-auth/plugins'
 import bcrypt from 'bcryptjs'
 import { env } from './env'
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+  log: [],
+})
 
 /**
  * Better Auth Configuration

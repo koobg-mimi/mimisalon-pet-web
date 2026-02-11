@@ -118,8 +118,8 @@ function getStatusVariant(status: string): 'default' | 'secondary' | 'success' |
 function getStatusLabel(status: string): string {
   const statusMap: Record<string, string> = {
     FIRST_PAYMENT_PENDING: '결제 대기',
-    FIRST_PAYMENT_COMPLETE: '확인 대기',
-    GROOMER_CONFIRM_PENDING: '확인 대기',
+    FIRST_PAYMENT_COMPLETE: '미용사 확인 대기',
+    GROOMER_CONFIRM_PENDING: '미용사 확인 대기',
     GROOMER_CONFIRM: '예약 확정',
     WORK_IN_PROGRESS: '진행 중',
     SERVICE_COMPLETED: '완료',
@@ -129,7 +129,7 @@ function getStatusLabel(status: string): string {
     IN_PROGRESS: '진행 중',
     COMPLETED: '완료',
     CANCELLED: '취소',
-    PENDING: '대기',
+    PENDING: '확인 대기',
   }
 
   return statusMap[status] || status

@@ -212,43 +212,58 @@ export async function POST(request: NextRequest) {
   let paymentIdForCleanup: string | undefined // Store payment ID for cleanup in error handler
 
   try {
+    console.log('\n🚀 [Booking Create] 예약 생성 API 호출 시작')
+    
     const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session?.user?.email) {
+      console.error('❌ [Booking Create] 세션 오류: 사용자 이메일 없음')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    
+    console.log(`✅ [Booking Create] 세션 확인됨: ${session.user.email}`)
 
     if (session.user.role !== 'CUSTOMER') {
+      console.error(`❌ [Booking Create] 권한 오류: 역할 = ${session.user.role}`)
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
+    console.log('📋 [Booking Create] 요청 데이터 파싱 중...')
     const body = await request.json()
+    console.log('[Booking Create] 요청 본문:', JSON.stringify(body, null, 2))
+    
     const validatedData = BookingCreateSchema.parse(body)
+    console.log(`✅ [Booking Create] 데이터 검증 완료 - paymentId: ${validatedData.paymentId}, groomerId: ${validatedData.groomerId}`)
 
     // Store payment ID for potential cleanup
     paymentIdForCleanup = validatedData.paymentId
 
     // Get user
+    console.log(`🔍 [Booking Create] 사용자 정보 조회: ${session.user.email}`)
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
     })
 
     if (!user) {
+      console.error(`❌ [Booking Create] 사용자 정보 없음: ${session.user.email}`)
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
+    console.log(`✅ [Booking Create] 사용자 정보 조회 완료: ${user.id}`)
 
     // Verify payment from our database (may still be PENDING if webhook hasn't arrived)
+    console.log(`💳 [Booking Create] 결제 정보 조회: ${validatedData.paymentId}`)
     const payment = await prisma.payment.findUnique({
       where: { paymentId: validatedData.paymentId },
       include: {
         booking: true,
       },
     })
+    console.log(`[Booking Create] 결제 조회 결과:`, payment)
 
     // If payment doesn't exist, create it as PENDING (for cases where initialization was skipped)
     let paymentRecord = payment
     if (!payment) {
-      console.log('Payment not found, creating new PENDING payment:', validatedData.paymentId)
+      console.warn('⚠️ [Booking Create] 결제 레코드 없음. 새로운 PENDING 결제 생성 중:', validatedData.paymentId)
 
       // Calculate total amount from services
       const totalAmount = validatedData.petServices.reduce((total, petService) => {
@@ -273,8 +288,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Check payment status - allow PENDING for webhook delay
+    console.log(`💳 [Booking Create] 결제 상태 확인: ${paymentRecord?.status}`)
     if (!paymentRecord || (paymentRecord.status !== 'PAID' && paymentRecord.status !== 'PENDING')) {
-      console.error('Payment in invalid status:', paymentRecord?.status)
+      console.error(`❌ [Booking Create] 결제 상태 오류: ${paymentRecord?.status}`)
       return NextResponse.json(
         {
           error: 'Payment not valid',
@@ -284,12 +300,15 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+    console.log(`✅ [Booking Create] 결제 상태 확인 완료: ${paymentRecord?.status}`)
 
     // For PENDING payments, wait a bit for webhook
     if (paymentRecord && paymentRecord.status === 'PENDING') {
       // Check if payment is recent (within last 5 minutes)
       const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
+      console.log(`⏱️ [Booking Create] PENDING 결제 시간 확인: ${paymentRecord.createdAt.toISOString()}`)
       if (paymentRecord && paymentRecord.createdAt < fiveMinutesAgo) {
+        console.error('❌ [Booking Create] 결제 시간 초과 (5분 이상)')
         return NextResponse.json(
           {
             error: 'Payment timeout',
@@ -300,23 +319,29 @@ export async function POST(request: NextRequest) {
       }
 
       // Payment is still pending but recent - webhook might arrive soon
-      console.log('Payment is PENDING but recent, proceeding with booking creation')
+      console.log('⏳ [Booking Create] PENDING 결제이지만 최근 결제. 예약 생성 진행 중...')
     }
 
     // Verify payment ownership
+    console.log(`👤 [Booking Create] 결제 소유권 확인: ${paymentRecord?.customerId} === ${user.id}`)
     if (paymentRecord && paymentRecord.customerId && paymentRecord.customerId !== user.id) {
+      console.error('❌ [Booking Create] 결제 소유권 오류: 다른 사용자의 결제')
       return NextResponse.json({ error: 'Payment belongs to another user' }, { status: 403 })
     }
 
     // Verify payment is not already used for another booking
+    console.log(`🔗 [Booking Create] 결제 재사용 확인: bookingId = ${paymentRecord?.bookingId}`)
     if (paymentRecord && paymentRecord.bookingId) {
+      console.error('❌ [Booking Create] 결제 오류: 이미 다른 예약에 사용됨')
       return NextResponse.json(
         { error: 'Payment already used for another booking' },
         { status: 400 }
       )
     }
+    console.log('✅ [Booking Create] 결제 소유권 및 재사용 확인 완료')
 
     // Calculate expected total price
+    console.log('💰 [Booking Create] 예상 금액 계산 중...')
     const expectedTotal = validatedData.petServices.reduce((total, petService) => {
       return (
         total +
@@ -325,17 +350,21 @@ export async function POST(request: NextRequest) {
         }, 0)
       )
     }, 0)
+    console.log(`[Booking Create] 예상 금액: ${expectedTotal}원`)
 
     // Verify payment amount matches expected total
+    console.log(`💳 [Booking Create] 결제 금액 확인: ${paymentRecord?.amount} === ${expectedTotal}`)
     if (!paymentRecord || paymentRecord.amount !== expectedTotal) {
-      console.error('Payment amount mismatch:', {
+      console.error(`❌ [Booking Create] 결제 금액 불일치:`, {
         expected: expectedTotal,
         actual: paymentRecord?.amount,
       })
       return NextResponse.json({ error: 'Payment amount mismatch' }, { status: 400 })
     }
+    console.log('✅ [Booking Create] 결제 금액 확인 완료')
 
     // Verify groomer availability
+    console.log(`👨‍💼 [Booking Create] 미용사 정보 조회: ${validatedData.groomerId}`)
     const groomer = await prisma.user.findFirst({
       where: {
         id: validatedData.groomerId,
@@ -344,8 +373,10 @@ export async function POST(request: NextRequest) {
     })
 
     if (!groomer) {
+      console.error(`❌ [Booking Create] 미용사 정보 없음: ${validatedData.groomerId}`)
       return NextResponse.json({ error: 'Groomer not found' }, { status: 404 })
     }
+    console.log(`✅ [Booking Create] 미용사 정보 확인 완료: ${groomer.name}`)
 
     // Calculate required time slots for the booking (including cleanup buffer)
     const totalDuration = validatedData.petServices.reduce(
@@ -360,13 +391,16 @@ export async function POST(request: NextRequest) {
     )
 
     // Pre-check availability before starting transaction
+    console.log(`📅 [Booking Create] 미용사 시간 가용성 확인: ${validatedData.date} ${validatedData.timeSlot}`)
     const availabilityCheck = await checkGroomerAvailability(
       validatedData.groomerId,
       new Date(validatedData.date),
       requiredSlots
     )
+    console.log(`[Booking Create] 가용성 확인 결과:`, availabilityCheck)
 
     if (!availabilityCheck.available) {
+      console.error(`❌ [Booking Create] 시간 충돌: ${availabilityCheck.conflicts?.join(', ')}`)
       return NextResponse.json(
         {
           error: '선택한 시간대가 이미 예약되었습니다',
@@ -376,12 +410,15 @@ export async function POST(request: NextRequest) {
         { status: 409 }
       )
     }
+    console.log('✅ [Booking Create] 시간 가용성 확인 완료')
 
     // Generate booking number
     const bookingNumber = `BK${Date.now()}`
+    console.log(`📝 [Booking Create] 예약 생성 시작: ${bookingNumber}`)
 
     // Create booking with all related data in a transaction with time slot blocking
     const booking = await prisma.$transaction(async (tx) => {
+      console.log(`[Booking Create] Transaction 시작: ${bookingNumber}`)
       // Double-check availability within transaction (with row-level lock)
       const existingConflict = await tx.booking.findFirst({
         where: {
@@ -593,7 +630,19 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.error('Booking creation error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('❌ [Booking Create] 예약 생성 오류:', error)
+    if (error instanceof Error) {
+      console.error('[Booking Create] 에러 상세:', {
+        message: error.message,
+        stack: error.stack,
+      })
+    }
+    return NextResponse.json(
+      { 
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : String(error)
+      }, 
+      { status: 500 }
+    )
   }
 }

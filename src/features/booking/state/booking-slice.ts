@@ -40,6 +40,8 @@ export interface BookingState {
   isCreating: boolean
   /** 현재 결제 초기화 중 여부 */
   isInitializingPayment: boolean
+  /** 결제 완료 후 예약 완료 페이지로 이동 중 여부 */
+  isComplatingPayment: boolean
   /** 예약 폼 데이터 */
   formData: BookingForm
   /** 현재 예약 단계 */
@@ -62,6 +64,7 @@ const initialState: BookingState = {
   error: null,
   isCreating: false,
   isInitializingPayment: false,
+  isComplatingPayment: false,
   formData: initialBookingForm,
   currentStep: 1,
   paymentId: null,
@@ -296,6 +299,13 @@ const bookingSlice = createSlice({
     setPaymentId: (state, action: PayloadAction<string>) => {
       state.paymentId = action.payload
     },
+
+    /**
+     * 결제 완료 후 로딩 상태 설정
+     */
+    setPaymentComplating: (state, action: PayloadAction<boolean>) => {
+      state.isComplatingPayment = action.payload
+    },
   },
   extraReducers: (builder) => {
     // 예약 초기화 처리
@@ -363,6 +373,7 @@ export const {
   goToStep,
   updateGroomerPage,
   setPaymentId,
+  setPaymentComplating,
 } = bookingSlice.actions
 
 // 리듀서 내보내기 (기본 export)

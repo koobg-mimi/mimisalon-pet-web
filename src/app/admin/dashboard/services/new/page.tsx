@@ -64,7 +64,7 @@ const serviceSchema = z.object({
         petType: z.enum(['DOG', 'CAT']),
         minWeight: z.number().min(0).nullable().optional(),
         maxWeight: z.number().nullable().optional(),
-        price: z.number().min(1000),
+        price: z.number().min(5000, '최소 가격은 5,000원 이상이어야 합니다'),
       })
     )
     .min(1, '최소 하나의 가격 설정이 필요합니다'),
@@ -106,6 +106,9 @@ export default function NewServicePage() {
   // 서비스 생성 mutation
   const createServiceMutation = useMutation({
     mutationFn: async (data: ServiceFormData) => {
+      // Extract unique pet types from priceRanges
+      const petTypes = Array.from(new Set(priceRanges.map((range) => range.petType)))
+
       // Ensure priceRanges are properly formatted
       const formattedPriceRanges = priceRanges.map((range) => ({
         petType: range.petType,
@@ -119,7 +122,11 @@ export default function NewServicePage() {
         ...data,
         duration: parseInt(data.duration),
         priceRanges: formattedPriceRanges,
+        petTypes: petTypes,
+        breedCategories: [],
       }
+
+      console.log('Submitting payload:', payload)
 
       const response = await fetch('/api/admin/services', {
         method: 'POST',
@@ -150,6 +157,22 @@ export default function NewServicePage() {
   })
 
   const handleSubmit = (data: ServiceFormData) => {
+    // 클라이언트 검증: priceRanges가 있는지 확인
+    if (!priceRanges || priceRanges.length === 0) {
+      alert('최소 하나의 가격 설정이 필요합니다')
+      return
+    }
+
+    // 모든 가격 범위가 유효한지 확인
+    const MIN_PRICE = 5000
+    const allValid = priceRanges.every((range) => range.price >= MIN_PRICE)
+    if (!allValid) {
+      alert(`모든 가격 범위에서 ${MIN_PRICE.toLocaleString()}원 이상의 가격을 입력해주세요`)
+      return
+    }
+
+    console.log('Form data:', data)
+    console.log('Price ranges:', priceRanges)
     createServiceMutation.mutate(data)
   }
 
@@ -478,23 +501,40 @@ export default function NewServicePage() {
               </Card>
 
               {/* 액션 버튼 */}
-              <div className="flex justify-end space-x-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.back()}
-                  disabled={createServiceMutation.isPending}
-                >
-                  취소
-                </Button>
-                <Button type="submit" disabled={createServiceMutation.isPending}>
-                  {createServiceMutation.isPending ? (
-                    <LoadingSpinner size="sm" className="mr-2" />
-                  ) : (
-                    <Save className="mr-2 h-4 w-4" />
-                  )}
-                  서비스 생성
-                </Button>
+              <div className="flex flex-col space-y-4">
+                {createServiceMutation.isError && (
+                  <div className="rounded-md bg-destructive/10 p-4 text-destructive">
+                    <p className="font-semibold">오류가 발생했습니다</p>
+                    <p className="text-sm">
+                      {createServiceMutation.error instanceof Error
+                        ? createServiceMutation.error.message
+                        : '알 수 없는 오류'}
+                    </p>
+                  </div>
+                )}
+                <div className="flex justify-end space-x-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => router.back()}
+                    disabled={createServiceMutation.isPending}
+                  >
+                    취소
+                  </Button>
+                  <Button type="submit" disabled={createServiceMutation.isPending}>
+                    {createServiceMutation.isPending ? (
+                      <>
+                        <LoadingSpinner size="sm" className="mr-2" />
+                        생성 중...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" />
+                        서비스 생성
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </form>
           </Form>

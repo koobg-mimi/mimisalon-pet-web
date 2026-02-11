@@ -145,16 +145,37 @@ export async function POST(request: NextRequest): Promise<NextResponse<Address> 
     let centerLat: number | null = null
     let centerLng: number | null = null
 
+    console.log('🔍 Starting geocoding for address:', {
+      street,
+      detailAddress,
+      fullAddress,
+      city,
+      state,
+    })
+
     try {
       const geocodeResult = await geocodeAddress(fullAddress)
+      console.log('✅ Geocode result:', geocodeResult)
       if (geocodeResult) {
         centerLat = geocodeResult.latitude
         centerLng = geocodeResult.longitude
+      } else {
+        console.warn('⚠️ Geocoding returned null, address will be saved without coordinates')
       }
     } catch (error) {
-      console.warn('Failed to geocode customer address:', error)
+      console.error('❌ Geocoding failed for address:', {
+        address: fullAddress,
+        error: error instanceof Error ? error.message : String(error),
+      })
+      console.warn('⚠️ Continuing without coordinates - user can geocode later')
       // Continue without coordinates - this is not a blocking error
     }
+
+    console.log('📍 Address will be saved with coordinates:', {
+      centerLat,
+      centerLng,
+      hasCoordinates: centerLat !== null && centerLng !== null,
+    })
 
     const newAddress = await prisma.address.create({
       data: {

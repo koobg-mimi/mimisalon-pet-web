@@ -23,13 +23,12 @@ export interface PhoneUpdateFormProps {
 /**
  * Phone Update Form Component
  *
- * Modern phone number update component using better-auth phoneNumber plugin.
- * Replaces the deprecated PhoneVerificationStatus component.
+ * Simple phone number update component without verification.
+ * Directly saves phone number without requiring OTP verification.
  *
  * Features:
- * - Send OTP via better-auth phoneNumber.sendOtp()
- * - Verify and update via better-auth phoneNumber.verify({ updatePhoneNumber: true })
- * - Gets verification status from session (no API calls)
+ * - Direct phone number save via better-auth
+ * - Gets current phone from session (no API calls)
  * - Real-time validation
  *
  * @example
@@ -38,25 +37,16 @@ export interface PhoneUpdateFormProps {
  * ```
  */
 export function PhoneUpdateForm({ variant = 'card', className, onSuccess }: PhoneUpdateFormProps) {
-  const { phoneNumber, phoneNumberVerified, isLoading, sendOtp, verifyAndUpdate } = usePhoneUpdate()
+  const { phoneNumber, isLoading, updatePhoneNumber } = usePhoneUpdate()
 
-  const [step, setStep] = useState<'status' | 'input' | 'verify'>('status')
+  const [step, setStep] = useState<'status' | 'input'>('status')
   const [phoneInput, setPhoneInput] = useState(phoneNumber || '') // Pre-fill with existing phone
-  const [otpInput, setOtpInput] = useState('')
 
-  const handleSendOtp = async () => {
-    const success = await sendOtp(phoneInput)
-    if (success) {
-      setStep('verify')
-    }
-  }
-
-  const handleVerify = async () => {
-    const success = await verifyAndUpdate(phoneInput, otpInput)
+  const handleSavePhone = async () => {
+    const success = await updatePhoneNumber(phoneInput)
     if (success) {
       setStep('status')
       setPhoneInput('')
-      setOtpInput('')
       onSuccess?.()
     }
   }
@@ -92,61 +82,31 @@ export function PhoneUpdateForm({ variant = 'card', className, onSuccess }: Phon
       )
     }
 
-    if (phoneNumberVerified) {
-      return (
-        <div
-          className={cn(
-            'flex items-center space-x-3 rounded-lg border border-green-200 bg-green-50 p-4',
-            className
-          )}
-        >
-          <CheckCircleIcon className="h-5 w-5 text-green-600" />
-          <div className="flex-1">
-            <div className="flex items-center space-x-2">
-              <p className="text-sm font-medium text-green-800">
-                {formatPhoneForDisplay(phoneNumber)}
-              </p>
-              <Badge variant="secondary" className="border-green-200 bg-green-100 text-green-800">
-                인증 완료
-              </Badge>
-            </div>
-            <p className="text-xs text-green-600">전화번호가 성공적으로 인증되었습니다</p>
-          </div>
-          <Button size="sm" variant="outline" onClick={() => setStep('input')}>
-            변경
-          </Button>
-        </div>
-      )
-    }
-
     return (
-      <div className={cn('space-y-3', className)}>
-        <div className="flex items-center space-x-3 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-          <AlertTriangleIcon className="h-5 w-5 text-yellow-600" />
-          <div className="flex-1">
-            <div className="flex items-center space-x-2">
-              <p className="text-sm font-medium text-yellow-800">
-                {formatPhoneForDisplay(phoneNumber)}
-              </p>
-              <Badge
-                variant="secondary"
-                className="border-yellow-200 bg-yellow-100 text-yellow-800"
-              >
-                인증 필요
-              </Badge>
-            </div>
-            <p className="text-xs text-yellow-600">서비스 이용을 위해 전화번호 인증이 필요합니다</p>
+      <div
+        className={cn(
+          'flex items-center space-x-3 rounded-lg border border-green-200 bg-green-50 p-4',
+          className
+        )}
+      >
+        <CheckCircleIcon className="h-5 w-5 text-green-600" />
+        <div className="flex-1">
+          <div className="flex items-center space-x-2">
+            <p className="text-sm font-medium text-green-800">
+              {phoneNumber}
+            </p>
+            <Badge variant="secondary" className="border-green-200 bg-green-100 text-green-800">
+              등록됨
+            </Badge>
           </div>
-          <Button
-            size="sm"
-            onClick={() => {
-              setPhoneInput(phoneNumber || '')
-              setStep('input')
-            }}
-          >
-            인증
-          </Button>
+          <p className="text-xs text-green-600">전화번호가 등록되었습니다</p>
         </div>
+        <Button size="sm" variant="outline" onClick={() => {
+          setPhoneInput(phoneNumber || '')
+          setStep('input')
+        }}>
+          변경
+        </Button>
       </div>
     )
   }
@@ -177,13 +137,13 @@ export function PhoneUpdateForm({ variant = 'card', className, onSuccess }: Phon
         </div>
 
         <div className="flex space-x-2">
-          <Button onClick={handleSendOtp} disabled={isLoading || !phoneInput} className="flex-1">
+          <Button onClick={handleSavePhone} disabled={isLoading || !phoneInput} className="flex-1">
             {isLoading ? (
               <LoadingSpinner size="sm" className="mr-2" />
             ) : (
               <PhoneIcon className="mr-2 h-4 w-4" />
             )}
-            인증 코드 전송
+            저장
           </Button>
           <Button variant="outline" onClick={() => setStep('status')} disabled={isLoading}>
             취소
@@ -193,61 +153,5 @@ export function PhoneUpdateForm({ variant = 'card', className, onSuccess }: Phon
     )
   }
 
-  // Verify view: Enter OTP code
-  return (
-    <div
-      className={cn(
-        'space-y-4 rounded-lg p-4',
-        variant === 'card' && 'border-border bg-card border',
-        className
-      )}
-    >
-      <div className="space-y-2">
-        <Label htmlFor="otp">인증 코드</Label>
-        <Input
-          id="otp"
-          type="text"
-          placeholder="123456"
-          value={otpInput}
-          onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, '').slice(0, 6))}
-          disabled={isLoading}
-          maxLength={6}
-        />
-        <p className="text-muted-foreground text-xs">
-          {formatPhoneForDisplay(phoneInput)}로 전송된 6자리 코드를 입력하세요
-        </p>
-      </div>
-
-      <div className="flex space-x-2">
-        <Button
-          onClick={handleVerify}
-          disabled={isLoading || otpInput.length !== 6}
-          className="flex-1"
-        >
-          {isLoading ? <LoadingSpinner size="sm" className="mr-2" /> : null}
-          인증 완료
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => {
-            setStep('input')
-            setOtpInput('')
-          }}
-          disabled={isLoading}
-        >
-          다시 입력
-        </Button>
-      </div>
-
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleSendOtp}
-        disabled={isLoading}
-        className="w-full"
-      >
-        인증 코드 재전송
-      </Button>
-    </div>
-  )
+  return null
 }

@@ -187,17 +187,22 @@ export async function GET(
     })
 
     // UI 표시용으로 데이터 변환
-    const transformedBookings = bookings.map((booking) => ({
-      id: booking.id,
-      bookingNumber: booking.bookingNumber,
-      date: format(booking.serviceDate, 'yyyy-MM-dd', { locale: ko }),
-      time: booking.serviceTime,
-      status: mapDbStatusToUi(booking.status),
-      dbStatus: booking.status, // 원본 DB 상태도 보관
-      paymentStatus: booking.paymentStatus,
-      customer: {
-        id: booking.customer.id,
-        name: booking.customer.name || '고객',
+    const transformedBookings = bookings.map((booking) => {
+      const uiStatus = mapDbStatusToUi(booking.status)
+      console.log(
+        `[Groomer Bookings] Booking ${booking.id}: dbStatus=${booking.status}, uiStatus=${uiStatus}, paymentStatus=${booking.paymentStatus}`
+      )
+      return {
+        id: booking.id,
+        bookingNumber: booking.bookingNumber,
+        date: format(booking.serviceDate, 'yyyy-MM-dd', { locale: ko }),
+        time: booking.serviceTime,
+        status: uiStatus,
+        dbStatus: booking.status, // 원본 DB 상태도 보관
+        paymentStatus: booking.paymentStatus,
+        customer: {
+          id: booking.customer.id,
+          name: booking.customer.name || '고객',
         phone: booking.customer.phoneNumber || undefined,
         email: booking.customer.email,
       },
@@ -233,7 +238,7 @@ export async function GET(
       totalPrice: booking.basePrice + booking.additionalCharges - booking.discountAmount, // totalAmount 대신 계산
       estimatedDuration: booking.estimatedDurationMinutes,
       createdAt: booking.createdAt,
-    }))
+    }));
 
     return NextResponse.json({
       bookings: transformedBookings,
@@ -271,5 +276,9 @@ function mapDbStatusToUi(status: BookingStatus): string {
     [BookingStatus.BOOKING_FAILED]: 'CANCELLED',
   }
 
-  return mappings[status] || 'PENDING'
+  const uiStatus = mappings[status] || 'PENDING'
+  console.log(
+    `[MapDbStatusToUi] Converting ${status} to ${uiStatus}`
+  )
+  return uiStatus
 }

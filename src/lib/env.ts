@@ -227,7 +227,7 @@ export const env = createEnv({
     // ===================================================
     // Kakao Map API (Client-side)
     // ===================================================
-    NEXT_PUBLIC_KAKAO_MAP_KEY: z.string().optional().describe('Kakao Map JavaScript API key'),
+    NEXT_PUBLIC_KAKAO_MAP_KEY: z.string().min(1).describe('Kakao Map JavaScript API key'),
 
     // ===================================================
     // PortOne (Client-side)

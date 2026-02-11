@@ -22,7 +22,7 @@ import { PetSelectionStep } from './pet-selection-step'
 import { AddressSelectionStep } from './address-selection-step'
 import { DateTimeGroomerStep } from './datetime-groomer-step'
 import { PaymentStep } from './payment-step'
-import { initializeBooking, initializePayment, updateGroomerPage } from '../state/booking-slice'
+import { initializeBooking, initializePayment, updateGroomerPage, setPaymentComplating } from '../state/booking-slice'
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks'
 import type { UserResponse } from '@/app/api/auth/me/route'
 
@@ -200,16 +200,22 @@ export function BookingWizard({ pets, profile }: BookingWizardProps) {
   const handlePaymentSuccess = useCallback(async () => {
     if (bookingId) {
       try {
+        // 로딩 상태 시작
+        dispatch(setPaymentComplating(true))
+        // 예약 완료 페이지로 이동
         await router.push(`/booking/${bookingId}/confirmation`)
       } catch (error) {
         console.error('[Payment] Redirect failed:', error)
         alert('결제는 완료되었으나 페이지 이동에 실패했습니다. 예약 내역에서 확인해주세요.')
+      } finally {
+        // 로딩 상태 종료
+        dispatch(setPaymentComplating(false))
       }
     } else {
       console.error('[Payment] Missing bookingId after success')
       alert('결제가 완료되었으나 정보를 찾을 수 없습니다. 고객센터로 문의해주세요.')
     }
-  }, [bookingId, router])
+  }, [bookingId, router, dispatch])
 
   /**
    * 결제 에러 핸들러

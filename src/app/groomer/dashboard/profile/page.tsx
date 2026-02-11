@@ -386,7 +386,19 @@ export default function GroomerProfilePage() {
                           인증됨
                         </span>
                       )}
+                      {!profile.isActive && (
+                        <span className="rounded-full bg-orange-100 px-2 py-1 text-xs font-medium text-orange-800">
+                          예약 비활성
+                        </span>
+                      )}
                     </div>
+                    {!profile.isActive && (
+                      <div className="mb-3 rounded-lg bg-orange-50 p-3 text-left">
+                        <p className="text-xs text-orange-700 sm:text-sm">
+                          ⚠️ 현재 고객의 예약을 받을 수 없는 상태입니다. 고객센터에 문의하여 활성화를 요청하세요.
+                        </p>
+                      </div>
+                    )}
                     <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:justify-start sm:gap-4 sm:text-sm">
                       {renderStars(profile.averageRating)}
                       <span className="text-muted-foreground">{profile.totalReviews}개 리뷰</span>

@@ -2,7 +2,7 @@
 
 import { useSession } from '@/lib/auth-client'
 import { useRouter } from 'next/navigation'
-import { ArrowRight, Calendar, LogIn } from 'lucide-react'
+import { ArrowRight, Calendar, LogIn, Sparkles } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
 
@@ -37,69 +37,80 @@ export function CTA() {
   const currentUser = session?.user
 
   return (
-    <section data-cy="cta" className="container mx-auto px-4 py-16">
-      <div className="mx-auto max-w-5xl">
-        <Card className="from-primary via-primary to-primary/90 relative overflow-hidden bg-gradient-to-br text-white">
-          {/* 배경 장식 */}
-          <div className="absolute inset-0 -skew-y-1 transform bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
-          <div className="absolute top-0 right-0 h-64 w-64 translate-x-32 -translate-y-32 transform rounded-full bg-white/10 blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 h-48 w-48 -translate-x-24 translate-y-24 transform rounded-full bg-white/10 blur-3xl"></div>
+    <section data-cy="cta" className="relative overflow-hidden py-20 sm:py-28">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600"></div>
+      <div className="absolute top-0 right-0 h-96 w-96 translate-x-32 -translate-y-32 rounded-full bg-white/10 blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 h-96 w-96 -translate-x-32 translate-y-32 rounded-full bg-white/10 blur-3xl"></div>
 
-          <CardContent className="relative p-8 text-center sm:p-12">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <h3 className="text-3xl leading-tight font-bold text-white sm:text-4xl">
-                  우리 아이를 위한 특별한 케어
-                </h3>
-                <p className="mx-auto max-w-2xl text-lg leading-relaxed text-white/95 sm:text-xl">
-                  우리 아이에게 최고의 미용 서비스를 제공합니다.
-                  <br className="hidden sm:block" />
-                  지금 예약하고 특별한 경험을 선사해보세요.
+      <div className="container relative mx-auto px-4">
+        <div className="mx-auto max-w-4xl">
+          <Card className="border-0 bg-white/95 backdrop-blur-sm shadow-2xl">
+            <CardContent className="space-y-8 p-8 text-center sm:p-12">
+              <div className="space-y-6">
+                <div className="inline-block rounded-full bg-gradient-to-r from-purple-200 to-pink-200 px-4 py-2">
+                  <span className="flex items-center gap-2 text-sm font-semibold text-purple-700">
+                    <Sparkles className="h-4 w-4" />
+                    지금 바로 예약하고 특별한 경험을 시작하세요
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-4xl font-bold text-gray-900 sm:text-5xl">
+                    우리 아이의 행복한 미용,
+                    <br />
+                    <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                      지금 시작하세요
+                    </span>
+                  </h3>
+                </div>
+                <p className="mx-auto max-w-2xl text-lg text-gray-600">
+                  미미살롱펫과 함께 우리 아이에게 가장 편안하고 행복한 미용 경험을 선물해주세요.
                 </p>
               </div>
 
-              <div className="mx-auto flex max-w-lg flex-col items-center justify-center gap-4 sm:flex-row">
+              <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
                 {isLoggedIn && currentUser ? (
                   <Button
-                    size="xl"
-                    variant="outline"
+                    size="lg"
                     onClick={handleBookingClick}
-                    className="text-primary hover:shadow-3xl group h-auto w-full transform border-2 border-white bg-white px-8 py-4 text-lg font-bold shadow-2xl transition-all duration-300 hover:scale-105 hover:bg-gray-50 sm:w-auto"
-                    aria-label="지금 바로 펫 미용 예약하기"
+                    className="h-auto bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-4 text-lg font-bold text-white shadow-lg transition hover:shadow-xl hover:from-purple-700 hover:to-pink-700"
                   >
-                    <Calendar className="mr-3 h-6 w-6" />
+                    <Calendar className="mr-3 h-5 w-5" />
                     지금 바로 예약하기
-                    <ArrowRight className="ml-3 h-6 w-6 transition-transform group-hover:translate-x-1" />
+                    <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Button>
                 ) : (
-                  <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+                  <>
                     <Button
-                      size="xl"
-                      variant="outline"
+                      size="lg"
                       onClick={handleBookingClick}
-                      className="text-primary hover:shadow-3xl group h-auto w-full transform border-2 border-white bg-white px-8 py-4 text-lg font-bold shadow-2xl transition-all duration-300 hover:scale-105 hover:bg-gray-50 sm:w-auto"
-                      aria-label="펫 미용 예약하기"
+                      className="h-auto bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-4 text-lg font-bold text-white shadow-lg transition hover:shadow-xl hover:from-purple-700 hover:to-pink-700"
                     >
-                      <Calendar className="mr-3 h-6 w-6" />
+                      <Calendar className="mr-3 h-5 w-5" />
                       예약하기
-                      <ArrowRight className="ml-3 h-6 w-6 transition-transform group-hover:translate-x-1" />
+                      <ArrowRight className="ml-3 h-5 w-5" />
                     </Button>
                     <Button
-                      size="xl"
-                      variant="ghost"
+                      size="lg"
                       onClick={handleLoginClick}
-                      className="h-auto w-full border-2 border-white/80 px-8 py-4 text-lg font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:border-white hover:bg-white/20 sm:w-auto"
-                      aria-label="로그인하기"
+                      variant="outline"
+                      className="h-auto border-2 border-purple-600 px-8 py-4 text-lg font-bold text-purple-600 transition hover:bg-purple-50"
                     >
                       <LogIn className="mr-3 h-5 w-5" />
                       로그인하기
                     </Button>
-                  </div>
+                  </>
                 )}
               </div>
-            </div>
-          </CardContent>
-        </Card>
+
+              <div className="border-t border-gray-200 pt-6">
+                <p className="text-sm text-gray-500">
+                  📞 문의사항은 언제든지 연락주세요 | 🏠 방문 미용 서비스로 편하게 이용하세요
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </section>
   )

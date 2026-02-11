@@ -1,0 +1,19 @@
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm.
+npm warn Unknown project config "shamefully-hoist". This will stop working in the next major version of npm.
+npm warn Unknown project config "strict-peer-dependencies". This will stop working in the next major version of npm.
+
+> mimisalon-nextjs@0.1.0 dev
+> next dev
+
+⚠ Port 3000 is in use by process 8191, using available port 3002 instead.
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+▲ Next.js 16.1.4 (Turbopack)
+- Local:         http://localhost:3002
+- Network:       http://192.168.0.154:3002
+- Environments: .env
+
+✓ Starting...
+⨯ Unable to acquire lock at /Volumes/MacBook-Dev/package/mimisalon-pet-web/.next/dev/lock, is another instance of next dev running?
+  Suggestion: If you intended to restart next dev, terminate the other process, and then try again.
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[?25h

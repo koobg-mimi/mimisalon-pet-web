@@ -168,9 +168,9 @@ export default function GroomerBookingsPage() {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'PENDING':
-        return '대기중'
+        return '고객 결제 완료 (확인 필요)'
       case 'CONFIRMED':
-        return '확정'
+        return '예약 확정'
       case 'IN_PROGRESS':
         return '진행중'
       case 'COMPLETED':

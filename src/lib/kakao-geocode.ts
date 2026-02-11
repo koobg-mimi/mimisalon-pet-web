@@ -22,7 +22,7 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult | n
   const apiKey = process.env.KAKAO_REST_API_KEY
 
   if (!apiKey) {
-    console.error('KAKAO_REST_API_KEY is not configured')
+    console.error('❌ KAKAO_REST_API_KEY is not configured')
     return null
   }
 
@@ -30,65 +30,46 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult | n
     const encodedAddress = encodeURIComponent(address)
     const url = `https://dapi.kakao.com/v2/local/search/address.json?query=${encodedAddress}`
 
-    console.log('Kakao API Request:', {
-      url,
-      apiKeyLength: apiKey.length,
-      apiKeyPrefix: apiKey.substring(0, 8) + '...',
-      address: address,
-    })
+    console.log('📍 [Kakao API] Geocoding request:', address)
 
     const response = await fetch(url, {
+      method: 'GET',
       headers: {
         Authorization: `KakaoAK ${apiKey}`,
-        'Content-Type': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (compatible; MimiSalon/1.0)',
-        KA: 'sdk/1.0.0 os/javascript origin/http://localhost:3001',
       },
     })
 
+    console.log(`📡 [Kakao API] Response: ${response.status} ${response.statusText}`)
+
     if (!response.ok) {
       const errorBody = await response.text()
-      console.error('Kakao geocoding API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        body: errorBody,
-      })
-
-      // Provide more specific error information
-      if (response.status === 401) {
-        const errorData = JSON.parse(errorBody)
-        if (errorData.message?.includes('domain mismatched')) {
-          console.error(
-            "Domain mismatch error. Please add localhost to your Kakao app's registered domains."
-          )
-        }
-      } else if (response.status === 403) {
-        const errorData = JSON.parse(errorBody)
-        if (errorData.message?.includes('disabled OPEN_MAP_AND_LOCAL service')) {
-          console.error(
-            "Kakao Local API service is disabled. Enable 'Maps and Local' service in your Kakao app."
-          )
-        }
-      }
-
+      console.error(`❌ [Kakao API] Error ${response.status}:`, errorBody)
       return null
     }
 
     const data: KakaoGeocodeResponse = await response.json()
 
-    if (data.documents.length === 0) {
-      console.warn('No geocoding results found for address:', address)
+    if (!data.documents || data.documents.length === 0) {
+      console.warn(`⚠️ [Kakao API] No results found for: ${address}`)
       return null
     }
 
     const result = data.documents[0]
-    return {
+    const geocodeResult = {
       latitude: parseFloat(result.y),
       longitude: parseFloat(result.x),
       address: result.address_name,
     }
+
+    console.log('✅ [Kakao API] Success:', {
+      address: result.address_name,
+      lat: geocodeResult.latitude,
+      lng: geocodeResult.longitude,
+    })
+
+    return geocodeResult
   } catch (error) {
-    console.error('Error during geocoding:', error)
+    console.error('❌ [Kakao API] Exception:', error instanceof Error ? error.message : error)
     return null
   }
 }

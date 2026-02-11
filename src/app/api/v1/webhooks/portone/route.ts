@@ -380,7 +380,10 @@ async function handlePaymentSuccess(
         })
 
         console.log(
-          `[Webhook] Booking ${payment.bookingId} status updated: ${booking.status} → ${newStatus}`
+          `[Webhook] ✅ Booking ${payment.bookingId} status updated: ${booking.status} → ${newStatus}`
+        )
+        console.log(
+          `[Webhook] Booking status change details: paymentId=${paymentId}, bookingId=${payment.bookingId}, oldStatus=${booking.status}, newStatus=${newStatus}`
         )
       }
     }

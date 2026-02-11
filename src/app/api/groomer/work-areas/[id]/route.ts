@@ -11,10 +11,10 @@ const updateWorkAreaSchema = z.object({
   centerLng: z.number().min(-180).max(180, '유효한 경도를 입력하세요').optional(),
   radiusKm: z.number().min(0.5).max(50, '반경은 0.5km ~ 50km 사이여야 합니다').optional(),
   address: z.string().optional(),
-  zonecode: z.string().optional(),
   description: z.string().optional(),
   isActive: z.boolean().optional(),
-})
+  // Note: zonecode is accepted but not stored (used only for client-side reference)
+}).passthrough() // Allow zonecode to be passed but not stored
 
 // GET: 특정 근무 장소 조회
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -80,7 +80,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     console.log('Validated data:', validatedData)
 
     // Clean the data by removing fields that don't exist in the database schema
-    const cleanedData = validatedData
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { zonecode, ...cleanedData } = validatedData
 
     // If address is being updated, perform geocoding
     let updateData = { ...cleanedData }

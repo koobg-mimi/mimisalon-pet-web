@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import auth from '@/lib/auth'
 import { prisma } from '@mimisalon/shared'
+import { canServiceLocation, calculateDistance } from '@/lib/geo-utils'
 
 // GET /api/customer/groomers - Get groomers available for a specific address
 export async function GET(request: NextRequest) {
@@ -41,37 +42,31 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // Find groomers who service this area
-    // For now, we'll do a simple city/state match, but this could be enhanced with geolocation
+    // Get customer's coordinates (should be geocoded and stored, but if not, we need them)
+    if (!address.centerLat || !address.centerLng) {
+      console.error('Address not geocoded:', { addressId, address })
+      return new NextResponse('Customer address must be geocoded first', {
+        status: 400,
+      })
+    }
+
+    console.log('🏠 Customer address:', {
+      addressId,
+      street: address.street,
+      centerLat: address.centerLat,
+      centerLng: address.centerLng,
+    })
+
+    // Find ALL active groomers with their work areas
     const groomers = await prisma.user.findMany({
       where: {
         role: 'GROOMER',
+        groomerProfile: {
+          isActive: true,
+        },
         workAreas: {
           some: {
             isActive: true,
-            // Simple matching by city/state for now
-            // In production, you'd want to use proper geolocation with radius calculations
-            OR: [
-              {
-                address: {
-                  contains: address.city,
-                  mode: 'insensitive',
-                },
-              },
-              {
-                address: {
-                  contains: address.state,
-                  mode: 'insensitive',
-                },
-              },
-              {
-                // Default to show all groomers if no specific area match
-                // This ensures the demo works even without perfectly matched data
-                id: {
-                  not: undefined,
-                },
-              },
-            ],
           },
         },
       },
@@ -81,7 +76,6 @@ export async function GET(request: NextRequest) {
             isActive: true,
           },
         },
-        schedule: true,
         _count: {
           select: {
             groomerBookings: {
@@ -94,22 +88,90 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    // Transform the data to match the expected format
-    const formattedGroomers = groomers.map((groomer) => ({
-      id: groomer.id,
-      name: groomer.name || 'Unknown Groomer',
-      rating: 4.5, // Placeholder - this would be calculated from reviews
-      availability: [], // This will be populated by the availability API
-      location: groomer.workAreas[0]?.name || `${address.city} 지역`,
-      workAreas: groomer.workAreas.map((area) => ({
-        id: area.id,
-        name: area.name,
-        address: area.address,
+    console.log('💇 Found groomers:', {
+      totalCount: groomers.length,
+      groomers: groomers.map((g) => ({
+        id: g.id,
+        name: g.name,
+        workAreasCount: g.workAreas.length,
+        workAreas: g.workAreas.map((wa) => ({
+          id: wa.id,
+          name: wa.name,
+          address: wa.address,
+          centerLat: wa.centerLat,
+          centerLng: wa.centerLng,
+          radiusKm: wa.radiusKm,
+        })),
       })),
-      totalBookings: groomer._count.groomerBookings,
-    }))
+    })
 
-    return NextResponse.json(formattedGroomers)
+    // Filter groomers by service area coverage (coordinate-based)
+    const serviceableGroomers = groomers
+      .filter((groomer) => {
+        // Check if groomer can service the customer location
+        const canService = canServiceLocation(
+          address.centerLat!,
+          address.centerLng!,
+          groomer.workAreas.map((area) => ({
+            centerLat: area.centerLat,
+            centerLng: area.centerLng,
+            radiusKm: area.radiusKm,
+          }))
+        )
+
+        if (!canService) {
+          console.log(`❌ Groomer ${groomer.name} cannot service location`, {
+            groomerWorkAreas: groomer.workAreas.map((wa) => ({
+              name: wa.name,
+              centerLat: wa.centerLat,
+              centerLng: wa.centerLng,
+              radiusKm: wa.radiusKm,
+            })),
+          })
+        }
+
+        return canService
+      })
+      .map((groomer) => {
+        // Calculate distances to each work area
+        const distances = groomer.workAreas.map((area) =>
+          calculateDistance(address.centerLat!, address.centerLng!, area.centerLat, area.centerLng)
+        )
+        const closestDistance = Math.min(...distances)
+
+        return {
+          id: groomer.id,
+          name: groomer.name || 'Unknown Groomer',
+          rating: 4.5, // Placeholder - this would be calculated from reviews
+          availability: [], // This will be populated by the availability API
+          location: groomer.workAreas[0]?.name || 'Service Area',
+          workAreas: groomer.workAreas.map((area) => ({
+            id: area.id,
+            name: area.name,
+            address: area.address,
+            distance: calculateDistance(
+              address.centerLat!,
+              address.centerLng!,
+              area.centerLat,
+              area.centerLng
+            ),
+          })),
+          totalBookings: groomer._count.groomerBookings,
+          closestDistance, // For sorting
+        }
+      })
+      .sort((a, b) => a.closestDistance - b.closestDistance) // Sort by closest distance
+
+    console.log('✅ Serviceable groomers:', {
+      count: serviceableGroomers.length,
+      groomers: serviceableGroomers.map((g) => ({
+        id: g.id,
+        name: g.name,
+        closestDistance: g.closestDistance,
+      })),
+    })
+
+    return NextResponse.json(serviceableGroomers)
   } catch (error) {
     console.error('Failed to fetch groomers:', error)
     return new NextResponse('Internal Server Error', { status: 500 })

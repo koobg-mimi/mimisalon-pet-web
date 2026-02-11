@@ -87,28 +87,43 @@ export async function POST(
   request: NextRequest
 ): Promise<NextResponse<BookingInitializeResponse | BookingInitializeErrorResponse>> {
   try {
+    console.log('\n🚀 [Booking Initialize] 예약 초기화 API 호출 시작')
+    
     const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session?.user?.email) {
+      console.error('❌ [Booking Initialize] 세션 오류: 사용자 이메일 없음')
       return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
     }
+    
+    console.log(`✅ [Booking Initialize] 세션 확인됨: ${session.user.email}`)
 
     if (session.user.role !== 'CUSTOMER') {
+      console.error(`❌ [Booking Initialize] 권한 오류: 역할 = ${session.user.role}`)
       return NextResponse.json({ error: '고객만 예약을 생성할 수 있습니다' }, { status: 403 })
     }
-
+    
+    console.log('📋 [Booking Initialize] 요청 데이터 파싱 중...')
+    
+    console.log('📋 [Booking Initialize] 요청 데이터 파싱 중...')
     const body: unknown = await request.json()
+    console.log('[Booking Initialize] 요청 본문:', JSON.stringify(body, null, 2))
     const validatedData = bookingInitializeSchema.parse(body)
+    console.log(`✅ [Booking Initialize] 데이터 검증 완료 - groomerId: ${validatedData.groomerId}, date: ${validatedData.date}, timeSlot: ${validatedData.timeSlot}`)
 
+    console.log(`🔍 [Booking Initialize] 사용자 정보 조회: ${session.user.email}`)
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
     })
 
     if (!user) {
+      console.error(`❌ [Booking Initialize] 사용자 정보 없음: ${session.user.email}`)
       return NextResponse.json({ error: '사용자 정보를 찾을 수 없습니다' }, { status: 404 })
     }
+    console.log(`✅ [Booking Initialize] 사용자 정보 조회 완료: ${user.id}`)
 
     const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000)
+    console.log(`🔄 [Booking Initialize] 멱등성 키로 기존 예약 확인: ${validatedData.idempotencyKey}`)
     const existingBooking = await prisma.booking.findFirst({
       where: {
         customerId: user.id,
@@ -132,7 +147,7 @@ export async function POST(
 
     if (existingBooking) {
       console.log(
-        `[Booking Initialize] Returning existing booking for idempotency key: ${validatedData.idempotencyKey}`
+        `♻️ [Booking Initialize] 기존 예약 반환 (멱등성): ${validatedData.idempotencyKey}`
       )
       return NextResponse.json({
         bookingId: existingBooking.id,
@@ -142,7 +157,9 @@ export async function POST(
         isExisting: true,
       })
     }
+    console.log('✅ [Booking Initialize] 멱등성 확인 완료 - 새로운 예약 생성 필요')
 
+    console.log(`👨‍💼 [Booking Initialize] 미용사 정보 조회: ${validatedData.groomerId}`)
     const groomer = await prisma.user.findFirst({
       where: {
         id: validatedData.groomerId,
@@ -154,30 +171,50 @@ export async function POST(
     })
 
     if (!groomer) {
+      console.error(`❌ [Booking Initialize] 미용사를 찾을 수 없습니다: ${validatedData.groomerId}`)
       return NextResponse.json({ error: '미용사를 찾을 수 없습니다' }, { status: 404 })
     }
+    console.log(`✅ [Booking Initialize] 미용사 정보 조회 완료: ${groomer.name}`)
+    console.log(`[Booking Initialize] 미용사 활성 상태: ${groomer.groomerProfile?.isActive}`)
 
     if (!groomer.groomerProfile?.isActive) {
+      console.error(`❌ [Booking Initialize] 미용사 비활성 상태: ${groomer.id}`)
+      console.log(`[Booking Initialize] 미용사 상세 정보:`, {
+        id: groomer.id,
+        name: groomer.name,
+        email: groomer.email,
+        groomerProfile: groomer.groomerProfile,
+      })
       return NextResponse.json(
-        { error: '선택하신 미용사는 현재 예약을 받을 수 없는 상태입니다' },
+        { 
+          error: '선택하신 미용사는 현재 예약을 받을 수 없는 상태입니다',
+          groomerStatus: groomer.groomerProfile?.isActive ? 'active' : 'inactive',
+          groomerId: groomer.id,
+        },
         { status: 400 }
       )
     }
+    console.log(`✅ [Booking Initialize] 미용사 활성 상태 확인 완료`)
 
+    console.log(`📅 [Booking Initialize] 시간 가용성 확인: ${validatedData.date} ${validatedData.timeSlot}`)
     const totalDuration = validatedData.petServices.reduce(
       (total, ps) => total + ps.services.reduce((dur, s) => dur + (s.duration || 60), 0),
       0
     )
+    console.log(`[Booking Initialize] 총 소요시간: ${totalDuration}분`)
 
     const requiredSlots = generateRequiredTimeSlots(validatedData.timeSlot, totalDuration)
+    console.log(`[Booking Initialize] 필요한 시간대:`, requiredSlots)
 
     const availabilityCheck = await checkGroomerAvailability(
       validatedData.groomerId,
       new Date(validatedData.date),
       requiredSlots
     )
+    console.log(`[Booking Initialize] 가용성 확인 결과:`, availabilityCheck)
 
     if (!availabilityCheck.available) {
+      console.error(`❌ [Booking Initialize] 시간 충돌: ${availabilityCheck.conflicts?.join(', ')}`)
       return NextResponse.json(
         {
           error: '선택한 시간대가 이미 예약되었습니다',
@@ -187,6 +224,7 @@ export async function POST(
         { status: 409 }
       )
     }
+    console.log('✅ [Booking Initialize] 시간 가용성 확인 완료')
 
     const expectedTotal = validatedData.petServices.reduce((total, petService) => {
       const servicesTotal = petService.services.reduce((serviceTotal, service) => {
@@ -296,13 +334,14 @@ export async function POST(
       return booking
     })
 
-    console.log(`[Booking Initialize] Created new pending booking: ${newBooking.id}`)
+    console.log(`📝 [Booking Initialize] 새로운 대기 중 예약 생성 완료: ${newBooking.id}`)
 
     const orderName =
       validatedData.petServices.length === 1
         ? `${validatedData.petServices[0].services[0].name}`
         : `반려동물 ${validatedData.petServices.length}마리 미용서비스`
 
+    console.log(`✅ [Booking Initialize] 응답 생성 중 - 예약번호: ${newBooking.bookingNumber}`)
     return NextResponse.json({
       success: true,
       bookingId: newBooking.id,
@@ -316,7 +355,10 @@ export async function POST(
       isExisting: false,
     })
   } catch (error) {
+    console.error('❌ [Booking Initialize] 예약 초기화 오류:', error)
+    
     if (error instanceof z.ZodError) {
+      console.error('[Booking Initialize] 검증 오류 상세:', error.issues)
       return NextResponse.json(
         { error: '입력 데이터가 올바르지 않습니다', details: error.issues },
         { status: 400 }
@@ -325,6 +367,7 @@ export async function POST(
 
     if (error instanceof Error) {
       if (error.message.includes('충돌') || error.message.includes('예약')) {
+        console.error('[Booking Initialize] 예약 충돌 오류:', error.message)
         return NextResponse.json(
           {
             error: error.message,
@@ -333,9 +376,18 @@ export async function POST(
           { status: 409 }
         )
       }
+      console.error('[Booking Initialize] 일반 오류 상세:', {
+        message: error.message,
+        stack: error.stack,
+      })
     }
 
-    console.error('[Booking Initialize] Error:', error)
-    return NextResponse.json({ error: '예약 초기화 중 오류가 발생했습니다' }, { status: 500 })
+    return NextResponse.json(
+      { 
+        error: '예약 초기화 중 오류가 발생했습니다',
+        details: error instanceof Error ? error.message : String(error)
+      }, 
+      { status: 500 }
+    )
   }
 }

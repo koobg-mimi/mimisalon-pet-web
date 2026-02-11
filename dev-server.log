@@ -1,0 +1,32 @@
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm.
+npm warn Unknown project config "shamefully-hoist". This will stop working in the next major version of npm.
+npm warn Unknown project config "strict-peer-dependencies". This will stop working in the next major version of npm.
+
+> mimisalon-nextjs@0.1.0 dev
+> next dev
+
+⚠ Port 3000 is in use by process 8191, using available port 3004 instead.
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+▲ Next.js 16.1.4 (Turbopack)
+- Local:         http://localhost:3004
+- Network:       http://192.168.0.154:3004
+- Environments: .env
+
+✓ Starting...
+○ Compiling proxy ...
+
+-----
+[1m[31mFATAL[39m[0m: An unexpected Turbopack error occurred. A panic log has been written to /var/folders/xn/gqs4m7vn32qgzl57fll8k0hm0000gn/T/next-panic-1cb4801127e6549ad8a0b40848e67bd1.log.
+
+To help make Turbopack better, report this error by ]8;;https://github.com/vercel/next.js/discussions/new?category=turbopack-error-report&title=Turbopack%20Error%3A%20failed%20to%20create%20symlink%20to%20..%2F..%2F..%2Fnode_modules%2Fnodemailer&body=Turbopack%20version%3A%20%60v16.1.0-canary.19-88-gda605e0c4%60%0ANext.js%20version%3A%20%600.0.0%60%0A%0AError%20message%3A%0A%60%60%60%0Afailed%20to%20create%20symlink%20to%20..%2F..%2F..%2Fnode_modules%2Fnodemailer%0A%0ACaused%20by%3A%0A-%20No%20such%20file%20or%20directory%20%28os%20error%202%29%0A%60%60%60&labels=Turbopack,Turbopack%20Panic%20Backtrace\clicking here.]8;;\
+-----
+
+Error [TurbopackInternalError]: failed to create symlink to ../../../node_modules/nodemailer
+
+Caused by:
+- No such file or directory (os error 2)
+    at ignore-listed frames {
+  location: undefined
+}
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[?25h
