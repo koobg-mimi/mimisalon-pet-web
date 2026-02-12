@@ -1,0 +1,88 @@
+services:
+  - type: web
+    name: mimisalon-pet-web
+    env: node
+    region: oregon
+    plan: standard
+    buildCommand: bun run --cwd packages/shared db:generate && bun run --cwd packages/shared build || true && bun run build
+    startCommand: bun run start
+    envVars:
+      # Node Environment
+      - key: NODE_ENV
+        value: production
+      
+      # Database
+      - key: DATABASE_URL
+        sync: false
+      
+      # Authentication (better-auth)
+      - key: BETTER_AUTH_SECRET
+        sync: false
+      - key: BETTER_AUTH_URL
+        sync: false
+      
+      # Email (SMTP)
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      
+      # Phone Verification (Twilio)
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_VERIFY_SERVICE_SID
+        sync: false
+      - key: TWILIO_PHONE_NUMBER
+        sync: false
+      - key: TWILIO_SMS_ENABLED
+        value: "true"
+      
+      # Payment Gateway (PortOne)
+      - key: PORTONE_API_SECRET
+        sync: false
+      - key: PORTONE_CHANNEL_KEY
+        sync: false
+      - key: PORTONE_STORE_ID
+        sync: false
+      - key: NEXT_PUBLIC_PORTONE_CHANNEL_KEY
+        sync: false
+      - key: NEXT_PUBLIC_PORTONE_STORE_ID
+        sync: false
+      
+      # Cloud Storage (Google Cloud Storage)
+      - key: GCS_PROJECT_ID
+        sync: false
+      - key: GCS_APP_BUCKET
+        sync: false
+      
+      # Kakao APIs
+      - key: KAKAO_REST_API_KEY
+        sync: false
+      - key: NEXT_PUBLIC_KAKAO_MAP_KEY
+        sync: false
+      
+      # Logging
+      - key: LOG_LEVEL
+        value: info
+      
+      # Features
+      - key: SMS_SEND_ENABLED
+        value: "true"
+      - key: EMAIL_OTP_ENABLED
+        value: "true"
+      - key: SETTLEMENT_COMMISSION_RATE
+        value: "10"
+      
+      # Customer Service
+      - key: NEXT_PUBLIC_CUSTOMER_SERVICE_PHONE
+        value: "+82-10-4043-9775"
+      - key: NEXT_PUBLIC_CUSTOMER_SERVICE_EMAIL
+        value: "koobg@mimisalon.pet"
+      - key: NEXT_PUBLIC_LOGGING_ENABLED
+        value: "true"
