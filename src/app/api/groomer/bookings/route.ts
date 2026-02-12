@@ -203,42 +203,43 @@ export async function GET(
         customer: {
           id: booking.customer.id,
           name: booking.customer.name || '고객',
-        phone: booking.customer.phoneNumber || undefined,
-        email: booking.customer.email,
-      },
-      pets: booking.bookingPets.map((bp) => ({
-        id: bp.pet.id,
-        name: bp.pet.name,
-        breed: bp.pet.breed?.name || '알 수 없음',
-        weight: bp.pet.weight || undefined,
-        age: bp.pet.age || undefined,
-        specialNotes: bp.pet.specialNeeds || undefined, // specialNeeds 필드 사용
-        services: bp.services.map((s) => ({
-          id: s.service.id,
-          name: s.service.name,
-          price: s.servicePrice,
-          duration: s.serviceDurationMinutes || booking.estimatedDurationMinutes,
+          phone: booking.customer.phoneNumber || undefined,
+          email: booking.customer.email,
+        },
+        pets: booking.bookingPets.map((bp) => ({
+          id: bp.pet.id,
+          name: bp.pet.name,
+          breed: bp.pet.breed?.name || '알 수 없음',
+          weight: bp.pet.weight || undefined,
+          age: bp.pet.age || undefined,
+          specialNotes: bp.pet.specialNeeds || undefined,
+          services: bp.services.map((s) => ({
+            id: s.service.id,
+            name: s.service.name,
+            price: s.servicePrice,
+            duration: s.serviceDurationMinutes || booking.estimatedDurationMinutes,
+          })),
+          options: bp.selectedOptions.map((opt) => ({
+            name: opt.serviceOption.name,
+            price: opt.optionPrice,
+          })),
         })),
-        options: bp.selectedOptions.map((opt) => ({
-          name: opt.serviceOption.name,
-          price: opt.optionPrice,
-        })),
-      })),
-      location: booking.customerAddress
-        ? {
-            name: '고객 주소',
-            address: `${booking.customerAddress.street}, ${booking.customerAddress.city}, ${booking.customerAddress.state}`,
-            detailAddress: undefined,
-            zipCode: booking.customerAddress.zipCode || undefined,
-          }
-        : undefined,
-      serviceType: booking.serviceType,
-      serviceDescription: booking.serviceDescription || undefined,
-      specialRequests: booking.specialRequests || undefined,
-      totalPrice: booking.basePrice + booking.additionalCharges - booking.discountAmount, // totalAmount 대신 계산
-      estimatedDuration: booking.estimatedDurationMinutes,
-      createdAt: booking.createdAt,
-    }));
+        location: booking.customerAddress
+          ? {
+              name: '고객 주소',
+              address: `${booking.customerAddress.street}, ${booking.customerAddress.city}, ${booking.customerAddress.state}`,
+              detailAddress: undefined,
+              zipCode: booking.customerAddress.zipCode || undefined,
+            }
+          : undefined,
+        serviceType: booking.serviceType,
+        serviceDescription: booking.serviceDescription || undefined,
+        specialRequests: booking.specialRequests || undefined,
+        totalPrice: booking.basePrice + booking.additionalCharges - booking.discountAmount,
+        estimatedDuration: booking.estimatedDurationMinutes,
+        createdAt: booking.createdAt,
+      }
+    })
 
     return NextResponse.json({
       bookings: transformedBookings,

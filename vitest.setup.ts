@@ -2,10 +2,51 @@ import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
 import { afterEach, beforeAll, vi } from 'vitest'
 
+// 테스트 환경 시간대 고정 (CI/개발기기별 편차 방지)
+process.env.TZ = 'UTC'
+
+const createStorageMock = () => {
+  let store = new Map<string, string>()
+
+  return {
+    getItem: vi.fn((key: string) => (store.has(key) ? store.get(key)! : null)),
+    setItem: vi.fn((key: string, value: string) => {
+      store.set(key, String(value))
+    }),
+    removeItem: vi.fn((key: string) => {
+      store.delete(key)
+    }),
+    clear: vi.fn(() => {
+      store.clear()
+    }),
+    key: vi.fn((index: number) => Array.from(store.keys())[index] ?? null),
+    get length() {
+      return store.size
+    },
+  }
+}
+
+const localStorageMock = createStorageMock()
+const sessionStorageMock = createStorageMock()
+
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+  writable: true,
+  configurable: true,
+})
+
+Object.defineProperty(window, 'sessionStorage', {
+  value: sessionStorageMock,
+  writable: true,
+  configurable: true,
+})
+
 // Cleanup after each test
 afterEach(() => {
   cleanup()
   vi.clearAllMocks() // Clear all mock call history and implementations
+  window.localStorage.clear()
+  window.sessionStorage.clear()
 })
 
 // Mock Next.js router

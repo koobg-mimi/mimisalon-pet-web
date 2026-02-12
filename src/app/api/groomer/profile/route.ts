@@ -219,6 +219,7 @@ export async function PUT(
       totalBookings: 0,
       joinedAt: updatedProfile.createdAt,
       isVerified: updatedProfile.phoneNumberVerified,
+      isActive: updatedProfile.groomerProfile?.isActive ?? true,
       status: 'ACTIVE',
       birthDate: birthDate || null,
       bankName: updatedProfile.groomerProfile?.bankName || null,

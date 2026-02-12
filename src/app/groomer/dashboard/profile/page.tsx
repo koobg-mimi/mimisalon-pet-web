@@ -41,6 +41,7 @@ interface GroomerProfile {
   totalBookings: number
   joinedAt: string
   isVerified: boolean
+  isActive: boolean
   status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'
   birthDate?: string | null
   bankName?: string | null
