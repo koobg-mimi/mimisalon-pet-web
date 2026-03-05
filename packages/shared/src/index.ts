@@ -8,5 +8,16 @@
 // Export Prisma client
 export { prisma } from './prisma/client'
 
-// Export shared types (to be added as needed)
+// Explicit Prisma exports (avoid workspace/type resolution edge cases)
+export {
+  Prisma,
+  PrismaClient,
+  BookingStatus,
+  PaymentStatus,
+  UserRole,
+  PetType,
+  BreedCategory,
+} from '@prisma/client'
+
+// Export shared types
 export * from './types'
