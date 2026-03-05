@@ -40,6 +40,7 @@ const auth = betterAuth({
     'http://localhost:3000',
     'http://localhost:3001',
     'https://mimisalon.pet',
+    'https://www.mimisalon.pet',
     'https://staging.mimisalon.pet',
     'https://mimisalon-pet-deploy.vercel.app',
   ],
