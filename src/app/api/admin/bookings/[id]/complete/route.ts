@@ -65,11 +65,14 @@ interface AdminBookingsCompleteResponse {
   message: string
 }
 
-export async function PATCH({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}): Promise<NextResponse<AdminBookingsCompleteResponse | ErrorResponse>> {
+export async function PATCH(
+  _request: Request,
+  {
+    params,
+  }: {
+    params: { id: string }
+  }
+): Promise<NextResponse<AdminBookingsCompleteResponse | ErrorResponse>> {
   try {
     const session = await auth.api.getSession({ headers: await headers() })
 
@@ -78,7 +81,7 @@ export async function PATCH({
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { id: bookingId } = await params
+    const { id: bookingId } = params
 
     // Booking 조회
     const booking = await prisma.booking.findUnique({
