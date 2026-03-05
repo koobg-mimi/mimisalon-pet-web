@@ -33,5 +33,5 @@
     ".next-build/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", ".next/", "rule-tests"]
+  "exclude": ["node_modules", ".next/", "rule-tests", "packages/shared/prisma/**/*"]
 }
