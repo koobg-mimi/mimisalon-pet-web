@@ -64,7 +64,7 @@ const serviceSchema = z.object({
         petType: z.enum(['DOG', 'CAT']),
         minWeight: z.number().min(0).nullable().optional(),
         maxWeight: z.number().nullable().optional(),
-        price: z.number().min(5000, '최소 가격은 5,000원 이상이어야 합니다'),
+        price: z.number().min(100, '최소 가격은 100원 이상이어야 합니다'),
       })
     )
     .min(1, '최소 하나의 가격 설정이 필요합니다'),
@@ -164,10 +164,10 @@ export default function NewServicePage() {
     }
 
     // 모든 가격 범위가 유효한지 확인
-    const MIN_PRICE = 5000
+    const MIN_PRICE = 100
     const allValid = priceRanges.every((range) => range.price >= MIN_PRICE)
     if (!allValid) {
-      alert(`모든 가격 범위에서 ${MIN_PRICE.toLocaleString()}원 이상의 가격을 입력해주세요`)
+      alert('서비스 가격은 100원 이상부터 가능합니다')
       return
     }
 
@@ -503,7 +503,7 @@ export default function NewServicePage() {
               {/* 액션 버튼 */}
               <div className="flex flex-col space-y-4">
                 {createServiceMutation.isError && (
-                  <div className="rounded-md bg-destructive/10 p-4 text-destructive">
+                  <div className="bg-destructive/10 text-destructive rounded-md p-4">
                     <p className="font-semibold">오류가 발생했습니다</p>
                     <p className="text-sm">
                       {createServiceMutation.error instanceof Error

@@ -96,10 +96,10 @@ export function useDashboardOverview(timeRange: TimeRange = 'month') {
     refetch,
   } = useGetDashboardOverviewQuery(timeRange, {
     // Skip query execution if:
-    // 1. Session is still being loaded (prevents premature 401 errors)
-    // 2. User is not authenticated (no session.user)
-    // This matches the TanStack Query `enabled` behavior
-    skip: isSessionPending || !session?.user,
+    // 1. Session is still being loaded
+    // 2. User is not authenticated
+    // 3. User is not admin (avoid predictable 401 calls)
+    skip: isSessionPending || !session?.user || session.user.role !== 'ADMIN',
   })
 
   // Return TanStack Query-compatible interface
