@@ -4,8 +4,6 @@ node_modules
 .vercel
 
 node_modules/
-
-node_modules/
 .next/
 out/
 dist/
@@ -13,4 +11,9 @@ dist/
 .env.local
 .env.*.local
 
-.next/
+# Logs / caches / build artifacts
+logs/
+!src/app/api/logs/
+*.log
+.eslintcache
+tsconfig.tsbuildinfo

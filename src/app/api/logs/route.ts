@@ -12,6 +12,24 @@ import { z } from 'zod'
 import { logNetworkError } from '@/lib/logger'
 import { type NetworkErrorLog, sanitizeLog, validateLog } from '@/lib/logger-utils'
 
+const isServerlessRuntime =
+  process.env.VERCEL === '1' || process.env.VERCEL === 'true' || process.env.AWS_LAMBDA_FUNCTION_NAME
+
+function safeLogNetworkError(payload: Record<string, unknown>) {
+  if (isServerlessRuntime) {
+    // Vercel/Lambda 환경에서는 파일 로거 초기화가 실패할 수 있어 콘솔로 폴백
+    console.error('[ClientLog]', JSON.stringify(payload))
+    return
+  }
+
+  try {
+    logNetworkError(payload as any)
+  } catch (error) {
+    console.error('[LogAPI] logNetworkError failed, fallback to console:', error)
+    console.error('[ClientLog]', JSON.stringify(payload))
+  }
+}
+
 // ============================================================================
 // Rate Limiting
 // ============================================================================
@@ -184,8 +202,8 @@ export async function POST(
       // Sanitize log (remove sensitive data)
       const sanitized = sanitizeLog(log as NetworkErrorLog)
 
-      // Log to Winston
-      logNetworkError({
+      // Log safely (serverless-safe fallback included)
+      safeLogNetworkError({
         url: sanitized.url,
         method: sanitized.method,
         statusCode: sanitized.statusCode,
