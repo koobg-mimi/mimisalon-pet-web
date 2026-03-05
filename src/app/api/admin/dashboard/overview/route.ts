@@ -330,57 +330,62 @@ export async function GET(
       }),
       // Top services by booking count
       (async () => {
-        const topServices = await prisma.bookingService.groupBy({
-          by: ['serviceId'],
-          where: {
-            bookingPet: {
-              booking: {
-                createdAt: {
-                  gte: startDate,
-                  lte: endDate,
+        try {
+          const topServices = await prisma.bookingService.groupBy({
+            by: ['serviceId'],
+            where: {
+              bookingPet: {
+                booking: {
+                  createdAt: {
+                    gte: startDate,
+                    lte: endDate,
+                  },
+                  status: 'SERVICE_COMPLETED',
                 },
-                status: 'SERVICE_COMPLETED',
               },
             },
-          },
-          _count: {
-            id: true,
-          },
-          _sum: {
-            servicePrice: true,
-          },
-          orderBy: {
             _count: {
-              id: 'desc',
+              id: true,
             },
-          },
-          take: 10,
-        })
+            _sum: {
+              servicePrice: true,
+            },
+            orderBy: {
+              _count: {
+                id: 'desc',
+              },
+            },
+            take: 10,
+          })
 
-        if (topServices.length === 0) return []
+          if (topServices.length === 0) return []
 
-        const serviceIds = topServices.map((s) => s.serviceId)
-        const services = await prisma.service.findMany({
-          where: { id: { in: serviceIds } },
-          select: {
-            id: true,
-            name: true,
-            description: true,
-          },
-        })
+          const serviceIds = topServices.map((s) => s.serviceId)
+          const services = await prisma.service.findMany({
+            where: { id: { in: serviceIds } },
+            select: {
+              id: true,
+              name: true,
+              description: true,
+            },
+          })
 
-        const serviceMap = new Map(services.map((s) => [s.id, s]))
+          const serviceMap = new Map(services.map((s) => [s.id, s]))
 
-        return topServices.map((ts) => {
-          const service = serviceMap.get(ts.serviceId)
-          return {
-            serviceId: ts.serviceId,
-            name: service?.name || 'Unknown Service',
-            description: service?.description || null,
-            bookingCount: ts._count.id,
-            totalRevenue: ts._sum.servicePrice || 0,
-          }
-        })
+          return topServices.map((ts) => {
+            const service = serviceMap.get(ts.serviceId)
+            return {
+              serviceId: ts.serviceId,
+              name: service?.name || 'Unknown Service',
+              description: service?.description || null,
+              bookingCount: ts._count.id,
+              totalRevenue: ts._sum.servicePrice || 0,
+            }
+          })
+        } catch (error) {
+          console.error('[Dashboard Overview] topServices query failed:', error)
+          return []
+        }
       })(),
       // User growth data
       (async () => {

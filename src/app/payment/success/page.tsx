@@ -60,6 +60,17 @@ export default function PaymentSuccessPage() {
       const data: PaymentVerificationResponse = await response.json()
 
       if (data.success && data.payment) {
+        // 결제는 성공했지만 예약 상태가 실패/취소로 확정된 경우 보호 처리
+        const bookingStatus = data.payment.booking?.status
+        if (bookingStatus === 'BOOKING_FAILED' || bookingStatus === 'SERVICE_CANCELLED') {
+          const reason =
+            bookingStatus === 'BOOKING_FAILED'
+              ? '결제는 완료되었지만 예약 확정에 실패했습니다. 고객센터로 문의해주세요.'
+              : '결제가 취소된 예약입니다.'
+          router.push(`/payment/fail?reason=${encodeURIComponent(reason)}&paymentId=${paymentId}`)
+          throw new Error('BOOKING_STATUS_INVALID')
+        }
+
         console.log('Payment verification successful:', data)
         return data.payment
       } else if (data.status === 'PENDING' || data.status === 'NOT_FOUND') {

@@ -329,10 +329,12 @@ async function handlePaymentSuccess(
         // Determine next status based on current booking status
         switch (booking.status) {
           case BookingStatus.FIRST_PAYMENT_PENDING:
-            // 1차 결제 완료 - 미용사 확인 대기 상태로 전환
+          case BookingStatus.FIRST_PAYMENT_COMPLETE:
+          case BookingStatus.BOOKING_FAILED:
+            // 1차 결제 성공 확정 상태로 복구/전환
             newStatus = BookingStatus.GROOMER_CONFIRM_PENDING
             console.log(
-              `[Webhook] First payment completed for booking ${payment.bookingId} - waiting for groomer confirmation`
+              `[Webhook] First payment completed for booking ${payment.bookingId} - waiting for groomer confirmation (from ${booking.status})`
             )
 
             // 첫 결제 완료 시 미용사에게 알림 발송
@@ -406,14 +408,6 @@ async function handlePaymentFailure(paymentId: string, transactionId: string) {
       return
     }
 
-    // Execute immediate cleanup for failed payment
-    try {
-      await workerApiClient.executePaymentCleanup({ paymentId })
-      console.log(`[Webhook] Executed immediate cleanup for failed payment: ${paymentId}`)
-    } catch (cleanupError) {
-      console.error('[Webhook] Failed to execute immediate cleanup:', cleanupError)
-    }
-
     // Update payment record if exists
     const existingPayment = await prisma.payment.findUnique({
       where: { paymentId },
@@ -423,6 +417,22 @@ async function handlePaymentFailure(paymentId: string, transactionId: string) {
     })
 
     if (existingPayment) {
+      // 이미 성공 처리된 결제는 실패 웹훅으로 역전시키지 않음(레이스 방지)
+      if (existingPayment.status === 'PAID' || existingPayment.status === 'COMPLETED') {
+        console.warn(
+          `[Webhook] Ignoring stale failure webhook for already-paid payment: ${paymentId} (status=${existingPayment.status})`
+        )
+        return
+      }
+
+      // Execute immediate cleanup for failed payment
+      try {
+        await workerApiClient.executePaymentCleanup({ paymentId })
+        console.log(`[Webhook] Executed immediate cleanup for failed payment: ${paymentId}`)
+      } catch (cleanupError) {
+        console.error('[Webhook] Failed to execute immediate cleanup:', cleanupError)
+      }
+
       const payment = await prisma.payment.update({
         where: { paymentId },
         data: {
@@ -499,22 +509,30 @@ async function handlePaymentCancellation(
       `[Webhook] Processing payment cancellation for ${paymentId}, TX: ${transactionId}, Partial: ${isPartial}`
     )
 
-    // Execute immediate cleanup for cancelled payment (unless partial)
-    if (!isPartial) {
-      try {
-        await workerApiClient.executePaymentCleanup({ paymentId })
-        console.log(`[Webhook] Executed immediate cleanup for cancelled payment: ${paymentId}`)
-      } catch (cleanupError) {
-        console.error('[Webhook] Failed to execute immediate cleanup:', cleanupError)
-      }
-    }
-
     // Update payment record if exists
     const existingPayment = await prisma.payment.findUnique({
       where: { paymentId },
     })
 
     if (existingPayment) {
+      // 이미 성공 처리된 결제는 취소 웹훅으로 역전시키지 않음(레이스 방지)
+      if (existingPayment.status === 'PAID' || existingPayment.status === 'COMPLETED') {
+        console.warn(
+          `[Webhook] Ignoring stale cancellation webhook for already-paid payment: ${paymentId} (status=${existingPayment.status})`
+        )
+        return
+      }
+
+      // Execute immediate cleanup for cancelled payment (unless partial)
+      if (!isPartial) {
+        try {
+          await workerApiClient.executePaymentCleanup({ paymentId })
+          console.log(`[Webhook] Executed immediate cleanup for cancelled payment: ${paymentId}`)
+        } catch (cleanupError) {
+          console.error('[Webhook] Failed to execute immediate cleanup:', cleanupError)
+        }
+      }
+
       const payment = await prisma.payment.update({
         where: { paymentId },
         data: {

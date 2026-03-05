@@ -78,6 +78,11 @@ export default function PaymentSuccessPage({ params }: { params: Promise<{ id: s
 
       // Verify endpoint returns a different structure, extract payment data
       if (data.success && data.payment) {
+        const bookingStatus = data.payment.booking?.status
+        if (bookingStatus === 'BOOKING_FAILED' || bookingStatus === 'SERVICE_CANCELLED') {
+          throw new Error('예약 상태가 유효하지 않습니다. 고객센터로 문의해주세요.')
+        }
+
         // Transform the data to match the expected PaymentDetails structure
         const paymentData: PaymentDetails = {
           id: data.payment.id,

@@ -119,7 +119,9 @@ export async function GET(
     }
 
     // 권한 확인: 본인의 결제만 조회 가능
-    if (paymentRecord.customerId && paymentRecord.customerId !== session.user.id) {
+    // customerId가 비어있는 레거시 레코드는 booking.customerId로 보강 검증
+    const paymentOwnerId = paymentRecord.customerId || paymentRecord.booking?.customerId || null
+    if (!paymentOwnerId || paymentOwnerId !== session.user.id) {
       return NextResponse.json<ErrorResponse>({ error: '접근 권한이 없습니다' }, { status: 403 })
     }
 

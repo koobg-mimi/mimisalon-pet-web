@@ -1,13 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
 import { z } from 'zod'
+import auth from '@/lib/auth'
 import { paymentSchema } from '@/lib/validations/payment'
+import { prisma, BookingStatus, PaymentStatus } from '@mimisalon/shared'
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth.api.getSession({ headers: await headers() })
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
+    }
+
     const body = await request.json()
 
     // 요청 데이터 검증
     const paymentData = paymentSchema.parse(body)
+
+    // 예약 소유자 검증
+    const booking = await prisma.booking.findUnique({
+      where: { id: paymentData.bookingId },
+      select: { id: true, customerId: true, status: true },
+    })
+
+    if (!booking) {
+      return NextResponse.json({ error: '예약 정보를 찾을 수 없습니다' }, { status: 404 })
+    }
+
+    if (booking.customerId !== session.user.id) {
+      return NextResponse.json({ error: '접근 권한이 없습니다' }, { status: 403 })
+    }
 
     // 실제 결제 처리 로직
     // 여기서는 모의 결제 처리를 구현
@@ -23,14 +45,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 결제 성공 시 예약 상태 업데이트
-    if ('paymentId' in paymentResult && paymentResult.paymentId) {
-      await updateBookingPaymentStatus(paymentData.bookingId, paymentResult.paymentId)
-    }
-
-    // 영수증 생성 (결제 성공 시에만)
+    // 결제 성공 시 결제 레코드 생성 + 예약 상태 업데이트
     let receipt = null
     if ('paymentId' in paymentResult && paymentResult.paymentId) {
+      const methodLabel = paymentData.paymentMethod.type
+      const amount = paymentData.finalAmount || paymentData.totalAmount
+
+      await prisma.payment.create({
+        data: {
+          paymentId: paymentResult.paymentId,
+          bookingId: paymentData.bookingId,
+          customerId: session.user.id,
+          amount,
+          currency: 'KRW',
+          method: methodLabel,
+          status: PaymentStatus.PAID,
+          paidAt: new Date(),
+          orderName: `Booking ${paymentData.bookingId}`,
+          transactionId: paymentResult.transactionId,
+        },
+      })
+
+      await updateBookingPaymentStatus(paymentData.bookingId)
       receipt = await generateReceipt()
     }
 
@@ -134,20 +170,30 @@ async function processBankTransferPayment() {
 }
 
 // 예약 결제 상태 업데이트
-async function updateBookingPaymentStatus(bookingId: string, paymentId: string) {
-  // 실제로는 데이터베이스 업데이트
-  console.log(`Updating booking ${bookingId} with payment ${paymentId}`)
+async function updateBookingPaymentStatus(bookingId: string) {
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    select: { status: true },
+  })
 
-  // Prisma 예시:
-  // await prisma.booking.update({
-  //   where: { id: bookingId },
-  //   data: {
-  //     status: "CONFIRMED",
-  //     paymentStatus: "PAID",
-  //     paymentId: paymentId,
-  //     paidAt: new Date(),
-  //   }
-  // })
+  if (!booking) return
+
+  let nextStatus = booking.status
+
+  if (booking.status === BookingStatus.FIRST_PAYMENT_PENDING) {
+    nextStatus = BookingStatus.GROOMER_CONFIRM_PENDING
+  } else if (booking.status === BookingStatus.ADDITIONAL_PAYMENT_PENDING) {
+    nextStatus = BookingStatus.WORK_IN_PROGRESS
+  }
+
+  await prisma.booking.update({
+    where: { id: bookingId },
+    data: {
+      status: nextStatus,
+      paymentStatus: PaymentStatus.PAID,
+      updatedAt: new Date(),
+    },
+  })
 }
 
 // 영수증 생성

@@ -33,7 +33,15 @@ export async function GET(request: NextRequest) {
 
     // Build where clause
     const where: Prisma.PaymentWhereInput = {
-      customerId: user.id,
+      OR: [
+        { customerId: user.id },
+        {
+          customerId: null,
+          booking: {
+            customerId: user.id,
+          },
+        },
+      ],
     }
 
     // Handle multiple statuses (comma-separated)
