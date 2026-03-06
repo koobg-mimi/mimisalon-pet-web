@@ -183,11 +183,30 @@ export default function GroomerBookingDetailPage({ params }: { params: Promise<{
         throw new Error(error.error || '완료 처리에 실패했습니다')
       }
 
-      return response.json()
+      return response.json() as Promise<{
+        success: boolean
+        booking: {
+          id: string
+          status: string
+          actualEndTime: string | null
+        }
+      }>
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['groomer', 'bookings', resolvedParams.id] })
-      queryClient.invalidateQueries({ queryKey: ['groomer', 'bookings'] })
+    onSuccess: (result) => {
+      queryClient.setQueryData<BookingDetail>(['groomer', 'bookings', resolvedParams.id], (prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          status: result.booking.status,
+          actualEndTime: result.booking.actualEndTime,
+        }
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: ['groomer', 'bookings', resolvedParams.id],
+        refetchType: 'active',
+      })
+      queryClient.invalidateQueries({ queryKey: ['groomer', 'bookings'], refetchType: 'active' })
       alert('모든 서비스가 완료되었습니다')
     },
     onError: (error: Error) => {
