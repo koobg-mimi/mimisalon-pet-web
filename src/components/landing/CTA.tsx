@@ -1,26 +1,36 @@
 'use client'
 
-import { useSession } from '@/lib/auth-client'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowRight, Calendar, LogIn, Sparkles } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
 
-export function CTA() {
-  const { data: session } = useSession()
+interface LandingSession {
+  user?: {
+    role?: 'ADMIN' | 'GROOMER' | 'CUSTOMER' | string
+  } | null
+}
+
+export function CTA({ session }: { session: LandingSession | null | undefined }) {
   const router = useRouter()
 
   const handleLoginClick = () => {
+    console.log('CTA.handleLoginClick triggered, session:', session)
     if (session?.user) {
       const userRole = session.user.role
       if (userRole === 'ADMIN') {
+        console.log('Navigating to admin dashboard')
         router.push('/admin/dashboard/overview')
       } else if (userRole === 'GROOMER') {
+        console.log('Navigating to groomer dashboard')
         router.push('/groomer/dashboard/overview')
       } else if (userRole === 'CUSTOMER') {
+        console.log('Navigating to customer dashboard')
         router.push('/customer/dashboard/overview')
       }
     } else {
+      console.log('No session, navigating to signin')
       router.push('/auth/signin')
     }
   }
@@ -91,13 +101,15 @@ export function CTA() {
                       <ArrowRight className="ml-3 h-5 w-5" />
                     </Button>
                     <Button
+                      asChild
                       size="lg"
-                      onClick={handleLoginClick}
                       variant="outline"
                       className="h-auto border-2 border-purple-600 px-8 py-4 text-lg font-bold text-purple-600 transition hover:bg-purple-50"
                     >
-                      <LogIn className="mr-3 h-5 w-5" />
-                      로그인하기
+                      <Link href="/auth/signin" aria-label="로그인하기">
+                        <LogIn className="mr-3 h-5 w-5" />
+                        로그인하기
+                      </Link>
                     </Button>
                   </>
                 )}

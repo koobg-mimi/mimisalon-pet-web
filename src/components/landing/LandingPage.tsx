@@ -1,5 +1,7 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
+import { useSession } from '@/lib/auth-client'
 import { CTA } from './CTA'
 import { Footer } from './Footer'
 import { Header } from './Header'
@@ -7,9 +9,22 @@ import { Card, CardContent } from '../ui/card'
 import { Sparkles, Heart, Shield, Clock, Star } from 'lucide-react'
 
 export function LandingPage() {
+  const router = useRouter()
+  const { data: session } = useSession()
+
+  const handleBookingClick = () => {
+    console.log('LandingPage.handleBookingClick triggered, session:', session)
+    if (!session?.user) {
+      console.log('No session, navigating to signin with callback')
+      router.push('/auth/signin?callbackUrl=/booking/new')
+    } else {
+      console.log('Session exists, navigating to booking')
+      router.push('/booking/new')
+    }
+  }
   return (
     <div className="bg-background min-h-screen" data-cy="landing-page">
-      <Header />
+      <Header session={session} />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-b from-purple-50 via-pink-50 to-white py-20 sm:py-32">
@@ -35,15 +50,21 @@ export function LandingPage() {
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
               <button
-                onClick={() => {
-                  const event = new CustomEvent('handleBookingClick')
-                  window.dispatchEvent(event)
-                }}
+                onClick={handleBookingClick}
                 className="rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-4 font-semibold text-white shadow-lg transition hover:shadow-xl hover:from-purple-700 hover:to-pink-700"
               >
                 지금 예약하기 →
               </button>
-              <button className="rounded-xl border-2 border-gray-300 px-8 py-4 font-semibold text-gray-700 transition hover:border-purple-300 hover:bg-purple-50">
+              <button 
+                onClick={() => {
+                  // Scroll to features section smoothly
+                  const featuresSection = document.getElementById('features-section')
+                  if (featuresSection) {
+                    featuresSection.scrollIntoView({ behavior: 'smooth' })
+                  }
+                }}
+                className="rounded-xl border-2 border-gray-300 px-8 py-4 font-semibold text-gray-700 transition hover:border-purple-300 hover:bg-purple-50"
+              >
                 서비스 알아보기
               </button>
             </div>
@@ -52,7 +73,7 @@ export function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="container mx-auto px-4 py-20 sm:py-28">
+      <section id="features-section" className="container mx-auto px-4 py-20 sm:py-28">
         <div className="mx-auto max-w-6xl">
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-4xl font-bold text-gray-900">미미살롱펫만의 특별함</h2>
@@ -184,7 +205,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      <CTA />
+      <CTA session={session} />
       <Footer />
     </div>
   )

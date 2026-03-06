@@ -1,28 +1,53 @@
 'use client'
 
 import { useState } from 'react'
-import { useSession } from '@/lib/auth-client'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
+import Link from 'next/link'
 import { Calendar, Home, LogIn, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 
-export function Header() {
-  const { data: session } = useSession()
+interface LandingSession {
+  user?: {
+    name?: string | null
+    role?: 'ADMIN' | 'GROOMER' | 'CUSTOMER' | string
+  } | null
+}
+
+export function Header({ session }: { session: LandingSession | null | undefined }) {
   const router = useRouter()
+  const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
+  // Determine if user is already on dashboard
+  const isDashboard = 
+    pathname.includes('/dashboard') || 
+    pathname.includes('/bookings') ||
+    pathname.includes('/pets') ||
+    pathname.includes('/payments') ||
+    pathname.includes('/profile')
+
   const handleLoginClick = () => {
+    console.log('Header.handleLoginClick triggered, session:', session, 'pathname:', pathname)
     if (session?.user) {
+      // If already on dashboard, don't navigate
+      if (isDashboard) {
+        console.log('Already on dashboard, button disabled')
+        return
+      }
       const userRole = session.user.role
       if (userRole === 'ADMIN') {
+        console.log('Navigating to admin dashboard')
         router.push('/admin/dashboard/overview')
       } else if (userRole === 'GROOMER') {
+        console.log('Navigating to groomer dashboard')
         router.push('/groomer/dashboard/overview')
       } else if (userRole === 'CUSTOMER') {
+        console.log('Navigating to customer dashboard')
         router.push('/customer/dashboard/overview')
       }
     } else {
+      console.log('No session, navigating to signin')
       router.push('/auth/signin')
     }
   }
@@ -75,7 +100,8 @@ export function Header() {
                   variant="outline"
                   size="default"
                   onClick={handleLoginClick}
-                  className="font-medium"
+                  disabled={isDashboard}
+                  className={`font-medium ${isDashboard ? 'opacity-50 cursor-not-allowed' : ''}`}
                   aria-label={
                     currentUser.role === 'CUSTOMER' ? '예약현황으로 이동' : '대시보드로 이동'
                   }
@@ -97,14 +123,15 @@ export function Header() {
             ) : (
               <div className="flex items-center space-x-3">
                 <Button
+                  asChild
                   variant="outline"
                   size="default"
-                  onClick={handleLoginClick}
                   className="font-medium"
-                  aria-label="로그인 페이지로 이동"
                 >
-                  <LogIn className="mr-2 h-4 w-4" />
-                  로그인
+                  <Link href="/auth/signin" aria-label="로그인 페이지로 이동">
+                    <LogIn className="mr-2 h-4 w-4" />
+                    로그인
+                  </Link>
                 </Button>
                 <Button
                   variant="cta"
@@ -167,7 +194,8 @@ export function Header() {
                       handleLoginClick()
                       setMobileMenuOpen(false)
                     }}
-                    className="mx-2 justify-start font-medium"
+                    disabled={isDashboard}
+                    className={`mx-2 justify-start font-medium ${isDashboard ? 'opacity-50 cursor-not-allowed' : ''}`}
                     aria-label={
                       currentUser.role === 'CUSTOMER' ? '예약현황으로 이동' : '대시보드로 이동'
                     }
@@ -192,17 +220,19 @@ export function Header() {
               ) : (
                 <>
                   <Button
+                    asChild
                     variant="outline"
                     size="lg"
-                    onClick={() => {
-                      handleLoginClick()
-                      setMobileMenuOpen(false)
-                    }}
                     className="mx-2 justify-start font-medium"
-                    aria-label="로그인 페이지로 이동"
                   >
-                    <LogIn className="mr-3 h-5 w-5" />
-                    로그인
+                    <Link 
+                      href="/auth/signin"
+                      onClick={() => setMobileMenuOpen(false)}
+                      aria-label="로그인 페이지로 이동"
+                    >
+                      <LogIn className="mr-3 h-5 w-5" />
+                      로그인
+                    </Link>
                   </Button>
                   <Button
                     variant="mobile-primary"
