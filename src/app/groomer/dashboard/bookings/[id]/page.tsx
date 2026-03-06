@@ -584,7 +584,7 @@ export default function GroomerBookingDetailPage({ params }: { params: Promise<{
                   {(() => {
                     if (!booking.actualEndTime) return '모든 서비스가 성공적으로 완료되었습니다'
                     const parsedDate = new Date(booking.actualEndTime)
-                    if (!isValid(parsedDate)) return '완료 시간 정보 없음'
+                    if (!isValid(parsedDate)) return `완료 시간: ${booking.actualEndTime}`
                     return `완료 시간: ${format(parsedDate, 'yyyy-MM-dd HH:mm:ss', { locale: ko })}`
                   })()}
                 </p>

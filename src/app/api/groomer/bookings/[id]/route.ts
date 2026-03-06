@@ -252,12 +252,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
       // 시간 정보
       estimatedEndTime: calculateEndTime(booking.serviceTime, booking.estimatedDurationMinutes),
-      actualStartTime: booking.actualStartTime
-        ? format(booking.actualStartTime, 'HH:mm', { locale: ko })
-        : null,
-      actualEndTime: booking.actualEndTime
-        ? format(booking.actualEndTime, 'HH:mm', { locale: ko })
-        : null,
+      actualStartTime: booking.actualStartTime ? booking.actualStartTime.toISOString() : null,
+      actualEndTime: booking.actualEndTime ? booking.actualEndTime.toISOString() : null,
 
       createdAt: booking.createdAt.toISOString(),
       updatedAt: booking.updatedAt.toISOString(),
