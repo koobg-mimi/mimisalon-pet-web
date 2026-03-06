@@ -30,11 +30,14 @@ interface AdminBookingCancelResponse {
   message: string
 }
 
-export async function PATCH({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}): Promise<NextResponse<AdminBookingCancelResponse | ErrorResponse>> {
+export async function PATCH(
+  _request: Request,
+  {
+    params,
+  }: {
+    params: Promise<{ id: string }>
+  }
+): Promise<NextResponse<AdminBookingCancelResponse | ErrorResponse>> {
   try {
     const session = await auth.api.getSession({ headers: await headers() })
 
