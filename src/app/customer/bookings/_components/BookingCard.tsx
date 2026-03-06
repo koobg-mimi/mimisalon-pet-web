@@ -121,7 +121,7 @@ const BookingCard = React.forwardRef<HTMLDivElement, BookingCardProps>(
             )}
             {booking.status === 'SERVICE_COMPLETED' && (
               <Button size="sm" asChild>
-                <Link href={`/review/create?bookingId=${booking.id}`}>리뷰 작성</Link>
+                <Link href={`/customer/review/create?bookingId=${booking.id}`}>리뷰 작성</Link>
               </Button>
             )}
           </div>

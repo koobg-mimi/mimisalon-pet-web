@@ -457,7 +457,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
             <div className="space-x-2">
               {booking.status === 'COMPLETED' && isCustomer && (
                 <Button asChild>
-                  <Link href={`/review/create?bookingId=${booking.id}`}>리뷰 작성</Link>
+                  <Link href={`/customer/review/create?bookingId=${booking.id}`}>리뷰 작성</Link>
                 </Button>
               )}
               {booking.payment?.status === 'COMPLETED' && (
