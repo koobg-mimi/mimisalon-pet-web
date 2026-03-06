@@ -1,6 +1,6 @@
 'use client'
 
-import { format } from 'date-fns'
+import { format, isValid } from 'date-fns'
 import { ko } from 'date-fns/locale'
 
 import { use } from 'react'
@@ -581,9 +581,12 @@ export default function GroomerBookingDetailPage({ params }: { params: Promise<{
                   서비스가 완료되었습니다
                 </h3>
                 <p className="text-muted-foreground text-sm sm:text-base">
-                  {booking.actualEndTime
-                    ? `완료 시간: ${format(new Date(booking.actualEndTime), 'yyyy-MM-dd HH:mm:ss', { locale: ko })}`
-                    : '모든 서비스가 성공적으로 완료되었습니다'}
+                  {(() => {
+                    if (!booking.actualEndTime) return '모든 서비스가 성공적으로 완료되었습니다'
+                    const parsedDate = new Date(booking.actualEndTime)
+                    if (!isValid(parsedDate)) return '완료 시간 정보 없음'
+                    return `완료 시간: ${format(parsedDate, 'yyyy-MM-dd HH:mm:ss', { locale: ko })}`
+                  })()}
                 </p>
               </div>
             </CardContent>
