@@ -16,11 +16,14 @@ interface AdminBookingDeleteResponse {
   message: string
 }
 
-export async function DELETE({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}): Promise<NextResponse<AdminBookingDeleteResponse | ErrorResponse>> {
+export async function DELETE(
+  _request: Request,
+  {
+    params,
+  }: {
+    params: Promise<{ id: string }>
+  }
+): Promise<NextResponse<AdminBookingDeleteResponse | ErrorResponse>> {
   try {
     const session = await auth.api.getSession({ headers: await headers() })
 
