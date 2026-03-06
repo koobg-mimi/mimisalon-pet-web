@@ -85,11 +85,27 @@ interface ErrorResponse {
   error: string
 }
 
+const PENDING_STATUSES: BookingStatus[] = [
+  BookingStatus.FIRST_PAYMENT_PENDING,
+  BookingStatus.FIRST_PAYMENT_VERIFY,
+  BookingStatus.GROOMER_CONFIRM_PENDING,
+  BookingStatus.ADDITIONAL_PAYMENT_PENDING,
+]
+
+function sumStatusCount(
+  grouped: Array<{ status: BookingStatus; _count: { _all: number } }>,
+  targets?: BookingStatus[]
+): number {
+  if (!targets) return grouped.reduce((acc, g) => acc + g._count._all, 0)
+  const set = new Set(targets)
+  return grouped.reduce((acc, g) => acc + (set.has(g.status) ? g._count._all : 0), 0)
+}
+
 async function safeWithTimeout<T>(
   label: string,
   work: () => Promise<T>,
   fallback: T,
-  timeoutMs = 2500
+  timeoutMs = 1800
 ): Promise<T> {
   try {
     return await Promise.race([
@@ -143,69 +159,77 @@ export async function GET(
     const previousEndDate = new Date(startDate.getTime() - 1)
     const previousStartDate = new Date(previousEndDate.getTime() - periodDuration)
 
-    // Core metrics first (critical)
-    const [
-      totalBookings,
-      completedBookings,
-      pendingBookings,
-      cancelledBookings,
-      totalRevenue,
-      totalCustomers,
-      totalGroomers,
-      reviewStats,
-      previousTotalBookings,
-      previousCompletedBookings,
-      previousTotalRevenue,
-      previousTotalCustomers,
-    ] = await Promise.all([
-      prisma.booking.count({ where: { createdAt: { gte: startDate, lte: endDate } } }),
-      prisma.booking.count({
-        where: { status: 'SERVICE_COMPLETED', createdAt: { gte: startDate, lte: endDate } },
-      }),
-      prisma.booking.count({
-        where: {
-          status: {
-            in: [
-              'FIRST_PAYMENT_PENDING',
-              'FIRST_PAYMENT_VERIFY',
-              'GROOMER_CONFIRM_PENDING',
-              'ADDITIONAL_PAYMENT_PENDING',
-            ],
-          },
-          createdAt: { gte: startDate, lte: endDate },
-        },
-      }),
-      prisma.booking.count({
-        where: { status: 'SERVICE_CANCELLED', createdAt: { gte: startDate, lte: endDate } },
-      }),
-      prisma.payment.aggregate({
-        where: { status: 'COMPLETED', createdAt: { gte: startDate, lte: endDate } },
-        _sum: { amount: true },
-      }),
-      prisma.user.count({ where: { role: 'CUSTOMER', createdAt: { gte: startDate, lte: endDate } } }),
-      prisma.user.count({ where: { role: 'GROOMER', createdAt: { gte: startDate, lte: endDate } } }),
-      prisma.review.aggregate({
-        where: { createdAt: { gte: startDate, lte: endDate } },
-        _avg: { rating: true },
-        _count: { id: true },
-      }),
-      prisma.booking.count({ where: { createdAt: { gte: previousStartDate, lte: previousEndDate } } }),
-      prisma.booking.count({
-        where: {
-          status: 'SERVICE_COMPLETED',
-          createdAt: { gte: previousStartDate, lte: previousEndDate },
-        },
-      }),
-      prisma.payment.aggregate({
-        where: { status: 'COMPLETED', createdAt: { gte: previousStartDate, lte: previousEndDate } },
-        _sum: { amount: true },
-      }),
-      prisma.user.count({
-        where: { role: 'CUSTOMER', createdAt: { gte: previousStartDate, lte: previousEndDate } },
-      }),
+    // connection_limit=1 환경에서도 버티도록 핵심 쿼리 수/동시성 자체를 줄임
+    const currentBookingGrouped = await prisma.booking.groupBy({
+      by: ['status'],
+      where: {
+        createdAt: { gte: startDate, lte: endDate },
+      },
+      _count: { _all: true },
+    })
+
+    const previousBookingGrouped = await prisma.booking.groupBy({
+      by: ['status'],
+      where: {
+        createdAt: { gte: previousStartDate, lte: previousEndDate },
+      },
+      _count: { _all: true },
+    })
+
+    const totalRevenue = await prisma.payment.aggregate({
+      where: {
+        status: 'COMPLETED',
+        createdAt: { gte: startDate, lte: endDate },
+      },
+      _sum: { amount: true },
+    })
+
+    const previousTotalRevenue = await prisma.payment.aggregate({
+      where: {
+        status: 'COMPLETED',
+        createdAt: { gte: previousStartDate, lte: previousEndDate },
+      },
+      _sum: { amount: true },
+    })
+
+    const userRoleGrouped = await prisma.user.groupBy({
+      by: ['role'],
+      where: {
+        createdAt: { gte: startDate, lte: endDate },
+      },
+      _count: { _all: true },
+    })
+
+    const previousCustomerCount = await prisma.user.count({
+      where: {
+        role: 'CUSTOMER',
+        createdAt: { gte: previousStartDate, lte: previousEndDate },
+      },
+    })
+
+    const reviewStats = await prisma.review.aggregate({
+      where: {
+        createdAt: { gte: startDate, lte: endDate },
+      },
+      _avg: { rating: true },
+      _count: { id: true },
+    })
+
+    const totalBookings = sumStatusCount(currentBookingGrouped)
+    const completedBookings = sumStatusCount(currentBookingGrouped, [BookingStatus.SERVICE_COMPLETED])
+    const cancelledBookings = sumStatusCount(currentBookingGrouped, [BookingStatus.SERVICE_CANCELLED])
+    const pendingBookings = sumStatusCount(currentBookingGrouped, PENDING_STATUSES)
+
+    const previousTotalBookings = sumStatusCount(previousBookingGrouped)
+    const previousCompletedBookings = sumStatusCount(previousBookingGrouped, [
+      BookingStatus.SERVICE_COMPLETED,
     ])
 
-    // Non-critical blocks (fallback on failure/timeout)
+    const totalCustomers =
+      userRoleGrouped.find((g) => g.role === 'CUSTOMER')?._count._all ?? 0
+    const totalGroomers = userRoleGrouped.find((g) => g.role === 'GROOMER')?._count._all ?? 0
+
+    // 비핵심 데이터는 fallback 허용
     const [recentBookings, topServicesData, userGrowthData, monthlyRevenueData] = await Promise.all([
       safeWithTimeout(
         'recentBookings',
@@ -266,27 +290,34 @@ export async function GET(
         async () => {
           const groupByUnit = range === 'year' ? 'month' : 'day'
           const users = await prisma.user.findMany({
-            where: { role: 'CUSTOMER', createdAt: { gte: startDate, lte: endDate } },
+            where: {
+              role: 'CUSTOMER',
+              createdAt: { gte: startDate, lte: endDate },
+            },
             select: { createdAt: true },
             orderBy: { createdAt: 'asc' },
           })
 
           const groupedUsers = new Map<string, number>()
-          users.forEach((user) => {
+          for (const user of users) {
             const date = new Date(user.createdAt)
             const periodKey =
               groupByUnit === 'day'
                 ? date.toISOString().split('T')[0]
                 : `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`
             groupedUsers.set(periodKey, (groupedUsers.get(periodKey) || 0) + 1)
-          })
+          }
 
           const sortedPeriods = Array.from(groupedUsers.keys()).sort()
           let cumulative = 0
           return sortedPeriods.map((period) => {
             const newUsers = groupedUsers.get(period) || 0
             cumulative += newUsers
-            return { period, newUsers, cumulativeUsers: cumulative }
+            return {
+              period,
+              newUsers,
+              cumulativeUsers: cumulative,
+            }
           })
         },
         [] as UserGrowthData[]
@@ -305,11 +336,14 @@ export async function GET(
               createdAt: { gte: startOfPeriod, lte: endDate },
               status: 'SERVICE_COMPLETED',
             },
-            select: { createdAt: true, totalPrice: true },
+            select: {
+              createdAt: true,
+              totalPrice: true,
+            },
           })
 
           const revenueByMonth = new Map<string, { revenue: number; count: number }>()
-          bookings.forEach((booking) => {
+          for (const booking of bookings) {
             const date = new Date(booking.createdAt)
             const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
             const existing = revenueByMonth.get(monthKey) || { revenue: 0, count: 0 }
@@ -317,7 +351,7 @@ export async function GET(
               revenue: existing.revenue + booking.totalPrice,
               count: existing.count + 1,
             })
-          })
+          }
 
           const monthlyData: MonthlyRevenueData[] = []
           for (let i = monthsBack - 1; i >= 0; i--) {
@@ -325,8 +359,13 @@ export async function GET(
             date.setMonth(date.getMonth() - i)
             const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
             const data = revenueByMonth.get(monthKey) || { revenue: 0, count: 0 }
-            monthlyData.push({ month: monthKey, revenue: data.revenue, bookingCount: data.count })
+            monthlyData.push({
+              month: monthKey,
+              revenue: data.revenue,
+              bookingCount: data.count,
+            })
           }
+
           return monthlyData
         },
         [] as MonthlyRevenueData[]
@@ -364,7 +403,7 @@ export async function GET(
         pendingBookings: 0,
         cancelledBookings: 0,
         totalRevenue: previousTotalRevenue._sum.amount || 0,
-        totalCustomers: previousTotalCustomers,
+        totalCustomers: previousCustomerCount,
         totalGroomers: 0,
         completionRate: Math.round(previousCompletionRate * 100) / 100,
         avgBookingValue: Math.round(previousAvgBookingValue * 100) / 100,
