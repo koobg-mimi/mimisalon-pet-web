@@ -70,7 +70,7 @@ export async function PATCH(
   {
     params,
   }: {
-    params: { id: string }
+    params: Promise<{ id: string }>
   }
 ): Promise<NextResponse<AdminBookingsCompleteResponse | ErrorResponse>> {
   try {
@@ -81,7 +81,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { id: bookingId } = params
+    const { id: bookingId } = await params
 
     // Booking 조회
     const booking = await prisma.booking.findUnique({
