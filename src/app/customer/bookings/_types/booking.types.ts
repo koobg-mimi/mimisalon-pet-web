@@ -34,6 +34,7 @@ export interface Booking {
     name: string
     email: string
   }
+  hasReview?: boolean
 }
 
 export interface BookingsResponse {

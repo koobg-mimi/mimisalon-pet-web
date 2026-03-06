@@ -156,6 +156,12 @@ export async function GET(request: NextRequest) {
             paidAt: true,
           },
         },
+        reviews: {
+          select: {
+            id: true,
+          },
+          take: 1,
+        },
       },
       orderBy: {
         [sortBy]: sortOrder,
@@ -189,6 +195,7 @@ export async function GET(request: NextRequest) {
       payments: booking.payments,
       customerRating: booking.customerRating,
       customerReview: booking.customerReview,
+      hasReview: booking.reviews.length > 0 || !!booking.customerReview,
       createdAt: booking.createdAt,
       updatedAt: booking.updatedAt,
     }))
