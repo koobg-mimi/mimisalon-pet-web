@@ -160,13 +160,64 @@ export default function GroomerBookingDetailPage({ params }: { params: Promise<{
     },
   })
 
-  const handleServiceUpdate = async (serviceId: string, status: string) => {
-    try {
-      // Update service status
-      console.log('Updating service:', serviceId, status)
-    } catch (error) {
-      console.error('Error updating service:', error)
-    }
+  const updateStatusMutation = useMutation({
+    mutationFn: async (nextStatus: 'WORK_IN_PROGRESS' | 'SERVICE_COMPLETED') => {
+      const response = await fetch(`/api/groomer/bookings/${resolvedParams.id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: nextStatus }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || '상태 변경에 실패했습니다')
+      }
+
+      return response.json() as Promise<{
+        message: string
+        booking: {
+          id: string
+          status: string
+          startedAt: string | null
+          completedAt: string | null
+        }
+      }>
+    },
+    onSuccess: (result) => {
+      queryClient.setQueryData<BookingDetail>(['groomer', 'bookings', resolvedParams.id], (prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          status: result.booking.status,
+          actualStartTime: result.booking.startedAt,
+          actualEndTime: result.booking.completedAt,
+        }
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: ['groomer', 'bookings', resolvedParams.id],
+        refetchType: 'active',
+      })
+      queryClient.invalidateQueries({ queryKey: ['groomer', 'bookings'], refetchType: 'active' })
+    },
+    onError: (error: Error) => {
+      console.error('Error updating booking status:', error)
+      alert(error.message || '상태 변경 중 오류가 발생했습니다')
+    },
+  })
+
+  const handleServiceUpdate = async (_serviceId: string, status: string) => {
+    const nextStatus =
+      status === 'IN_PROGRESS'
+        ? 'WORK_IN_PROGRESS'
+        : status === 'COMPLETED'
+          ? 'SERVICE_COMPLETED'
+          : null
+
+    if (!nextStatus) return
+    updateStatusMutation.mutate(nextStatus)
   }
 
   const completeAllMutation = useMutation({
@@ -516,6 +567,7 @@ export default function GroomerBookingDetailPage({ params }: { params: Promise<{
                                   <Button
                                     size="sm"
                                     onClick={() => handleServiceUpdate(service.id, 'IN_PROGRESS')}
+                                    disabled={updateStatusMutation.isPending || completeAllMutation.isPending}
                                     className="flex-1 text-xs sm:flex-initial sm:text-sm"
                                   >
                                     <PlayIcon className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
@@ -527,6 +579,7 @@ export default function GroomerBookingDetailPage({ params }: { params: Promise<{
                                   <Button
                                     size="sm"
                                     onClick={() => handleServiceUpdate(service.id, 'COMPLETED')}
+                                    disabled={updateStatusMutation.isPending || completeAllMutation.isPending}
                                     className="flex-1 text-xs sm:flex-initial sm:text-sm"
                                   >
                                     <CheckCircleIcon className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
